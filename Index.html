@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Car Dhundo — Find the Car That Fits Your Life</title>
+
+  <!-- Google Analytics GA4 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-YQ93EFYPEZ"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-YQ93EFYPEZ');
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;0,9..144,900;1,9..144,300&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black: #0a0a0a;
+      --white: #fafaf8;
+      --navy: #1a2744;
+      --navy-light: #243259;
+      --muted: #6b6b6b;
+      --border: #e2e2de;
+      --cream: #f5f4f0;
+      --accent: #1a2744;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--white);
+      color: var(--black);
+      font-size: 16px;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      padding: 20px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(250,250,248,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.3s;
+    }
+    nav.scrolled { border-bottom-color: var(--border); }
+
+    .logo {
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+    }
+    .logo img {
+      height: 44px;
+      width: auto;
+      display: block;
+    }
+
+    .nav-cta {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      background: var(--black);
+      color: var(--white);
+      border: none;
+      padding: 10px 20px;
+      border-radius: 100px;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+      text-decoration: none;
+    }
+    .nav-cta:hover { background: var(--navy); transform: translateY(-1px); }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 120px 24px 80px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -20%;
+      right: -15%;
+      width: 60vw;
+      height: 60vw;
+      max-width: 500px;
+      max-height: 500px;
+      background: radial-gradient(circle, rgba(26,39,68,0.07) 0%, transparent 70%);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .hero-eyebrow {
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--navy);
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      opacity: 0;
+      transform: translateY(16px);
+      animation: fadeUp 0.7s 0.1s forwards;
+    }
+    .hero-eyebrow::before {
+      content: '';
+      display: inline-block;
+      width: 28px;
+      height: 2px;
+      background: var(--navy);
+      flex-shrink: 0;
+    }
+
+    h1 {
+      font-family: 'Fraunces', serif;
+      font-size: clamp(2.4rem, 8vw, 5rem);
+      font-weight: 900;
+      line-height: 1.08;
+      letter-spacing: -0.03em;
+      color: var(--black);
+      margin-bottom: 24px;
+      max-width: 720px;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeUp 0.7s 0.2s forwards;
+    }
+    h1 em {
+      font-style: italic;
+      font-weight: 300;
+      color: var(--navy);
+    }
+
+    .hero-sub {
+      font-size: clamp(1rem, 3.5vw, 1.2rem);
+      font-weight: 400;
+      color: var(--muted);
+      max-width: 480px;
+      line-height: 1.6;
+      margin-bottom: 40px;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeUp 0.7s 0.35s forwards;
+    }
+
+    .hero-cta {
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeUp 0.7s 0.5s forwards;
+    }
+
+    .btn-primary {
+      display: block;
+      width: 100%;
+      max-width: 360px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 1rem;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      text-align: center;
+      text-decoration: none;
+      background: var(--black);
+      color: var(--white);
+      border: none;
+      padding: 18px 32px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+    }
+    .btn-primary:hover {
+      background: var(--navy);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(26,39,68,0.2);
+    }
+
+    .hero-trust {
+      margin-top: 40px;
+      font-size: 0.8rem;
+      color: var(--muted);
+      opacity: 0;
+      animation: fadeUp 0.7s 0.65s forwards;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .hero-trust span { color: var(--navy); font-weight: 600; }
+
+    /* ── SECTION BASE ── */
+    section { padding: 96px 24px; }
+    .section-inner { max-width: 720px; margin: 0 auto; }
+
+    /* ── PROBLEM ── */
+    .problem {
+      background: var(--black);
+      color: var(--white);
+      padding: 100px 24px;
+    }
+    .problem .section-inner { text-align: center; }
+
+    .problem-text {
+      font-family: 'Fraunces', serif;
+      font-size: clamp(1.8rem, 6vw, 3.4rem);
+      font-weight: 700;
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      color: var(--white);
+    }
+    .problem-text em {
+      font-style: italic;
+      font-weight: 300;
+      color: rgba(255,255,255,0.45);
+    }
+    .problem-sub {
+      margin-top: 24px;
+      font-size: 1rem;
+      color: rgba(255,255,255,0.45);
+      font-weight: 400;
+    }
+
+    /* ── HOW IT WORKS ── */
+    .how { background: var(--cream); }
+    .section-label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--navy);
+      margin-bottom: 14px;
+    }
+    .section-title {
+      font-family: 'Fraunces', serif;
+      font-size: clamp(1.8rem, 5.5vw, 2.8rem);
+      font-weight: 800;
+      line-height: 1.12;
+      letter-spacing: -0.025em;
+      margin-bottom: 56px;
+    }
+
+    .steps {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+    .step {
+      display: grid;
+      grid-template-columns: 48px 1fr;
+      gap: 20px;
+      padding: 28px 0;
+      border-top: 1px solid var(--border);
+      position: relative;
+    }
+    .step:last-child { border-bottom: 1px solid var(--border); }
+
+    .step-num {
+      font-family: 'Fraunces', serif;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--navy);
+      letter-spacing: 0.06em;
+      padding-top: 4px;
+    }
+    .step-icon {
+      width: 42px;
+      height: 42px;
+      background: var(--black);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .step-icon svg { width: 20px; height: 20px; stroke: var(--white); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+    .step-body { padding-top: 2px; }
+    .step-title {
+      font-family: 'Fraunces', serif;
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+      letter-spacing: -0.01em;
+    }
+    .step-desc {
+      font-size: 0.9rem;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    /* ── COMPARISON ── */
+    .compare { background: var(--white); }
+
+    .compare-wrap {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      margin: 0 -24px;
+      padding: 0 24px;
+    }
+    table {
+      width: 100%;
+      min-width: 460px;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+    }
+    th {
+      padding: 14px 16px;
+      text-align: center;
+      font-weight: 600;
+      font-size: 0.78rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      border-bottom: 2px solid var(--border);
+      color: var(--muted);
+    }
+    th.us-col {
+      background: var(--black);
+      color: var(--white);
+      border-radius: 10px 10px 0 0;
+      border-bottom-color: rgba(255,255,255,0.1);
+    }
+    th:first-child { text-align: left; }
+
+    td {
+      padding: 16px;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    td:first-child {
+      text-align: left;
+      font-weight: 500;
+      font-size: 0.88rem;
+      color: var(--black);
+    }
+    td.us-col {
+      background: var(--black);
+      color: var(--white);
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:last-child td.us-col { border-radius: 0 0 10px 10px; }
+
+    .check { font-size: 1rem; }
+    .cross { opacity: 0.3; font-size: 0.9rem; }
+
+    /* ── PROMISE ── */
+    .promise {
+      background: var(--navy);
+      color: var(--white);
+      text-align: center;
+    }
+    .promise-text {
+      font-family: 'Fraunces', serif;
+      font-size: clamp(1.6rem, 5.5vw, 2.8rem);
+      font-weight: 700;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+    }
+    .promise-text strong { font-weight: 900; font-style: italic; }
+    .promise-sub {
+      margin-top: 20px;
+      font-size: 0.95rem;
+      color: rgba(255,255,255,0.55);
+      line-height: 1.6;
+    }
+
+    /* ── FINAL CTA ── */
+    .final-cta { background: var(--white); text-align: center; }
+
+    .closing-line {
+      font-family: 'Fraunces', serif;
+      font-size: clamp(1.5rem, 5vw, 2.4rem);
+      font-weight: 800;
+      letter-spacing: -0.025em;
+      line-height: 1.15;
+      margin-bottom: 40px;
+    }
+
+    .waitlist-form {
+      max-width: 420px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-group label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-align: left;
+    }
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      padding: 14px 16px;
+      border: 1.5px solid var(--border);
+      border-radius: 6px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.95rem;
+      color: var(--black);
+      background: var(--white);
+      transition: border-color 0.2s;
+      outline: none;
+      -webkit-appearance: none;
+    }
+    .form-group input:focus,
+    .form-group textarea:focus { border-color: var(--navy); }
+    .form-group textarea { resize: vertical; min-height: 96px; }
+
+    .btn-submit {
+      display: block;
+      width: 100%;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 1rem;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      text-align: center;
+      background: var(--black);
+      color: var(--white);
+      border: none;
+      padding: 18px 32px;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 6px;
+      transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+    }
+    .btn-submit:hover {
+      background: var(--navy);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(26,39,68,0.2);
+    }
+
+    .form-note {
+      font-size: 0.76rem;
+      color: var(--muted);
+      margin-top: 8px;
+    }
+
+    /* ── MODAL ── */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      background: rgba(10,10,10,0.6);
+      backdrop-filter: blur(6px);
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal-overlay.open {
+      display: flex;
+      animation: fadeOverlay 0.25s ease forwards;
+    }
+    @keyframes fadeOverlay {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .modal {
+      background: var(--white);
+      border-radius: 16px;
+      padding: 40px 32px;
+      width: 100%;
+      max-width: 420px;
+      position: relative;
+      animation: slideUp 0.3s cubic-bezier(0.16,1,0.3,1) forwards;
+      max-height: 90dvh;
+      overflow-y: auto;
+    }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 16px; right: 16px;
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      border: none;
+      background: var(--cream);
+      color: var(--muted);
+      font-size: 1.1rem;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      line-height: 1;
+      transition: background 0.2s;
+    }
+    .modal-close:hover { background: var(--border); }
+
+    .modal-eyebrow {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--navy);
+      margin-bottom: 10px;
+    }
+    .modal-title {
+      font-family: 'Fraunces', serif;
+      font-size: 1.6rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+      margin-bottom: 6px;
+    }
+    .modal-sub {
+      font-size: 0.88rem;
+      color: var(--muted);
+      margin-bottom: 28px;
+      line-height: 1.5;
+    }
+
+    /* Success state */
+    .modal-success {
+      display: none;
+      text-align: center;
+      padding: 20px 0 10px;
+    }
+    .modal-success.visible { display: block; }
+    .modal-success .check-icon { font-size: 2.2rem; margin-bottom: 14px; }
+    .modal-success h3 {
+      font-family: 'Fraunces', serif;
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .modal-success p { font-size: 0.88rem; color: var(--muted); line-height: 1.5; }
+
+    /* ── FOOTER ── */
+    footer {
+      padding: 32px 24px;
+      text-align: center;
+      font-size: 0.78rem;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+    }
+    footer strong {
+      color: var(--black);
+      font-weight: 600;
+    }
+
+    .step-accent {
+      color: var(--navy);
+      font-weight: 600;
+    }
+
+    /* ── SCROLL ANIMATIONS ── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.65s cubic-bezier(0.16,1,0.3,1), transform 0.65s cubic-bezier(0.16,1,0.3,1);
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: none;
+    }
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.2s; }
+    .reveal-delay-3 { transition-delay: 0.3s; }
+    .reveal-delay-4 { transition-delay: 0.4s; }
+
+    /* ── KEYFRAMES ── */
+    @keyframes fadeUp {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── DESKTOP ADJUSTMENTS ── */
+    @media (min-width: 640px) {
+      .btn-primary { display: inline-block; width: auto; }
+      nav { padding: 20px 48px; }
+      section { padding: 120px 48px; }
+      .hero { padding: 140px 48px 100px; }
+      .problem { padding: 120px 48px; }
+      .steps { gap: 0; }
+    }
+
+    @media (min-width: 960px) {
+      .hero { padding: 160px 80px 120px; }
+      nav { padding: 24px 80px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav id="main-nav">
+    <a href="#" class="logo">
+      <img src="logo.png" alt="CarDhundo — Your Perfect Car Found" />
+    </a>
+    <button onclick="openModal('Nav Bar')" class="nav-cta">Find My Car</button>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero" id="hero">
+    <div class="hero-eyebrow">AI-Powered Car Recommendations for India</div>
+    <h1>Stop second&#8209;guessing. Find the car that fits your <em>life,</em> not just your budget.</h1>
+    <p class="hero-sub">10 questions about your life. One clear car recommendation that actually makes sense for you.</p>
+    <div class="hero-cta">
+      <button onclick="openModal('Hero Section')" class="btn-primary">Find My Car →</button>
+    </div>
+    <p class="hero-trust">✦ <span>Honest.</span> No dealer commissions. No sponsored results.</p>
+  </section>
+
+  <!-- PROBLEM -->
+  <section class="problem">
+    <div class="section-inner">
+      <p class="problem-text reveal">
+        Confused by everyone's opinion and <em>biased reviews?</em>
+        Not sure which car is actually right for you?
+      </p>
+      <p class="problem-sub reveal reveal-delay-2">You've done the research. Watched the YouTube videos. Asked your chacha, your colleague, your neighbour.<br>Still unsure. That's the problem we're here to fix.</p>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="how">
+    <div class="section-inner">
+      <p class="section-label reveal">How It Works</p>
+      <h2 class="section-title reveal reveal-delay-1">Four steps to your perfect car.</h2>
+      <div class="steps">
+
+        <div class="step reveal">
+          <div class="step-icon">
+            <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          </div>
+          <div class="step-body">
+            <p class="step-title">Tell us about your life and driving needs</p>
+            <p class="step-desc">10 simple questions. Where do you drive? How many people? What do you actually prioritize? <span class="step-accent">No jargon, just honest answers.</span></p>
+          </div>
+        </div>
+
+        <div class="step reveal reveal-delay-1">
+          <div class="step-icon">
+            <svg viewBox="0 0 24 24"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg>
+          </div>
+          <div class="step-body">
+            <p class="step-title">We map what matters to you to what actually matters in a car</p>
+            <p class="step-desc">City traffic? Boot space? Easy on fuel? Our AI translates your <span class="step-accent">real-world needs into the specs that matter</span> — and ignores the ones that don't.</p>
+          </div>
+        </div>
+
+        <div class="step reveal reveal-delay-2">
+          <div class="step-icon">
+            <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          </div>
+          <div class="step-body">
+            <p class="step-title">We score and match cars against your specific needs</p>
+            <p class="step-desc">Every car in the Indian market, scored against your personal profile. <span class="step-accent">Not a generic top-10 list. Your list.</span></p>
+          </div>
+        </div>
+
+        <div class="step reveal reveal-delay-3">
+          <div class="step-icon">
+            <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          </div>
+          <div class="step-body">
+            <p class="step-title">Get a shortlist of 2–3 cars with clear reasoning behind each</p>
+            <p class="step-desc">Not just names. <span class="step-accent">Reasons why this car fits your life.</span> Why that car — however popular — doesn't. Finally, clarity.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- COMPARISON -->
+  <section class="compare">
+    <div class="section-inner">
+      <p class="section-label reveal">Why CarDhundo</p>
+      <h2 class="section-title reveal reveal-delay-1">Not all advice is created equal.</h2>
+      <div class="compare-wrap reveal reveal-delay-2">
+        <table>
+          <thead>
+            <tr>
+              <th></th>
+              <th>Friends &<br>Family</th>
+              <th>Review<br>Sites</th>
+              <th class="us-col">CarDhundo</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Unbiased</td>
+              <td><span class="check">✅</span></td>
+              <td><span class="cross">✗</span></td>
+              <td class="us-col"><span class="check">✅</span></td>
+            </tr>
+            <tr>
+              <td>Covers all cars</td>
+              <td><span class="cross">✗</span></td>
+              <td><span class="check">✅</span></td>
+              <td class="us-col"><span class="check">✅</span></td>
+            </tr>
+            <tr>
+              <td>Based on your life</td>
+              <td><span class="cross">✗</span></td>
+              <td><span class="cross">✗</span></td>
+              <td class="us-col"><span class="check">✅</span></td>
+            </tr>
+            <tr>
+              <td>Personalized reasoning</td>
+              <td><span class="cross">✗</span></td>
+              <td><span class="cross">✗</span></td>
+              <td class="us-col"><span class="check">✅</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROMISE -->
+  <section class="promise">
+    <div class="section-inner">
+      <p class="promise-text reveal">
+        A shortlist of 2–3 cars chosen specifically for your life — with clear reasoning on why each one fits you and why others don't.
+        <strong>Finally, a decision you can commit to.</strong>
+      </p>
+      <p class="promise-sub reveal reveal-delay-2">No more spreadsheets. No more second-guessing. Just your car.</p>
+    </div>
+  </section>
+
+  <!-- FINAL CTA -->
+  <section class="final-cta" id="waitlist">
+    <div class="section-inner">
+      <h2 class="closing-line reveal">Your perfect car is out there.<br>Let's find it together.</h2>
+      <div style="display:flex;justify-content:center;" class="reveal reveal-delay-1">
+        <button class="btn-primary" onclick="openModal('Final CTA Section')" style="max-width:360px;width:100%;border:none;cursor:pointer;">Find My Car →</button>
+      </div>
+      <p class="reveal reveal-delay-2" style="text-align:center;margin-top:20px;font-size:0.8rem;color:var(--muted);">Join the waitlist · We'll reach out personally</p>
+    </div>
+  </section>
+
+  <!-- MODAL -->
+  <div class="modal-overlay" id="modal-overlay" onclick="handleOverlayClick(event)">
+    <div class="modal" id="modal">
+      <button class="modal-close" onclick="closeModal()">✕</button>
+
+      <div id="modal-form-wrap">
+        <p class="modal-eyebrow">Join the Waitlist</p>
+        <h3 class="modal-title">Your car is waiting.</h3>
+        <p class="modal-sub">Leave your details — we'll reach out personally to help find your perfect car.</p>
+
+        <div class="waitlist-form">
+          <div class="form-group">
+            <label for="m-name">Your Name</label>
+            <input type="text" id="m-name" name="name" placeholder="Rahul Sharma" autocomplete="name" />
+          </div>
+
+          <div class="form-group">
+            <label for="m-phone">Phone Number</label>
+            <div style="display:flex;gap:8px;">
+              <div style="flex-shrink:0;display:flex;align-items:center;padding:0 14px;border:1.5px solid var(--border);border-radius:6px;font-size:0.95rem;color:var(--muted);background:var(--cream);">🇮🇳 +91</div>
+              <input type="tel" id="m-phone" name="phone" placeholder="98765 43210" autocomplete="tel" style="flex:1;" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="m-difficulty">What's making your car decision difficult? <span style="font-weight:400;font-style:italic;text-transform:none;letter-spacing:0">(optional)</span></label>
+            <textarea id="m-difficulty" name="difficulty" placeholder="e.g. Too many options, confused between petrol/diesel, not sure about budget..."></textarea>
+          </div>
+
+          <button class="btn-submit" id="modal-submit-btn" onclick="submitModal()">Get My Recommendation →</button>
+          <p class="form-note">No spam. We'll call or WhatsApp you — your choice.</p>
+        </div>
+      </div>
+
+      <div class="modal-success" id="modal-success">
+        <div class="check-icon">✦</div>
+        <h3>You're on the list!</h3>
+        <p>We'll reach out on WhatsApp soon.<br>Your perfect car is closer than you think.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <p>© 2025 <strong>CarDhundo</strong> — Find the car that fits your life.</p>
+  </footer>
+
+  <script>
+    // Nav scroll effect
+    const nav = document.getElementById('main-nav');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 20);
+    }, { passive: true });
+
+    // Intersection Observer for reveal animations
+    const reveals = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+    reveals.forEach(el => observer.observe(el));
+
+    // Modal open/close
+    function openModal(source) {
+      gtag('event', 'open_waitlist_modal', {
+        event_category: 'CTA',
+        event_label: source || 'Find My Car Button'
+      });
+      document.getElementById('modal-overlay').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeModal() {
+      gtag('event', 'close_waitlist_modal', {
+        event_category: 'Modal',
+        event_label: 'Modal Closed Without Submitting'
+      });
+      document.getElementById('modal-overlay').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+    function handleOverlayClick(e) {
+      if (e.target === document.getElementById('modal-overlay')) closeModal();
+    }
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') closeModal();
+    });
+
+    // Modal form submit
+    async function submitModal() {
+      const name = document.getElementById('m-name').value.trim();
+      const phone = document.getElementById('m-phone').value.trim();
+      const difficulty = document.getElementById('m-difficulty').value.trim();
+
+      if (!name || !phone) {
+        gtag('event', 'form_validation_error', {
+          event_category: 'Form',
+          event_label: 'Missing Name or Phone'
+        });
+        alert('Please fill in your name and phone number.');
+        return;
+      }
+      if (!/^[6-9]\d{9}$/.test(phone.replace(/\s/g, ''))) {
+        gtag('event', 'form_validation_error', {
+          event_category: 'Form',
+          event_label: 'Invalid Phone Number'
+        });
+        alert('Please enter a valid 10-digit Indian mobile number.');
+        return;
+      }
+
+      const btn = document.getElementById('modal-submit-btn');
+      btn.textContent = 'Submitting...';
+      btn.disabled = true;
+
+      const SCRIPT_URL = 'PASTE_YOUR_SCRIPT_URL_HERE';
+
+      try {
+        await fetch(SCRIPT_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, phone: '+91 ' + phone, difficulty })
+        });
+      } catch (err) {
+        // no-cors — proceed regardless
+      }
+
+      gtag('event', 'waitlist_signup', {
+        event_category: 'Form',
+        event_label: 'Waitlist Form Submitted'
+      });
+
+      document.getElementById('modal-form-wrap').style.display = 'none';
+      document.getElementById('modal-success').classList.add('visible');
+      btn.textContent = 'Get My Recommendation →';
+      btn.disabled = false;
+    }
+
+    // Smooth scroll for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function(e) {
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          e.preventDefault();
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    });
+  </script>
+</body>
+</html>
