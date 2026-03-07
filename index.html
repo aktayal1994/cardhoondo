@@ -721,22 +721,46 @@
     reveals.forEach(el => observer.observe(el));
 
     // Form submit
-    function submitForm() {
-      const name = document.getElementById('name').value.trim();
-      const email = document.getElementById('email').value.trim();
-      if (!name || !email) {
-        alert('Please fill in your name and email to join the waitlist.');
-        return;
-      }
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        alert('Please enter a valid email address.');
-        return;
-      }
-      document.getElementById('waitlist-form').style.display = 'none';
-      const success = document.getElementById('form-success');
-      success.classList.add('visible');
-      success.style.display = 'block';
-    }
+   async function submitForm() {
+  const name = document.getElementById('name').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const difficulty = document.getElementById('difficulty').value.trim();
+
+  if (!name || !email) {
+    alert('Please fill in your name and email.');
+    return;
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    alert('Please enter a valid email address.');
+    return;
+  }
+
+  const btn = document.querySelector('.btn-submit');
+  btn.textContent = 'Submitting...';
+  btn.disabled = true;
+
+  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz6DwjUizf9Ry37miCVZanrMgM55suGhxxEernSIQ0z_Ej4IiCFFUY_IoYVSmzAtSiI/exec';
+
+  try {
+    await fetch(SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, difficulty })
+    });
+
+    // Show success either way — no-cors means we can't read the response
+    document.getElementById('waitlist-form').style.display = 'none';
+    const success = document.getElementById('form-success');
+    success.classList.add('visible');
+    success.style.display = 'block';
+
+  } catch (err) {
+    btn.textContent = 'Join Waitlist →';
+    btn.disabled = false;
+    alert('Something went wrong. Please try again.');
+  }
+}
 
     // Smooth scroll for anchor links
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
