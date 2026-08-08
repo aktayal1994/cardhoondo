@@ -1,0 +1,75 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif;
+
+  --color-navy-950: #0b1c30;
+  --color-navy-900: #102b47;
+  --color-navy-800: #163a5e;
+  --color-navy-700: #1e4c78;
+  --color-navy-600: #2c6295;
+  --color-navy-500: #3b76ad;
+  --color-navy-100: #e4ecf4;
+  --color-navy-50: #f3f7fb;
+
+  --color-paper: #faf8f4;
+  --color-paper-raised: #ffffff;
+  --color-ink: #1d1a15;
+  --color-ink-soft: #5b564c;
+  --color-ink-faint: #948e80;
+  --color-border: #e7e1d6;
+
+  --color-positive: #2f8f5b;
+  --color-positive-bg: #eaf6ef;
+  --color-negative: #bf5b3e;
+  --color-negative-bg: #fbeee7;
+  --color-neutral-verdict: #8a8578;
+  --color-neutral-verdict-bg: #f1efe9;
+
+  --color-accent-gold: #c8922a;
+}
+
+html {
+  color-scheme: light;
+}
+
+body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-up {
+  animation: fade-up 0.35s ease-out;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 1; }
+}
+
+.animate-pulse-dot {
+  animation: pulse-dot 1.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-up,
+  .animate-pulse-dot {
+    animation: none !important;
+  }
+}
