@@ -167,3 +167,12 @@ User set up billing on the AI Studio "Car Dhoondo" project. Retrying `/api/write
 - `web/lib/llm/writeup.ts`'s `DEFAULT_MODEL` changed from `"gemini-2.0-flash"` to `"gemini-flash-latest"` -- deliberately an alias rather than pinning e.g. `gemini-3.5-flash`, specifically so this doesn't go stale the same way again as Google's model lineup moves on.
 - **Verified twice, not once**: first via a raw curl to `/api/writeup` (real 200, full JSON with grounded headline/narrative/quotes for all 5 ranked cars), then live in the browser via a fresh full 13-question run through the Claude Browser tool -- confirmed the real LLM prose (not the fallback) actually renders on the results screen. A stale 502 console log from the *previous* (pre-fix) browser session lingered in the console history after navigation; the rendered page content -- real narrative prose, not the fallback note -- is the actual ground truth that the fix works, not the console.
 - This closes the last open item from both this log and CLAUDE.md's "Real Frontend Build" section -- `/api/writeup` now works end to end with no known blockers.
+
+## Rate limiting added — no anti-abuse controls existed until now (Aug 9)
+
+A live-site security check found the deployed API routes had zero rate limiting: `/api/writeup` calls Gemini per request (real cost per call), and `/api/recommend`/`/api/car-detail` were open to unlimited scripted enumeration, all with no auth or bot protection in front of them.
+
+- Added `middleware.ts` -- a per-IP, per-route request cap over a 10-minute window (`/api/writeup`: 8, `/api/recommend`: 15, `/api/car-detail`: 40). In-memory `Map`-based rather than a Redis-backed one (no new external service needed at current traffic levels).
+- **Known limitation, intentional**: resets on cold start and isn't shared across concurrent serverless instances, so this is a best-effort deterrent against casual scripted abuse, not a hard global guarantee. If traffic ever justifies it, swap the `Map` for `@upstash/ratelimit` or Vercel's Firewall rate limiting instead -- same limits, enforced globally.
+- Verified against a real local `next dev` server first (8 requests through, 9th/10th got `429` with correct `Retry-After`/`X-RateLimit-*` headers), then re-verified the same way directly against the live production domain after deploying -- both matched.
+- No keys/secrets were found exposed in this audit (client bundles scanned for key-shaped strings; came back clean) -- this was purely an availability/cost-abuse gap, not a data-exposure one.
