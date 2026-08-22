@@ -66,7 +66,7 @@ export default function LandingScreen({ onStart }: { onStart: () => void }) {
 function Nav({ onStart }: { onStart: () => void }) {
   return (
     <header className="sticky top-0 z-40 border-b border-border/80 bg-paper/90 backdrop-blur">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+      <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
         <a href="#top" className="flex items-center" aria-label="CarDhoondo home">
           <Image
             src="/cardhoondo-logo.png"
@@ -119,8 +119,8 @@ function Hero({ onStart }: { onStart: () => void }) {
           below; object-position leans toward the people/car (the photo's
           real subject) since cropping is purely aesthetic now -- nothing in
           the photo itself needs protecting from a crop anymore. */}
-      <div className="relative min-h-[max(320px,34vw)] flex-1 overflow-hidden">
-        <Image src="/hero-banner.jpg" alt={HERO_ALT} fill priority sizes="100vw" className="object-cover object-[91%_86%]" />
+      <div className="relative min-h-[max(280px,33vw)] flex-1 overflow-hidden">
+        <Image src="/hero-banner.jpg" alt={HERO_ALT} fill priority sizes="100vw" className="object-cover object-[64%_83%]" />
 
         {/* legibility scrim -- a fixed dark zone independent of the photo's
             own crop, so headline text stays readable no matter which part
@@ -144,14 +144,14 @@ function Hero({ onStart }: { onStart: () => void }) {
       {/* the decision moment -- kept compact so it doesn't eat into the
           image's share of the screen */}
       <div className="shrink-0 bg-stage stage-glow">
-        <div className="mx-auto flex max-w-6xl flex-col items-center gap-3 px-6 py-5 text-center sm:flex-row sm:justify-between sm:gap-4 sm:py-6 sm:text-left">
-          <p className="font-display text-lg font-semibold text-stage-ink sm:text-xl lg:text-2xl">
+        <div className="mx-auto flex max-w-6xl flex-col items-center gap-2 px-6 py-4 text-center sm:flex-row sm:justify-between sm:gap-4 sm:py-5 sm:text-left">
+          <p className="font-display text-base font-semibold text-stage-ink sm:text-xl lg:text-2xl">
             CarDhoondo is the one clear answer to all of that.
           </p>
-          <div className="flex flex-col items-center gap-1.5 sm:items-end">
+          <div className="flex flex-col items-center gap-1 sm:items-end">
             <button
               onClick={onStart}
-              className="group flex items-center gap-2 rounded-full bg-accent-gold px-6 py-3 text-sm font-semibold text-stage shadow-lg shadow-black/30 transition hover:brightness-105 active:scale-[0.98] sm:px-8 sm:py-4 sm:text-base"
+              className="group flex items-center gap-2 rounded-full bg-accent-gold px-6 py-2.5 text-sm font-semibold text-stage shadow-lg shadow-black/30 transition hover:brightness-105 active:scale-[0.98] sm:px-8 sm:py-3.5 sm:text-base"
             >
               Find My Car
               <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" strokeWidth={2.25} />
