@@ -5,6 +5,7 @@ import {
   ShieldCheck,
   Ban,
   MessageCircleQuestion,
+  PlayCircle,
   ListChecks,
   ScanSearch,
   Sparkles,
@@ -102,9 +103,31 @@ function Nav({ onStart }: { onStart: () => void }) {
 
 function Hero({ onStart }: { onStart: () => void }) {
   return (
-    <section id="top" className="relative overflow-hidden bg-stage stage-glow">
-      <div className="mx-auto grid max-w-6xl grid-cols-1 items-center gap-10 px-6 py-20 sm:py-28 lg:grid-cols-[1.1fr_0.9fr] lg:gap-6">
-        <div className="flex flex-col">
+    <section id="top" className="relative min-h-[680px] overflow-hidden bg-stage sm:min-h-[620px] lg:min-h-[680px]">
+      {/* background photo -- vertical crop under lg, wide crop at lg+ */}
+      <Image
+        src="/hero-banner-mobile.jpg"
+        alt=""
+        fill
+        priority
+        sizes="100vw"
+        className="object-cover object-[65%_center] lg:hidden"
+      />
+      <Image
+        src="/hero-banner-desktop.jpg"
+        alt=""
+        fill
+        priority
+        sizes="100vw"
+        className="hidden object-cover object-[38%_center] lg:block"
+      />
+
+      {/* legibility scrim -- dark on the text side, fading toward the photo's
+          subject rather than flattening the whole image */}
+      <div className="absolute inset-0 bg-gradient-to-b from-stage/90 via-stage/72 to-stage/30 lg:bg-gradient-to-r lg:from-stage/95 lg:via-stage/78 lg:to-stage/20" />
+
+      <div className="relative mx-auto flex min-h-[680px] max-w-6xl flex-col justify-center px-6 py-20 sm:min-h-[620px] sm:py-24 lg:min-h-[680px] lg:max-w-[1376px] lg:py-28">
+        <div className="max-w-xl">
           <div className="animate-fade-up mb-5 flex items-center gap-3">
             <Image
               src="/cardhoondo-icon.png"
@@ -120,16 +143,24 @@ function Hero({ onStart }: { onStart: () => void }) {
             </p>
           </div>
 
-          <h1 className="font-display text-4xl font-bold leading-[1.08] tracking-tight text-stage-ink text-balance sm:text-6xl">
-            <span className="animate-fade-up stagger-1 block">Asked chacha.</span>
-            <span className="animate-fade-up stagger-2 block">Asked colleagues.</span>
-            <span className="animate-fade-up stagger-3 block">Watched 15 YouTube videos.</span>
-            <span className="animate-fade-up stagger-4 block text-accent-gold-soft">
-              Still confused which car to buy?
+          <h1 className="font-display text-4xl font-bold leading-[1.08] tracking-tight text-stage-ink text-balance sm:text-5xl lg:text-6xl">
+            <span className="animate-fade-up stagger-1 flex items-center gap-2">
+              Asked chacha.
+            </span>
+            <span className="animate-fade-up stagger-2 flex items-center gap-2">
+              Asked colleagues.
+              <MessageCircleQuestion className="h-6 w-6 shrink-0 text-stage-ink-soft opacity-70 sm:h-7 sm:w-7" strokeWidth={1.75} />
+            </span>
+            <span className="animate-fade-up stagger-3 flex items-center gap-2 text-accent-gold-soft">
+              Watched 15 YouTube videos.
+              <PlayCircle className="h-6 w-6 shrink-0 opacity-80 sm:h-7 sm:w-7" strokeWidth={1.75} />
             </span>
           </h1>
+          <p className="animate-fade-up stagger-4 mt-3 font-display text-xl font-medium text-stage-ink sm:text-2xl">
+            Still confused which car to buy?
+          </p>
 
-          <p className="animate-fade-up stagger-5 mt-7 max-w-xl text-lg leading-relaxed text-stage-ink-soft">
+          <p className="animate-fade-up stagger-5 mt-6 max-w-xl text-base leading-relaxed text-stage-ink-soft sm:text-lg">
             CarDhoondo is an honest, unbiased car recommendation tool built for first and second-time
             car buyers in India. Answer 13 quick questions about how you actually drive and live —
             we&apos;ll match your answers against real, evidence-backed car reviews and recommend 2–3
@@ -139,7 +170,7 @@ function Hero({ onStart }: { onStart: () => void }) {
           <div className="animate-fade-up stagger-5 mt-9 flex flex-wrap items-center gap-4">
             <button
               onClick={onStart}
-              className="group flex items-center gap-2 rounded-full bg-accent-gold px-8 py-4 text-base font-semibold text-stage shadow-lg shadow-black/20 transition hover:brightness-105 active:scale-[0.98]"
+              className="group flex items-center gap-2 rounded-full bg-accent-gold px-8 py-4 text-base font-semibold text-stage shadow-lg shadow-black/30 transition hover:brightness-105 active:scale-[0.98]"
             >
               Find my car
               <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" strokeWidth={2.25} />
@@ -147,108 +178,8 @@ function Hero({ onStart }: { onStart: () => void }) {
             <p className="text-sm text-stage-ink-soft">Takes about 3 minutes. No signup required.</p>
           </div>
         </div>
-
-        <div className="animate-fade-up stagger-5 order-first lg:order-last">
-          <HeroIllustration />
-        </div>
       </div>
     </section>
-  );
-}
-
-/** A field of scattered, noisy signal points (every conflicting opinion --
- * chacha, colleagues, YouTube, forums) resolving into one confident, bright
- * signal at the center -- an instrument-panel / radar aesthetic rather than
- * literal cartoon icons. Built from the exact theme tokens (not stock art),
- * with the real brand mark as the resolved center, so it reads as precise
- * and evidence-driven rather than illustrated. */
-const NOISE_POINTS = [
-  { x: 54, y: 96, r: 3, o: 0.5 },
-  { x: 92, y: 48, r: 2, o: 0.35 },
-  { x: 130, y: 150, r: 2.5, o: 0.4 },
-  { x: 60, y: 210, r: 2, o: 0.3 },
-  { x: 108, y: 280, r: 3, o: 0.45 },
-  { x: 40, y: 340, r: 2, o: 0.3 },
-  { x: 160, y: 380, r: 2.5, o: 0.4 },
-  { x: 420, y: 70, r: 2.5, o: 0.4 },
-  { x: 390, y: 130, r: 2, o: 0.3 },
-  { x: 440, y: 200, r: 3, o: 0.5 },
-  { x: 410, y: 320, r: 2, o: 0.3 },
-  { x: 380, y: 390, r: 2.5, o: 0.4 },
-  { x: 440, y: 400, r: 2, o: 0.35 },
-  { x: 230, y: 40, r: 2, o: 0.3 },
-  { x: 260, y: 430, r: 2, o: 0.3 },
-];
-
-/** Math.sin/cos aren't guaranteed bit-identical across server (Node) and
- * client (browser) V8 builds -- rounding avoids a hydration mismatch on the
- * resulting SVG coordinates. */
-function round2(n: number): number {
-  return Math.round(n * 100) / 100;
-}
-
-function HeroIllustration() {
-  const cx = 250;
-  const cy = 230;
-  return (
-    <div className="relative mx-auto aspect-square w-full max-w-sm lg:max-w-none">
-      <svg
-        viewBox="0 0 500 460"
-        className="absolute inset-0 h-full w-full"
-        role="img"
-        aria-label="Many scattered, conflicting signals resolving into one confident recommendation"
-      >
-        <defs>
-          <radialGradient id="signalGlow" cx="0.5" cy="0.5" r="0.5">
-            <stop offset="0" stopColor="#c8922a" stopOpacity="0.32" />
-            <stop offset="1" stopColor="#c8922a" stopOpacity="0" />
-          </radialGradient>
-        </defs>
-
-        {/* soft glow behind the resolved signal */}
-        <circle cx={cx} cy={cy} r="150" fill="url(#signalGlow)" />
-
-        {/* concentric instrument rings */}
-        <circle cx={cx} cy={cy} r="80" fill="none" stroke="#322d27" strokeWidth="1" />
-        <circle cx={cx} cy={cy} r="128" fill="none" stroke="#322d27" strokeWidth="1" />
-        <circle cx={cx} cy={cy} r="176" fill="none" stroke="#322d27" strokeWidth="1" opacity="0.7" />
-
-        {/* gauge tick marks around the outer ring */}
-        {Array.from({ length: 24 }).map((_, i) => {
-          const angle = (i / 24) * Math.PI * 2;
-          const inner = 176;
-          const outer = i % 6 === 0 ? 186 : 182;
-          return (
-            <line
-              key={i}
-              x1={round2(cx + Math.cos(angle) * inner)}
-              y1={round2(cy + Math.sin(angle) * inner)}
-              x2={round2(cx + Math.cos(angle) * outer)}
-              y2={round2(cy + Math.sin(angle) * outer)}
-              stroke="#b8b0a0"
-              strokeWidth={i % 6 === 0 ? 1.5 : 1}
-              opacity={i % 6 === 0 ? 0.5 : 0.25}
-            />
-          );
-        })}
-
-        {/* scattered noisy signal points -- every conflicting opinion */}
-        {NOISE_POINTS.map((p, i) => (
-          <circle key={i} cx={p.x} cy={p.y} r={p.r} fill="#b8b0a0" opacity={p.o} />
-        ))}
-
-        {/* the one resolved signal -- bright, confident, gold */}
-        <circle cx={cx} cy={cy} r="132" fill="none" stroke="#c8922a" strokeWidth="1.5" opacity="0.55" />
-        <circle cx={cx} cy={cy} r="132" fill="none" stroke="#c8922a" strokeWidth="1" strokeDasharray="1 9" opacity="0.7" />
-      </svg>
-
-      {/* the real brand mark, resolved at the center */}
-      <div className="absolute inset-0 flex items-center justify-center">
-        <div className="flex h-24 w-24 items-center justify-center rounded-full bg-stage-raised shadow-2xl shadow-black/40 ring-1 ring-accent-gold/40 sm:h-28 sm:w-28">
-          <Image src="/cardhoondo-icon.png" alt="" width={237} height={237} className="h-14 w-14 sm:h-16 sm:w-16" />
-        </div>
-      </div>
-    </div>
   );
 }
 
