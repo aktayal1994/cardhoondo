@@ -119,15 +119,15 @@ function Hero({ onStart }: { onStart: () => void }) {
           below; object-position leans toward the people/car (the photo's
           real subject) since cropping is purely aesthetic now -- nothing in
           the photo itself needs protecting from a crop anymore. */}
-      <div className="relative min-h-[220px] flex-1 overflow-hidden">
-        <Image src="/hero-banner.jpg" alt={HERO_ALT} fill priority sizes="100vw" className="object-cover object-[78%_78%]" />
+      <div className="relative min-h-[max(320px,34vw)] flex-1 overflow-hidden">
+        <Image src="/hero-banner.jpg" alt={HERO_ALT} fill priority sizes="100vw" className="object-cover object-[91%_86%]" />
 
         {/* legibility scrim -- a fixed dark zone independent of the photo's
             own crop, so headline text stays readable no matter which part
             of the photo ends up behind it at a given width */}
         <div className="absolute inset-0 bg-gradient-to-b from-stage/90 via-stage/72 to-stage/30 sm:bg-gradient-to-r sm:from-stage/95 sm:via-stage/78 sm:to-stage/20" />
 
-        <div className="relative flex h-full flex-col justify-center px-6 sm:px-10 lg:px-16">
+        <div className="relative flex h-full flex-col justify-center px-6 py-[clamp(1.5rem,5vw,3.5rem)] sm:px-10 lg:px-16">
           <div className="max-w-[clamp(16rem,42vw,34rem)]">
             <h1 className="font-display font-bold leading-[1.1] tracking-tight text-stage-ink text-balance text-[clamp(1.5rem,4.4vw,3.25rem)]">
               <span className="block">Asked chacha.</span>
