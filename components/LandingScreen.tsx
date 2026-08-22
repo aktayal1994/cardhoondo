@@ -119,14 +119,14 @@ function Hero({ onStart }: { onStart: () => void }) {
           as much as the viewport actually forces, via object-position tuned
           to keep the headline text and the car/people in frame. Mobile and
           desktop are two distinct compositions, not one image cropped. */}
-      <div className="relative min-h-0 flex-1 overflow-hidden">
+      <div className="relative min-h-[51vw] flex-1 overflow-hidden md:min-h-[27vw]">
         <Image
           src="/hero-banner-mobile.jpg"
           alt={HERO_ALT}
           fill
           priority
           sizes="100vw"
-          className="object-cover object-[center_22%] md:hidden"
+          className="object-cover object-[center_18%] md:hidden"
         />
         <Image
           src="/hero-banner-desktop.jpg"
@@ -134,7 +134,7 @@ function Hero({ onStart }: { onStart: () => void }) {
           fill
           priority
           sizes="100vw"
-          className="hidden object-cover object-[center_35%] md:block"
+          className="hidden object-cover object-[5%_56%] md:block"
         />
       </div>
 
