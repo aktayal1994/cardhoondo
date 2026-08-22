@@ -41,8 +41,14 @@ const FAQS = [
 export default function LandingScreen({ onStart }: { onStart: () => void }) {
   return (
     <main className="min-h-screen bg-paper">
-      <Nav onStart={onStart} />
-      <Hero onStart={onStart} />
+      {/* nav + hero are budgeted to fit one screen (min-h-dvh) so the CTA band
+          is visible without scrolling on first load -- if content ever needs
+          more room (e.g. large system font settings), min-h lets it grow
+          rather than clipping anything. */}
+      <div className="flex min-h-dvh flex-col">
+        <Nav onStart={onStart} />
+        <Hero onStart={onStart} />
+      </div>
       <TrustBar />
       <HowItWorks onStart={onStart} />
       <WhyCarDhoondo />
@@ -106,47 +112,48 @@ const HERO_ALT =
 
 function Hero({ onStart }: { onStart: () => void }) {
   return (
-    <section id="top" className="bg-paper">
-      {/* the hero artwork -- already carries the headline/story, so it's shown
-          uncropped (full width, intrinsic aspect ratio) rather than duplicated
-          in HTML or force-cropped to fill a fixed box. Mobile/tablet and
+    <section id="top" className="flex flex-1 flex-col bg-paper">
+      {/* the hero artwork -- already carries the headline/story. It fills
+          whatever vertical room is left after the CTA band below, so the
+          whole hero (nav + photo + CTA) fits in one screen -- cropped only
+          as much as the viewport actually forces, via object-position tuned
+          to keep the headline text and the car/people in frame. Mobile and
           desktop are two distinct compositions, not one image cropped. */}
-      <div>
+      <div className="relative min-h-0 flex-1 overflow-hidden">
         <Image
           src="/hero-banner-mobile.jpg"
           alt={HERO_ALT}
-          width={768}
-          height={1376}
+          fill
           priority
           sizes="100vw"
-          className="block h-auto w-full md:hidden"
+          className="object-cover object-[center_22%] md:hidden"
         />
         <Image
           src="/hero-banner-desktop.jpg"
           alt={HERO_ALT}
-          width={1376}
-          height={768}
+          fill
           priority
           sizes="100vw"
-          className="hidden h-auto w-full md:block"
+          className="hidden object-cover object-[center_35%] md:block"
         />
       </div>
 
-      {/* the decision moment -- CTA lives here, not on the photo */}
-      <div className="bg-stage stage-glow">
-        <div className="mx-auto flex max-w-6xl flex-col items-center gap-4 px-6 py-10 text-center sm:flex-row sm:justify-between sm:text-left">
-          <p className="font-display text-xl font-semibold text-stage-ink sm:text-2xl">
+      {/* the decision moment -- CTA lives here, not on the photo -- kept
+          compact so it doesn't eat into the image's share of the screen */}
+      <div className="shrink-0 bg-stage stage-glow">
+        <div className="mx-auto flex max-w-6xl flex-col items-center gap-3 px-6 py-5 text-center sm:flex-row sm:justify-between sm:gap-4 sm:py-6 sm:text-left">
+          <p className="font-display text-lg font-semibold text-stage-ink sm:text-xl lg:text-2xl">
             CarDhoondo is the one clear answer to all of that.
           </p>
-          <div className="flex flex-col items-center gap-2 sm:items-end">
+          <div className="flex flex-col items-center gap-1.5 sm:items-end">
             <button
               onClick={onStart}
-              className="group flex items-center gap-2 rounded-full bg-accent-gold px-8 py-4 text-base font-semibold text-stage shadow-lg shadow-black/30 transition hover:brightness-105 active:scale-[0.98]"
+              className="group flex items-center gap-2 rounded-full bg-accent-gold px-6 py-3 text-sm font-semibold text-stage shadow-lg shadow-black/30 transition hover:brightness-105 active:scale-[0.98] sm:px-8 sm:py-4 sm:text-base"
             >
               Find My Car
               <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" strokeWidth={2.25} />
             </button>
-            <p className="text-sm text-stage-ink-soft">13 questions · ~3 minutes · No signup required</p>
+            <p className="text-xs text-stage-ink-soft sm:text-sm">13 questions · ~3 minutes · No signup required</p>
           </div>
         </div>
       </div>
