@@ -5,7 +5,6 @@ import {
   ShieldCheck,
   Ban,
   MessageCircleQuestion,
-  PlayCircle,
   ListChecks,
   ScanSearch,
   Sparkles,
@@ -101,81 +100,53 @@ function Nav({ onStart }: { onStart: () => void }) {
 /* Hero                                                                    */
 /* ---------------------------------------------------------------------- */
 
+const HERO_ALT =
+  "Asked chacha. Asked colleagues. Watched 15 YouTube videos. Still confused which car to buy? " +
+  "A couple stands on a coastal road as CarDhoondo highlights one clear, confidently recommended car.";
+
 function Hero({ onStart }: { onStart: () => void }) {
   return (
-    <section id="top" className="relative min-h-[680px] overflow-hidden bg-stage sm:min-h-[620px] lg:min-h-[680px]">
-      {/* background photo -- vertical crop under lg, wide crop at lg+ */}
-      <Image
-        src="/hero-banner-mobile.jpg"
-        alt=""
-        fill
-        priority
-        sizes="100vw"
-        className="object-cover object-[65%_center] lg:hidden"
-      />
-      <Image
-        src="/hero-banner-desktop.jpg"
-        alt=""
-        fill
-        priority
-        sizes="100vw"
-        className="hidden object-cover object-[38%_center] lg:block"
-      />
+    <section id="top" className="bg-paper">
+      {/* the hero artwork -- already carries the headline/story, so it's shown
+          uncropped (full width, intrinsic aspect ratio) rather than duplicated
+          in HTML or force-cropped to fill a fixed box. Mobile/tablet and
+          desktop are two distinct compositions, not one image cropped. */}
+      <div>
+        <Image
+          src="/hero-banner-mobile.jpg"
+          alt={HERO_ALT}
+          width={768}
+          height={1376}
+          priority
+          sizes="100vw"
+          className="block h-auto w-full md:hidden"
+        />
+        <Image
+          src="/hero-banner-desktop.jpg"
+          alt={HERO_ALT}
+          width={1376}
+          height={768}
+          priority
+          sizes="100vw"
+          className="hidden h-auto w-full md:block"
+        />
+      </div>
 
-      {/* legibility scrim -- dark on the text side, fading toward the photo's
-          subject rather than flattening the whole image */}
-      <div className="absolute inset-0 bg-gradient-to-b from-stage/90 via-stage/72 to-stage/30 lg:bg-gradient-to-r lg:from-stage/95 lg:via-stage/78 lg:to-stage/20" />
-
-      <div className="relative mx-auto flex min-h-[680px] max-w-6xl flex-col justify-center px-6 py-20 sm:min-h-[620px] sm:py-24 lg:min-h-[680px] lg:max-w-[1376px] lg:py-28">
-        <div className="max-w-xl">
-          <div className="animate-fade-up mb-5 flex items-center gap-3">
-            <Image
-              src="/cardhoondo-icon.png"
-              alt="CarDhoondo"
-              width={237}
-              height={237}
-              priority
-              className="h-9 w-9"
-            />
-            <span className="h-1.5 w-1.5 rounded-full bg-accent-gold" />
-            <p className="text-sm font-semibold uppercase tracking-wide text-stage-ink-soft">
-              Built for car buyers in India
-            </p>
-          </div>
-
-          <h1 className="font-display text-4xl font-bold leading-[1.08] tracking-tight text-stage-ink text-balance sm:text-5xl lg:text-6xl">
-            <span className="animate-fade-up stagger-1 flex items-center gap-2">
-              Asked chacha.
-            </span>
-            <span className="animate-fade-up stagger-2 flex items-center gap-2">
-              Asked colleagues.
-              <MessageCircleQuestion className="h-6 w-6 shrink-0 text-stage-ink-soft opacity-70 sm:h-7 sm:w-7" strokeWidth={1.75} />
-            </span>
-            <span className="animate-fade-up stagger-3 flex items-center gap-2 text-accent-gold-soft">
-              Watched 15 YouTube videos.
-              <PlayCircle className="h-6 w-6 shrink-0 opacity-80 sm:h-7 sm:w-7" strokeWidth={1.75} />
-            </span>
-          </h1>
-          <p className="animate-fade-up stagger-4 mt-3 font-display text-xl font-medium text-stage-ink sm:text-2xl">
-            Still confused which car to buy?
+      {/* the decision moment -- CTA lives here, not on the photo */}
+      <div className="bg-stage stage-glow">
+        <div className="mx-auto flex max-w-6xl flex-col items-center gap-4 px-6 py-10 text-center sm:flex-row sm:justify-between sm:text-left">
+          <p className="font-display text-xl font-semibold text-stage-ink sm:text-2xl">
+            CarDhoondo is the one clear answer to all of that.
           </p>
-
-          <p className="animate-fade-up stagger-5 mt-6 max-w-xl text-base leading-relaxed text-stage-ink-soft sm:text-lg">
-            CarDhoondo is an honest, unbiased car recommendation tool built for first and second-time
-            car buyers in India. Answer 13 quick questions about how you actually drive and live —
-            we&apos;ll match your answers against real, evidence-backed car reviews and recommend 2–3
-            cars that genuinely fit. Reasoning shown, not just a verdict.
-          </p>
-
-          <div className="animate-fade-up stagger-5 mt-9 flex flex-wrap items-center gap-4">
+          <div className="flex flex-col items-center gap-2 sm:items-end">
             <button
               onClick={onStart}
               className="group flex items-center gap-2 rounded-full bg-accent-gold px-8 py-4 text-base font-semibold text-stage shadow-lg shadow-black/30 transition hover:brightness-105 active:scale-[0.98]"
             >
-              Find my car
+              Find My Car
               <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" strokeWidth={2.25} />
             </button>
-            <p className="text-sm text-stage-ink-soft">Takes about 3 minutes. No signup required.</p>
+            <p className="text-sm text-stage-ink-soft">13 questions · ~3 minutes · No signup required</p>
           </div>
         </div>
       </div>
