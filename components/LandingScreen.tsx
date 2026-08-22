@@ -1,53 +1,282 @@
 "use client";
 
-import { ShieldCheck, Ban, MessageCircleQuestion } from "lucide-react";
+import Image from "next/image";
+import {
+  ShieldCheck,
+  Ban,
+  MessageCircleQuestion,
+  ListChecks,
+  ScanSearch,
+  Sparkles,
+  PhoneCall,
+  Mail,
+  ArrowRight,
+  X,
+  Check,
+} from "lucide-react";
+
+const FAQS = [
+  {
+    q: "How does CarDhoondo recommend a car?",
+    a: "You answer 13 quick questions about how you actually drive — road conditions, family size, budget, and what matters most to you. We match your answers against a database of facts extracted from real ownership and expert car reviews, and recommend the 2–3 cars with the strongest evidence behind them for your specific situation.",
+  },
+  {
+    q: "Is CarDhoondo really free? How do you make money?",
+    a: "Yes — using CarDhoondo to find your car is free, with no signup required. We don't take commissions from dealers or manufacturers for a recommendation, that's the whole point. Once we're bigger, we may earn a small, clearly-disclosed referral fee on things like financing or insurance you choose to buy afterward — never on which car gets recommended to you.",
+  },
+  {
+    q: "How is this different from CarDekho or CarWale?",
+    a: "CarDekho and CarWale are catalogs — great for browsing specs, but they show you hundreds of cars and leave the choosing to you. CarDhoondo asks about your life first and narrows it down to 2–3 cars, with the actual review evidence for why each one fits, not just a spec sheet.",
+  },
+  {
+    q: "Do I need to sign up or share my number to get a recommendation?",
+    a: "No. Getting your recommendation takes about 3 minutes and doesn't require creating an account.",
+  },
+  {
+    q: "What if a recommended car doesn't have enough review data?",
+    a: "We say so, honestly. If a car doesn't have enough real review evidence yet, we tell you that directly instead of guessing — we'd rather admit a gap than fake confidence.",
+  },
+];
 
 export default function LandingScreen({ onStart }: { onStart: () => void }) {
   return (
-    <main className="min-h-screen flex flex-col">
-      <div className="mx-auto w-full max-w-3xl flex-1 flex flex-col justify-center px-6 py-16 sm:py-24">
-        <p className="text-sm font-medium tracking-wide text-navy-600 uppercase mb-4">
-          CarDhoondo
-        </p>
+    <main className="min-h-screen bg-paper">
+      <Nav onStart={onStart} />
+      <Hero onStart={onStart} />
+      <TrustBar />
+      <HowItWorks onStart={onStart} />
+      <WhyCarDhoondo />
+      <Faq />
+      <Contact onStart={onStart} />
+      <Footer />
+    </main>
+  );
+}
 
-        <h1 className="text-3xl sm:text-5xl font-semibold text-ink leading-tight text-balance">
-          Asked chacha. Asked colleagues. Watched 15 YouTube videos.
-          <br className="hidden sm:block" /> Still confused which car to buy?
-        </h1>
+/* ---------------------------------------------------------------------- */
+/* Nav                                                                     */
+/* ---------------------------------------------------------------------- */
 
-        <p className="mt-6 text-lg text-ink-soft max-w-xl">
-          Answer 13 quick questions about how you actually drive and live. We'll match your
-          answers against real, evidence-backed car reviews and recommend 2–3 cars that
-          genuinely fit — with the reasoning shown, not just the verdict.
-        </p>
-
+function Nav({ onStart }: { onStart: () => void }) {
+  return (
+    <header className="sticky top-0 z-40 border-b border-border/80 bg-paper/90 backdrop-blur">
+      <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+        <a href="#top" className="flex items-center" aria-label="CarDhoondo home">
+          <Image
+            src="/cardhoondo-logo.png"
+            alt="CarDhoondo — Your Perfect Car Found"
+            width={489}
+            height={105}
+            priority
+            className="h-8 w-auto sm:h-9"
+          />
+        </a>
+        <nav className="hidden items-center gap-8 text-sm font-medium text-ink-soft sm:flex">
+          <a href="#how-it-works" className="transition hover:text-ink">
+            How it works
+          </a>
+          <a href="#why-cardhoondo" className="transition hover:text-ink">
+            Why CarDhoondo
+          </a>
+          <a href="#faq" className="transition hover:text-ink">
+            FAQ
+          </a>
+          <a href="#contact" className="transition hover:text-ink">
+            Contact
+          </a>
+        </nav>
         <button
           onClick={onStart}
-          className="mt-10 w-fit rounded-full bg-navy-800 px-8 py-4 text-base font-medium text-white shadow-sm transition hover:bg-navy-900 active:scale-[0.98]"
+          className="rounded-full bg-accent-gold px-5 py-2.5 text-sm font-semibold text-stage shadow-sm transition hover:brightness-105 active:scale-[0.98]"
         >
           Find my car
         </button>
-        <p className="mt-3 text-sm text-ink-faint">Takes about 3 minutes. No signup required.</p>
+      </div>
+    </header>
+  );
+}
 
-        <div className="mt-16 grid grid-cols-1 sm:grid-cols-3 gap-6">
-          <TrustPoint
-            icon={Ban}
-            title="No dealer commissions"
-            body="We don't take a cut from any dealer or manufacturer for a recommendation."
-          />
-          <TrustPoint
-            icon={MessageCircleQuestion}
-            title="No sponsored results"
-            body="Every car shown is ranked purely on how well it fits your answers."
-          />
-          <TrustPoint
-            icon={ShieldCheck}
-            title="Evidence, not opinion"
-            body="Every reason we give is backed by a real review — you can see the quote."
-          />
+/* ---------------------------------------------------------------------- */
+/* Hero                                                                    */
+/* ---------------------------------------------------------------------- */
+
+function Hero({ onStart }: { onStart: () => void }) {
+  return (
+    <section id="top" className="relative overflow-hidden bg-stage stage-glow">
+      <div className="mx-auto grid max-w-6xl grid-cols-1 items-center gap-10 px-6 py-20 sm:py-28 lg:grid-cols-[1.1fr_0.9fr] lg:gap-6">
+        <div className="flex flex-col">
+          <div className="animate-fade-up mb-5 flex items-center gap-3">
+            <Image
+              src="/cardhoondo-icon.png"
+              alt="CarDhoondo"
+              width={237}
+              height={237}
+              priority
+              className="h-9 w-9"
+            />
+            <span className="h-1.5 w-1.5 rounded-full bg-accent-gold" />
+            <p className="text-sm font-semibold uppercase tracking-wide text-stage-ink-soft">
+              Built for car buyers in India
+            </p>
+          </div>
+
+          <h1 className="font-display text-4xl font-bold leading-[1.08] tracking-tight text-stage-ink text-balance sm:text-6xl">
+            <span className="animate-fade-up stagger-1 block">Asked chacha.</span>
+            <span className="animate-fade-up stagger-2 block">Asked colleagues.</span>
+            <span className="animate-fade-up stagger-3 block">Watched 15 YouTube videos.</span>
+            <span className="animate-fade-up stagger-4 block text-accent-gold-soft">
+              Still confused which car to buy?
+            </span>
+          </h1>
+
+          <p className="animate-fade-up stagger-5 mt-7 max-w-xl text-lg leading-relaxed text-stage-ink-soft">
+            CarDhoondo is an honest, unbiased car recommendation tool built for first and second-time
+            car buyers in India. Answer 13 quick questions about how you actually drive and live —
+            we&apos;ll match your answers against real, evidence-backed car reviews and recommend 2–3
+            cars that genuinely fit. Reasoning shown, not just a verdict.
+          </p>
+
+          <div className="animate-fade-up stagger-5 mt-9 flex flex-wrap items-center gap-4">
+            <button
+              onClick={onStart}
+              className="group flex items-center gap-2 rounded-full bg-accent-gold px-8 py-4 text-base font-semibold text-stage shadow-lg shadow-black/20 transition hover:brightness-105 active:scale-[0.98]"
+            >
+              Find my car
+              <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" strokeWidth={2.25} />
+            </button>
+            <p className="text-sm text-stage-ink-soft">Takes about 3 minutes. No signup required.</p>
+          </div>
+        </div>
+
+        <div className="animate-fade-up stagger-5 order-first lg:order-last">
+          <HeroIllustration />
         </div>
       </div>
-    </main>
+    </section>
+  );
+}
+
+/** A field of scattered, noisy signal points (every conflicting opinion --
+ * chacha, colleagues, YouTube, forums) resolving into one confident, bright
+ * signal at the center -- an instrument-panel / radar aesthetic rather than
+ * literal cartoon icons. Built from the exact theme tokens (not stock art),
+ * with the real brand mark as the resolved center, so it reads as precise
+ * and evidence-driven rather than illustrated. */
+const NOISE_POINTS = [
+  { x: 54, y: 96, r: 3, o: 0.5 },
+  { x: 92, y: 48, r: 2, o: 0.35 },
+  { x: 130, y: 150, r: 2.5, o: 0.4 },
+  { x: 60, y: 210, r: 2, o: 0.3 },
+  { x: 108, y: 280, r: 3, o: 0.45 },
+  { x: 40, y: 340, r: 2, o: 0.3 },
+  { x: 160, y: 380, r: 2.5, o: 0.4 },
+  { x: 420, y: 70, r: 2.5, o: 0.4 },
+  { x: 390, y: 130, r: 2, o: 0.3 },
+  { x: 440, y: 200, r: 3, o: 0.5 },
+  { x: 410, y: 320, r: 2, o: 0.3 },
+  { x: 380, y: 390, r: 2.5, o: 0.4 },
+  { x: 440, y: 400, r: 2, o: 0.35 },
+  { x: 230, y: 40, r: 2, o: 0.3 },
+  { x: 260, y: 430, r: 2, o: 0.3 },
+];
+
+/** Math.sin/cos aren't guaranteed bit-identical across server (Node) and
+ * client (browser) V8 builds -- rounding avoids a hydration mismatch on the
+ * resulting SVG coordinates. */
+function round2(n: number): number {
+  return Math.round(n * 100) / 100;
+}
+
+function HeroIllustration() {
+  const cx = 250;
+  const cy = 230;
+  return (
+    <div className="relative mx-auto aspect-square w-full max-w-sm lg:max-w-none">
+      <svg
+        viewBox="0 0 500 460"
+        className="absolute inset-0 h-full w-full"
+        role="img"
+        aria-label="Many scattered, conflicting signals resolving into one confident recommendation"
+      >
+        <defs>
+          <radialGradient id="signalGlow" cx="0.5" cy="0.5" r="0.5">
+            <stop offset="0" stopColor="#c8922a" stopOpacity="0.32" />
+            <stop offset="1" stopColor="#c8922a" stopOpacity="0" />
+          </radialGradient>
+        </defs>
+
+        {/* soft glow behind the resolved signal */}
+        <circle cx={cx} cy={cy} r="150" fill="url(#signalGlow)" />
+
+        {/* concentric instrument rings */}
+        <circle cx={cx} cy={cy} r="80" fill="none" stroke="#322d27" strokeWidth="1" />
+        <circle cx={cx} cy={cy} r="128" fill="none" stroke="#322d27" strokeWidth="1" />
+        <circle cx={cx} cy={cy} r="176" fill="none" stroke="#322d27" strokeWidth="1" opacity="0.7" />
+
+        {/* gauge tick marks around the outer ring */}
+        {Array.from({ length: 24 }).map((_, i) => {
+          const angle = (i / 24) * Math.PI * 2;
+          const inner = 176;
+          const outer = i % 6 === 0 ? 186 : 182;
+          return (
+            <line
+              key={i}
+              x1={round2(cx + Math.cos(angle) * inner)}
+              y1={round2(cy + Math.sin(angle) * inner)}
+              x2={round2(cx + Math.cos(angle) * outer)}
+              y2={round2(cy + Math.sin(angle) * outer)}
+              stroke="#b8b0a0"
+              strokeWidth={i % 6 === 0 ? 1.5 : 1}
+              opacity={i % 6 === 0 ? 0.5 : 0.25}
+            />
+          );
+        })}
+
+        {/* scattered noisy signal points -- every conflicting opinion */}
+        {NOISE_POINTS.map((p, i) => (
+          <circle key={i} cx={p.x} cy={p.y} r={p.r} fill="#b8b0a0" opacity={p.o} />
+        ))}
+
+        {/* the one resolved signal -- bright, confident, gold */}
+        <circle cx={cx} cy={cy} r="132" fill="none" stroke="#c8922a" strokeWidth="1.5" opacity="0.55" />
+        <circle cx={cx} cy={cy} r="132" fill="none" stroke="#c8922a" strokeWidth="1" strokeDasharray="1 9" opacity="0.7" />
+      </svg>
+
+      {/* the real brand mark, resolved at the center */}
+      <div className="absolute inset-0 flex items-center justify-center">
+        <div className="flex h-24 w-24 items-center justify-center rounded-full bg-stage-raised shadow-2xl shadow-black/40 ring-1 ring-accent-gold/40 sm:h-28 sm:w-28">
+          <Image src="/cardhoondo-icon.png" alt="" width={237} height={237} className="h-14 w-14 sm:h-16 sm:w-16" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ---------------------------------------------------------------------- */
+/* Trust bar                                                               */
+/* ---------------------------------------------------------------------- */
+
+function TrustBar() {
+  return (
+    <section className="border-b border-border bg-paper">
+      <div className="mx-auto grid max-w-6xl grid-cols-1 gap-5 px-6 py-16 sm:grid-cols-3">
+        <TrustPoint
+          icon={Ban}
+          title="No dealer commissions"
+          body="We don't take a cut from any dealer or manufacturer for a recommendation."
+        />
+        <TrustPoint
+          icon={MessageCircleQuestion}
+          title="No sponsored results"
+          body="Every car shown is ranked purely on how well it fits your answers — never on who paid us."
+        />
+        <TrustPoint
+          icon={ShieldCheck}
+          title="Evidence, not opinion"
+          body="Every reason we give is backed by a real ownership or expert review — you can see the quote."
+        />
+      </div>
+    </section>
   );
 }
 
@@ -61,10 +290,300 @@ function TrustPoint({
   body: string;
 }) {
   return (
-    <div className="flex flex-col gap-2">
-      <Icon className="h-5 w-5 text-navy-700" strokeWidth={1.75} />
-      <p className="font-medium text-ink text-sm">{title}</p>
-      <p className="text-sm text-ink-soft leading-relaxed">{body}</p>
+    <div className="rounded-[20px] border border-border bg-paper-raised p-6">
+      <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-navy-50">
+        <Icon className="h-5 w-5 text-navy-700" strokeWidth={1.75} />
+      </div>
+      <p className="font-display font-semibold text-ink">{title}</p>
+      <p className="mt-1.5 text-sm leading-relaxed text-ink-soft">{body}</p>
+    </div>
+  );
+}
+
+/* ---------------------------------------------------------------------- */
+/* How it works                                                            */
+/* ---------------------------------------------------------------------- */
+
+const STEPS = [
+  {
+    icon: ListChecks,
+    title: "Tell us how you actually drive",
+    body: "13 quick questions grouped into your drives, who it's for, and what matters — no jargon, about 3 minutes.",
+  },
+  {
+    icon: ScanSearch,
+    title: "We weigh real review evidence",
+    body: "Your answers are matched against facts extracted from real ownership and expert reviews — not marketing copy.",
+  },
+  {
+    icon: Sparkles,
+    title: "Get 2–3 cars, with reasons shown",
+    body: "See exactly why each car fits, backed by real quotes and claim counts — not a black-box score.",
+  },
+  {
+    icon: PhoneCall,
+    title: "Talk to a real human, if you want",
+    body: "No pressure, no automatic dealer handoff. Reach out only when you're ready.",
+  },
+];
+
+function HowItWorks({ onStart }: { onStart: () => void }) {
+  return (
+    <section id="how-it-works" className="bg-paper py-20 sm:py-24">
+      <div className="mx-auto max-w-6xl px-6">
+        <SectionHeading
+          eyebrow="How it works"
+          title="From confused to confident, in four steps"
+          body="No dealer visits, no 20-tab browser research marathon. Just your actual driving life, matched against real evidence."
+        />
+
+        <div className="relative mt-14 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
+          <svg
+            className="pointer-events-none absolute left-0 right-0 top-6 hidden w-full lg:block"
+            height="2"
+            preserveAspectRatio="none"
+            aria-hidden
+          >
+            <line x1="8%" y1="1" x2="92%" y2="1" stroke="var(--color-border)" strokeWidth="2" strokeDasharray="1 10" />
+          </svg>
+          {STEPS.map((step, i) => (
+            <div key={step.title} className="relative">
+              <div className="relative z-10 mb-5 flex h-12 w-12 items-center justify-center rounded-full bg-navy-900 font-mono text-sm font-medium text-stage-ink">
+                {String(i + 1).padStart(2, "0")}
+              </div>
+              <step.icon className="mb-3 h-5 w-5 text-accent-gold" strokeWidth={1.75} />
+              <p className="font-display font-semibold text-ink">{step.title}</p>
+              <p className="mt-1.5 text-sm leading-relaxed text-ink-soft">{step.body}</p>
+            </div>
+          ))}
+        </div>
+
+        <button
+          onClick={onStart}
+          className="mt-14 flex items-center gap-2 rounded-full bg-navy-900 px-7 py-3.5 text-sm font-semibold text-white shadow-sm transition hover:bg-navy-950 active:scale-[0.98]"
+        >
+          Start the 13 questions
+          <ArrowRight className="h-4 w-4" strokeWidth={2.25} />
+        </button>
+      </div>
+    </section>
+  );
+}
+
+/* ---------------------------------------------------------------------- */
+/* Why CarDhoondo (pain points vs. our approach)                           */
+/* ---------------------------------------------------------------------- */
+
+const OLD_WAY = [
+  "Conflicting advice everywhere — chacha, colleagues, YouTube, and Reddit all say something different, and the more you research, the more confused you get.",
+  "Dealer pressure and hidden charges — inflated insurance, forced accessories, and upsells you never asked for.",
+  "The variant trap — base models stripped of essentials to push you toward a pricier top trim.",
+  "EV or petrol? Diesel or hybrid? — generic articles, no answer for your specific life.",
+];
+
+const NEW_WAY = [
+  "One clear recommendation, not fifty opinions to reconcile yourself.",
+  "No dealer commissions, no sponsored results — every ranking is answer-driven, not paid for.",
+  "Every reason is backed by a real review quote you can read yourself.",
+  "Matched to how you actually drive and live — not a generic buyer segment.",
+];
+
+function WhyCarDhoondo() {
+  return (
+    <section id="why-cardhoondo" className="bg-stage stage-glow py-20 sm:py-24">
+      <div className="mx-auto max-w-6xl px-6">
+        <SectionHeading
+          eyebrow="Why CarDhoondo"
+          title="Car buying in India is broken by too many opinions"
+          body="Here's the honest comparison — what researching a car normally feels like, and what we built instead."
+          dark
+        />
+
+        <div className="mt-14 flex flex-col items-stretch gap-6 lg:flex-row lg:items-center">
+          <div className="flex-1 rounded-[20px] border border-stage-border bg-stage-raised p-8">
+            <p className="mb-6 font-display text-sm font-semibold uppercase tracking-wide text-stage-ink-soft">
+              The usual way
+            </p>
+            <ul className="space-y-5">
+              {OLD_WAY.map((point) => (
+                <li key={point} className="flex gap-3 text-sm leading-relaxed text-stage-ink-soft">
+                  <X className="mt-0.5 h-4 w-4 shrink-0 text-negative" strokeWidth={2.5} />
+                  {point}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="flex items-center justify-center self-center">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-accent-gold shadow-lg shadow-black/30">
+              <ArrowRight className="h-5 w-5 rotate-90 text-stage lg:rotate-0" strokeWidth={2.5} />
+            </div>
+          </div>
+
+          <div className="flex-1 rounded-[20px] border border-accent-gold/30 bg-stage-raised p-8">
+            <p className="mb-6 font-display text-sm font-semibold uppercase tracking-wide text-accent-gold-soft">
+              The CarDhoondo way
+            </p>
+            <ul className="space-y-5">
+              {NEW_WAY.map((point) => (
+                <li key={point} className="flex gap-3 text-sm leading-relaxed text-stage-ink">
+                  <Check className="mt-0.5 h-4 w-4 shrink-0 text-accent-gold" strokeWidth={2.5} />
+                  {point}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ---------------------------------------------------------------------- */
+/* FAQ                                                                      */
+/* ---------------------------------------------------------------------- */
+
+function Faq() {
+  const faqJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: FAQS.map((f) => ({
+      "@type": "Question",
+      name: f.q,
+      acceptedAnswer: { "@type": "Answer", text: f.a },
+    })),
+  };
+
+  return (
+    <section id="faq" className="bg-paper py-20 sm:py-24">
+      <div className="mx-auto max-w-3xl px-6">
+        <SectionHeading
+          eyebrow="FAQ"
+          title="Common questions about how CarDhoondo works"
+          body=""
+          center
+        />
+
+        <dl className="mt-12 divide-y divide-border">
+          {FAQS.map((f) => (
+            <div key={f.q} className="py-6">
+              <dt className="font-display font-semibold text-ink">{f.q}</dt>
+              <dd className="mt-2 text-sm leading-relaxed text-ink-soft">{f.a}</dd>
+            </div>
+          ))}
+        </dl>
+      </div>
+      <script
+        type="application/ld+json"
+        // eslint-disable-next-line react/no-danger
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+      />
+    </section>
+  );
+}
+
+/* ---------------------------------------------------------------------- */
+/* Contact                                                                  */
+/* ---------------------------------------------------------------------- */
+
+function Contact({ onStart }: { onStart: () => void }) {
+  return (
+    <section id="contact" className="border-t border-border bg-navy-50 py-20 sm:py-24">
+      <div className="mx-auto max-w-3xl px-6 text-center">
+        <p className="font-display text-sm font-semibold uppercase tracking-wide text-navy-600">
+          Contact us
+        </p>
+        <h2 className="mt-3 font-display text-3xl font-bold text-ink text-balance sm:text-4xl">
+          Questions, feedback, or found a bug? We read everything.
+        </h2>
+        <p className="mt-4 text-ink-soft">
+          CarDhoondo is early and actively being built. If something felt off, or you just want to
+          say hi, reach out directly.
+        </p>
+
+        <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
+          <a
+            href="mailto:hello@cardhoondo.com"
+            className="flex items-center gap-2 rounded-full border border-navy-800 px-6 py-3 text-sm font-medium text-navy-800 transition hover:bg-navy-100"
+          >
+            <Mail className="h-4 w-4" strokeWidth={1.75} />
+            hello@cardhoondo.com
+          </a>
+          <button
+            onClick={onStart}
+            className="rounded-full bg-accent-gold px-6 py-3 text-sm font-semibold text-stage shadow-sm transition hover:brightness-105 active:scale-[0.98]"
+          >
+            Or just find my car
+          </button>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ---------------------------------------------------------------------- */
+/* Footer                                                                   */
+/* ---------------------------------------------------------------------- */
+
+function Footer() {
+  return (
+    <footer className="bg-stage py-12">
+      <div className="mx-auto flex max-w-6xl flex-col items-center gap-4 px-6 text-center sm:flex-row sm:justify-between sm:text-left">
+        <div>
+          <div className="flex items-center justify-center gap-2.5 sm:justify-start">
+            <Image src="/cardhoondo-icon.png" alt="" width={237} height={237} className="h-7 w-7" />
+            <p className="font-display text-base font-bold text-stage-ink">CarDhoondo</p>
+          </div>
+          <p className="mt-2 text-sm text-stage-ink-soft">
+            No dealer commissions. No sponsored results. Just the car that fits your life.
+          </p>
+        </div>
+        <p className="text-xs text-stage-ink-soft">
+          &copy; {new Date().getFullYear()} CarDhoondo · Made for car buyers across India
+        </p>
+      </div>
+    </footer>
+  );
+}
+
+/* ---------------------------------------------------------------------- */
+/* Shared section heading                                                  */
+/* ---------------------------------------------------------------------- */
+
+function SectionHeading({
+  eyebrow,
+  title,
+  body,
+  dark = false,
+  center = false,
+}: {
+  eyebrow: string;
+  title: string;
+  body: string;
+  dark?: boolean;
+  center?: boolean;
+}) {
+  return (
+    <div className={center ? "text-center" : "max-w-2xl"}>
+      <p
+        className={`font-display text-sm font-semibold uppercase tracking-wide ${
+          dark ? "text-accent-gold-soft" : "text-navy-600"
+        }`}
+      >
+        {eyebrow}
+      </p>
+      <h2
+        className={`mt-3 font-display text-3xl font-bold text-balance sm:text-4xl ${
+          dark ? "text-stage-ink" : "text-ink"
+        }`}
+      >
+        {title}
+      </h2>
+      {body && (
+        <p className={`mt-4 leading-relaxed ${dark ? "text-stage-ink-soft" : "text-ink-soft"}`}>
+          {body}
+        </p>
+      )}
     </div>
   );
 }

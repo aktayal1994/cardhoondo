@@ -68,7 +68,7 @@ export default function ResultsScreen({
   return (
     <main className="mx-auto max-w-3xl px-4 py-10 sm:px-6 sm:py-14">
       <div className="flex items-baseline justify-between">
-        <h1 className="text-2xl font-semibold text-ink">Your shortlist</h1>
+        <h1 className="font-display text-2xl font-bold text-ink">Your shortlist</h1>
         <button onClick={onRestart} className="text-sm text-ink-faint underline decoration-dotted underline-offset-4 hover:text-ink-soft">
           Start over
         </button>
@@ -95,7 +95,7 @@ export default function ResultsScreen({
       {shortlist.length > 1 && (
         <button
           onClick={onCompare}
-          className="mt-8 flex w-full items-center justify-center gap-2 rounded-xl border border-border bg-paper-raised py-3 text-sm font-medium text-ink hover:border-navy-500"
+          className="mt-8 flex w-full items-center justify-center gap-2 rounded-full border border-border bg-paper-raised py-3 text-sm font-medium text-ink hover:border-navy-500"
         >
           <ScaleIcon className="h-4 w-4" strokeWidth={1.75} />
           Compare these cars side by side
@@ -137,15 +137,15 @@ function ResultCard({
   const { positive, negative } = fallbackEntries(candidate.top_contributors);
 
   return (
-    <article className="animate-fade-up rounded-2xl border border-border bg-paper-raised p-5 sm:p-6">
+    <article className="animate-fade-up rounded-[20px] border border-border bg-paper-raised p-5 sm:p-6">
       <div className="flex flex-wrap items-center gap-2">
-        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-navy-800 text-xs font-semibold text-white">
+        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-navy-900 font-mono text-xs font-medium text-white">
           {rank}
         </span>
         <span className="rounded-full bg-navy-50 px-3 py-1 text-xs font-medium text-navy-800">{confidence}</span>
       </div>
 
-      <h2 className="mt-3 text-xl font-semibold text-ink">{carModelLabel(candidate)}</h2>
+      <h2 className="mt-3 font-display text-xl font-semibold text-ink">{carModelLabel(candidate)}</h2>
       <p className="text-sm text-ink-faint">
         {candidate.variant_id} · {formatINR(candidate.price_on_road)}
       </p>
@@ -154,7 +154,7 @@ function ResultCard({
         <div className="h-1.5 w-full overflow-hidden rounded-full bg-navy-100">
           <div className="h-full rounded-full bg-navy-700" style={{ width: `${coveragePct}%` }} />
         </div>
-        <p className="mt-1.5 text-xs text-ink-faint">
+        <p className="mt-1.5 font-mono text-xs text-ink-faint">
           {candidate.facets_with_data} of {TOTAL_FACETS} review factors covered
         </p>
       </div>

@@ -52,7 +52,7 @@ export default function QuestionCard({ question, value, onChange, compact }: Que
           <Icon className="h-4.5 w-4.5 text-navy-700" strokeWidth={1.75} />
         </div>
         <div>
-          <h2 className={compact ? "text-base font-medium text-ink" : "text-xl font-medium text-ink"}>
+          <h2 className={compact ? "font-display text-base font-semibold text-ink" : "font-display text-xl font-semibold text-ink"}>
             {question.prompt}
             {isMulti && <span className="ml-2 text-sm font-normal text-ink-faint">(pick 2)</span>}
             {!question.required && <span className="ml-2 text-sm font-normal text-ink-faint">(optional)</span>}
@@ -70,9 +70,9 @@ export default function QuestionCard({ question, value, onChange, compact }: Que
               type="button"
               onClick={() => pick(option.value)}
               aria-pressed={isSelected}
-              className={`rounded-xl border px-4 py-2.5 text-sm font-medium transition ${
+              className={`rounded-full border px-4 py-2.5 text-sm font-medium transition active:scale-95 ${
                 isSelected
-                  ? "border-navy-800 bg-navy-800 text-white"
+                  ? "border-navy-900 bg-navy-900 text-white shadow-sm"
                   : "border-border bg-paper-raised text-ink hover:border-navy-500 hover:bg-navy-50"
               }`}
             >
@@ -83,7 +83,8 @@ export default function QuestionCard({ question, value, onChange, compact }: Que
       </div>
 
       {reaction && (
-        <p key={reaction} className="animate-fade-up mt-3 ml-12 text-sm text-navy-700">
+        <p key={reaction} className="animate-fade-up mt-3 ml-12 flex items-center gap-1.5 text-sm text-navy-700">
+          <span className="h-1 w-1 rounded-full bg-accent-gold" />
           {reaction}
         </p>
       )}

@@ -40,14 +40,23 @@ const BUDGET_RANGES: Record<string, [number, number]> = {
 };
 
 /**
- * Best-effort powertrain_id matching the <car_slug>_<fuel>_<transmission>
- * convention the extraction skill uses. The catalog's own stored
- * powertrain_id collapses DCT and iVT into one "automatic" bucket, because
- * CarDekho's spec field doesn't distinguish gearbox type -- for Kia Seltos
- * specifically that's corrected here from the variant name text ("... Turbo
- * DCT" / "... iVT"), since Seltos is the one car with real powertrain-level
- * review claims today. Other cars only have model-level claims so far, so a
- * coarser fallback here doesn't lose any real evidence yet.
+ * Matches the <car_slug>_<fuel>_<transmission> convention the extraction
+ * skill and scripts/car_catalog_scraper.py both use -- spelled-out
+ * "_automatic"/"_manual", the exact keys aggregate_claims.py's output already
+ * indexes powertrains by. For Kia Seltos specifically this is corrected from
+ * the variant name text ("... Turbo DCT" / "... iVT") instead, since Seltos
+ * is the one car with claims filed at that finer granularity than the
+ * catalog's own Manual/Automatic-only spec field can distinguish.
+ *
+ * Previously this derived an abbreviated "_at"/"_mt" suffix for every
+ * non-Seltos car, which never matched any real aggregation key and silently
+ * dropped every powertrain-level claim back to model-level-only scoring --
+ * the Supabase `variants` table has no stored powertrain_id column (unlike
+ * the local catalog JSON files, which car_catalog_scraper.py stamps one onto
+ * directly), so this recomputes the same spelled-out id here rather than
+ * requiring a schema migration. Bug found Aug 18 while fixing Hyundai
+ * Verna's powertrain-id fragmentation in scripts/recommend.py (the Python
+ * twin of this function).
  */
 export function derivePowertrainId(carId: string, variant: CatalogVariant): string {
   const fuel = (variant.fuel_type ?? "unknown").trim().toLowerCase();
@@ -63,9 +72,11 @@ export function derivePowertrainId(carId: string, variant: CatalogVariant): stri
     (variant.spec_sections?.["Engine & Transmission"] as Record<string, unknown> | undefined)?.[
       "Transmission Type"
     ] ?? "",
-  ).toLowerCase();
-  const transmission = transType.includes("automatic") ? "at" : "mt";
-  return `${carId}_${fuel}_${transmission}`;
+  )
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, "_") || "unknown";
+  return `${carId}_${fuel.replace(/\s+/g, "_")}_${transType}`;
 }
 
 export function passesStructuralFilters(

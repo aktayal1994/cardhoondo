@@ -69,7 +69,7 @@ export default function CompareView({ recommendationResultId, recommendOutput, o
         <ArrowLeft className="h-4 w-4" strokeWidth={1.75} />
         Back to shortlist
       </button>
-      <h1 className="mt-4 text-2xl font-semibold text-ink">Compare</h1>
+      <h1 className="mt-4 font-display text-2xl font-bold text-ink">Compare</h1>
       <p className="mt-1 text-sm text-ink-faint sm:hidden">Swipe sideways to compare →</p>
 
       <div className="mt-6 overflow-x-auto rounded-2xl border border-border">
@@ -81,7 +81,7 @@ export default function CompareView({ recommendationResultId, recommendOutput, o
               </th>
               {shortlist.map((c) => (
                 <th key={c.car_id} className="min-w-[180px] border-l border-border bg-paper-raised px-4 py-3 text-left align-top">
-                  <p className="font-semibold text-ink">
+                  <p className="font-display font-semibold text-ink">
                     {c.brand} {c.car_model}
                   </p>
                   <p className="mt-0.5 text-xs font-normal text-ink-faint">{formatINR(c.price_on_road)}</p>

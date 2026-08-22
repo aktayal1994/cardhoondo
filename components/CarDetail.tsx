@@ -67,11 +67,14 @@ export default function CarDetail({ recommendationResultId, carId, fallbackLabel
         Back to shortlist
       </button>
 
-      <h1 className="mt-4 text-2xl font-semibold text-ink">{data ? `${data.brand} ${data.car_model}` : fallbackLabel}</h1>
+      <h1 className="mt-4 font-display text-2xl font-bold text-ink">{data ? `${data.brand} ${data.car_model}` : fallbackLabel}</h1>
       {data && (
         <p className="text-sm text-ink-faint">
-          {data.variant_id} · {formatINR(data.price_on_road)} · {data.score.facets_with_data} of{" "}
-          {data.score.facets_with_data + data.score.facets_missing} review factors covered
+          {data.variant_id} · {formatINR(data.price_on_road)} ·{" "}
+          <span className="font-mono">
+            {data.score.facets_with_data} of {data.score.facets_with_data + data.score.facets_missing}
+          </span>{" "}
+          review factors covered
         </p>
       )}
 
@@ -93,7 +96,7 @@ export default function CarDetail({ recommendationResultId, carId, fallbackLabel
         <div className="mt-8 space-y-8">
           {Array.from(byTheme.entries()).map(([theme, items]) => (
             <section key={theme}>
-              <h2 className="text-xs font-semibold uppercase tracking-wide text-ink-faint">{humanize(theme)}</h2>
+              <h2 className="font-display text-xs font-semibold uppercase tracking-wide text-ink-faint">{humanize(theme)}</h2>
               <div className="mt-3 space-y-4">
                 {items.map((item) => (
                   <FacetDetail key={item.facet} item={item} />

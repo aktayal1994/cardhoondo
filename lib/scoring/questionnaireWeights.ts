@@ -15,6 +15,8 @@ export const FACET_THEME_MAP: Record<string, string> = {
   highway_stability: "ride_quality",
   handling_cornering: "ride_quality",
   nvh_refinement: "ride_quality",
+  tire_quality: "ride_quality",
+  ground_clearance_practicality: "ride_quality",
   // mileage_efficiency
   city_mileage_actual: "mileage_efficiency",
   highway_mileage_actual: "mileage_efficiency",
@@ -49,11 +51,14 @@ export const FACET_THEME_MAP: Record<string, string> = {
   highway_overtaking: "power_drivability",
   turbo_lag: "power_drivability",
   engine_refinement: "power_drivability",
+  offroad_traction_capability: "power_drivability",
   // feature_tech
   touchscreen_lag: "feature_tech",
   connected_car_features: "feature_tech",
   sunroof_quality: "feature_tech",
   climate_control_effectiveness: "feature_tech",
+  exterior_lighting_quality: "feature_tech",
+  audio_system_quality: "feature_tech",
   // cabin_space
   front_legroom_headroom: "cabin_space",
   rear_legroom_kneeroom: "cabin_space",

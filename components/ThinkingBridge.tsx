@@ -1,11 +1,13 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
+import { ALL_FACETS } from "../lib/scoring/questionnaireWeights";
 
 const STAGES = [
   "Reading your answers",
   "Filtering the catalog by budget, fuel and seating",
-  "Weighing dozens of review factors against what you told us",
+  `Weighing ${ALL_FACETS.length} review factors against what you told us`,
   "Cross-checking evidence from real owners and experts",
   "Ranking the shortlist",
 ];
@@ -55,16 +57,17 @@ export default function ThinkingBridge({ ready, onDone }: ThinkingBridgeProps) {
   }, [ready, onDone]);
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center px-6 text-center">
+    <main className="stage-glow flex min-h-screen flex-col items-center justify-center bg-stage px-6 text-center">
+      <Image src="/cardhoondo-icon.png" alt="" width={237} height={237} className="mb-2 h-10 w-10" />
       <div className="flex gap-1.5" aria-hidden>
-        <span className="animate-pulse-dot h-2 w-2 rounded-full bg-navy-700" style={{ animationDelay: "0ms" }} />
-        <span className="animate-pulse-dot h-2 w-2 rounded-full bg-navy-700" style={{ animationDelay: "180ms" }} />
-        <span className="animate-pulse-dot h-2 w-2 rounded-full bg-navy-700" style={{ animationDelay: "360ms" }} />
+        <span className="animate-pulse-dot h-2 w-2 rounded-full bg-accent-gold" style={{ animationDelay: "0ms" }} />
+        <span className="animate-pulse-dot h-2 w-2 rounded-full bg-accent-gold" style={{ animationDelay: "180ms" }} />
+        <span className="animate-pulse-dot h-2 w-2 rounded-full bg-accent-gold" style={{ animationDelay: "360ms" }} />
       </div>
-      <p className="animate-fade-up mt-6 text-lg font-medium text-ink" key={stageIndex}>
+      <p className="animate-fade-up mt-6 font-display text-lg font-medium text-stage-ink" key={stageIndex}>
         {STAGES[stageIndex]}
       </p>
-      <p className="mt-2 text-sm text-ink-faint">This usually takes a few seconds.</p>
+      <p className="mt-2 text-sm text-stage-ink-soft">This usually takes a few seconds.</p>
     </main>
   );
 }

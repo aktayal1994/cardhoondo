@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import { ArrowLeft, Pencil, PanelRightOpen, X } from "lucide-react";
 import { QUESTIONS, SECTIONS, isAnswerComplete, type QuestionDef, type SectionId } from "../lib/questions";
 import type { QuestionnaireAnswers } from "../lib/scoring/questionnaireWeights";
@@ -86,9 +87,12 @@ export default function QuestionnaireFlow({ onSubmit }: QuestionnaireFlowProps) 
         >
           <ArrowLeft className="h-5 w-5" strokeWidth={1.75} />
         </button>
-        <p className="text-sm font-medium text-ink-soft">
-          {allDone ? "All done" : SECTIONS.find((s) => s.id === active?.section)?.label}
-        </p>
+        <div className="flex items-center gap-2">
+          <Image src="/cardhoondo-icon.png" alt="" width={237} height={237} className="h-5 w-5" />
+          <p className="font-display text-sm font-semibold text-ink-soft">
+            {allDone ? "All done" : SECTIONS.find((s) => s.id === active?.section)?.label}
+          </p>
+        </div>
         <button
           type="button"
           onClick={() => setProfileOpen(true)}
@@ -112,7 +116,7 @@ export default function QuestionnaireFlow({ onSubmit }: QuestionnaireFlowProps) 
               <div key={q.id}>
                 {showSectionHeader && <SectionDivider label={SECTIONS.find((s) => s.id === q.section)!.label} />}
                 {isEditing ? (
-                  <div className="rounded-2xl border border-navy-200 bg-navy-50/40 p-4">
+                  <div className="rounded-[20px] border border-navy-200 bg-navy-50/40 p-4">
                     <QuestionCard
                       question={q}
                       value={answers[q.id]}
@@ -164,7 +168,7 @@ export default function QuestionnaireFlow({ onSubmit }: QuestionnaireFlowProps) 
               <button
                 type="button"
                 onClick={() => onSubmit(answers)}
-                className="mt-4 rounded-full bg-navy-800 px-8 py-4 text-base font-medium text-white shadow-sm transition hover:bg-navy-900 active:scale-[0.98]"
+                className="mt-4 rounded-full bg-accent-gold px-8 py-4 text-base font-semibold text-stage shadow-sm transition hover:brightness-105 active:scale-[0.98]"
               >
                 Show my recommendations
               </button>
@@ -204,7 +208,7 @@ export default function QuestionnaireFlow({ onSubmit }: QuestionnaireFlowProps) 
 
 function SectionDivider({ label }: { label: string }) {
   return (
-    <p className="mb-4 text-xs font-semibold uppercase tracking-wide text-ink-faint">{label}</p>
+    <p className="mb-4 font-display text-xs font-semibold uppercase tracking-wide text-ink-faint">{label}</p>
   );
 }
 
@@ -212,14 +216,14 @@ function ProfilePanel({ entries, hideTitle }: { entries: { prompt: string; value
   if (entries.length === 0) {
     return (
       <div>
-        {!hideTitle && <p className="mb-3 font-medium text-ink">What we know about you</p>}
+        {!hideTitle && <p className="mb-3 font-display font-semibold text-ink">What we know about you</p>}
         <p className="text-sm text-ink-faint">Your answers will build up here as you go.</p>
       </div>
     );
   }
   return (
     <div>
-      {!hideTitle && <p className="mb-3 font-medium text-ink">What we know about you</p>}
+      {!hideTitle && <p className="mb-3 font-display font-semibold text-ink">What we know about you</p>}
       <ul className="space-y-3">
         {entries.map((e) => (
           <li key={e.prompt} className="animate-fade-up border-l-2 border-navy-100 pl-3">

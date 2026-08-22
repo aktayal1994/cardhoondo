@@ -1,7 +1,9 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif;
+  --font-sans: var(--font-body), "Be Vietnam Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-display: var(--font-display-face), "Plus Jakarta Sans", var(--font-sans);
+  --font-mono: var(--font-data), "JetBrains Mono", ui-monospace, monospace;
 
   --color-navy-950: #0b1c30;
   --color-navy-900: #102b47;
@@ -27,6 +29,13 @@
   --color-neutral-verdict-bg: #f1efe9;
 
   --color-accent-gold: #c8922a;
+  --color-accent-gold-soft: #e8c98a;
+
+  --color-stage: #12100e;
+  --color-stage-raised: #1c1916;
+  --color-stage-ink: #f4ede0;
+  --color-stage-ink-soft: #b8b0a0;
+  --color-stage-border: #322d27;
 }
 
 html {
@@ -67,9 +76,31 @@ body {
   animation: pulse-dot 1.4s ease-in-out infinite;
 }
 
+.stagger-1 { animation-delay: 0.08s; }
+.stagger-2 { animation-delay: 0.22s; }
+.stagger-3 { animation-delay: 0.36s; }
+.stagger-4 { animation-delay: 0.5s; }
+.stagger-5 { animation-delay: 0.64s; }
+
+.animate-fade-up {
+  animation-fill-mode: both;
+}
+
+/* background-image, not the `background` shorthand -- the shorthand resets
+   background-color to transparent for any sub-property it doesn't mention,
+   which was silently wiping out the bg-stage utility on every section that
+   combined the two classes (a real regression, caught from a screenshot). */
+.stage-glow {
+  background-image:
+    radial-gradient(38% 32% at 96% 0%, rgba(200, 146, 42, 0.14), transparent 65%),
+    radial-gradient(45% 40% at 8% 92%, rgba(59, 118, 173, 0.16), transparent 65%);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .animate-fade-up,
   .animate-pulse-dot {
     animation: none !important;
+    opacity: 1;
+    transform: none;
   }
 }
