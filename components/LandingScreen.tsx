@@ -107,39 +107,42 @@ function Nav({ onStart }: { onStart: () => void }) {
 /* ---------------------------------------------------------------------- */
 
 const HERO_ALT =
-  "Asked chacha. Asked colleagues. Watched 15 YouTube videos. Still confused which car to buy? " +
   "A couple stands on a coastal road as CarDhoondo highlights one clear, confidently recommended car.";
 
 function Hero({ onStart }: { onStart: () => void }) {
   return (
     <section id="top" className="flex flex-1 flex-col bg-paper">
-      {/* the hero artwork -- already carries the headline/story. It fills
-          whatever vertical room is left after the CTA band below, so the
-          whole hero (nav + photo + CTA) fits in one screen -- cropped only
-          as much as the viewport actually forces, via object-position tuned
-          to keep the headline text and the car/people in frame. Mobile and
-          desktop are two distinct compositions, not one image cropped. */}
-      <div className="relative min-h-[51vw] flex-1 overflow-hidden md:min-h-[27vw]">
-        <Image
-          src="/hero-banner-mobile.jpg"
-          alt={HERO_ALT}
-          fill
-          priority
-          sizes="100vw"
-          className="object-cover object-[center_18%] md:hidden"
-        />
-        <Image
-          src="/hero-banner-desktop.jpg"
-          alt={HERO_ALT}
-          fill
-          priority
-          sizes="100vw"
-          className="hidden object-cover object-[5%_56%] md:block"
-        />
+      {/* One clean photo (no baked-in text), so headline placement/size is
+          fully our own CSS -- fluid (clamp-based), not just breakpoint jumps,
+          so it holds up while a window is being resized, not only at fixed
+          device presets. Fills whatever room is left after the CTA band
+          below; object-position leans toward the people/car (the photo's
+          real subject) since cropping is purely aesthetic now -- nothing in
+          the photo itself needs protecting from a crop anymore. */}
+      <div className="relative min-h-[220px] flex-1 overflow-hidden">
+        <Image src="/hero-banner.jpg" alt={HERO_ALT} fill priority sizes="100vw" className="object-cover object-[78%_78%]" />
+
+        {/* legibility scrim -- a fixed dark zone independent of the photo's
+            own crop, so headline text stays readable no matter which part
+            of the photo ends up behind it at a given width */}
+        <div className="absolute inset-0 bg-gradient-to-b from-stage/90 via-stage/72 to-stage/30 sm:bg-gradient-to-r sm:from-stage/95 sm:via-stage/78 sm:to-stage/20" />
+
+        <div className="relative flex h-full flex-col justify-center px-6 sm:px-10 lg:px-16">
+          <div className="max-w-[clamp(16rem,42vw,34rem)]">
+            <h1 className="font-display font-bold leading-[1.1] tracking-tight text-stage-ink text-balance text-[clamp(1.5rem,4.4vw,3.25rem)]">
+              <span className="block">Asked chacha.</span>
+              <span className="block">Asked colleagues.</span>
+              <span className="block text-accent-gold-soft">Watched 15 YouTube videos.</span>
+            </h1>
+            <p className="mt-[clamp(0.5rem,1.2vw,0.9rem)] font-display font-medium text-stage-ink text-[clamp(1rem,2vw,1.5rem)]">
+              Still confused which car to buy?
+            </p>
+          </div>
+        </div>
       </div>
 
-      {/* the decision moment -- CTA lives here, not on the photo -- kept
-          compact so it doesn't eat into the image's share of the screen */}
+      {/* the decision moment -- kept compact so it doesn't eat into the
+          image's share of the screen */}
       <div className="shrink-0 bg-stage stage-glow">
         <div className="mx-auto flex max-w-6xl flex-col items-center gap-3 px-6 py-5 text-center sm:flex-row sm:justify-between sm:gap-4 sm:py-6 sm:text-left">
           <p className="font-display text-lg font-semibold text-stage-ink sm:text-xl lg:text-2xl">
