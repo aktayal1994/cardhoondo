@@ -10,6 +10,7 @@ export interface IntroValues {
 }
 
 interface IntroStepProps {
+  initialValues?: IntroValues;
   onContinue: (values: IntroValues) => void;
 }
 
@@ -23,26 +24,32 @@ function isValidPhoneNumber(phone: string): boolean {
   return true;
 }
 
-/**
- * A short "getting to know you" step ahead of the categorized questionnaire
- * (see docs/questionnaire.md's "Intro" section) -- not counted as one of the
- * 11 real questions. All three fields are optional, so "Continue" is never
- * blocked by an empty form; it's only blocked by an actively invalid phone
- * number (a non-empty value that fails validation), never by an empty one.
- */
-export default function IntroStep({ onContinue }: IntroStepProps) {
-  const [name, setName] = useState("");
-  const [pincode, setPincode] = useState("");
-  const [phone, setPhone] = useState("");
-  const [phoneTouched, setPhoneTouched] = useState(false);
+function isValidPincode(pincode: string): boolean {
+  return /^\d{6}$/.test(pincode);
+}
 
-  const phoneDigitsOnly = phone.replace(/\D/g, "");
-  const phoneError = phoneTouched && phoneDigitsOnly.length > 0 && !isValidPhoneNumber(phoneDigitsOnly);
-  const canContinue = phoneDigitsOnly.length === 0 || isValidPhoneNumber(phoneDigitsOnly);
+/**
+ * Step 1 of 4 (see app/questionnaire/intro/page.tsx and docs/questionnaire.md's
+ * "Intro" section) -- not counted as one of the 11 scored questions, but now
+ * mandatory rather than optional per explicit direction: a real name/phone/
+ * pincode on every submission is worth more than a slightly lower completion
+ * rate, since the human-handoff step (WhatsApp/call outreach) depends on it.
+ */
+export default function IntroStep({ initialValues, onContinue }: IntroStepProps) {
+  const [name, setName] = useState(initialValues?.name ?? "");
+  const [pincode, setPincode] = useState(initialValues?.pincode ?? "");
+  const [phone, setPhone] = useState(initialValues?.phone_number ?? "");
+  const [touched, setTouched] = useState(false);
+
+  const nameError = touched && name.trim().length === 0;
+  const pincodeError = touched && !isValidPincode(pincode);
+  const phoneError = touched && !isValidPhoneNumber(phone);
+  const canContinue = name.trim().length > 0 && isValidPincode(pincode) && isValidPhoneNumber(phone);
 
   function handleContinue() {
+    setTouched(true);
     if (!canContinue) return;
-    onContinue({ name: name.trim(), pincode: pincode.trim(), phone_number: phoneDigitsOnly });
+    onContinue({ name: name.trim(), pincode, phone_number: phone });
   }
 
   return (
@@ -52,9 +59,9 @@ export default function IntroStep({ onContinue }: IntroStepProps) {
           <UserRound className="h-4.5 w-4.5 text-navy-700" strokeWidth={1.75} />
         </div>
         <div>
-          <h2 className="font-display text-xl font-semibold text-ink">Before we start, a quick intro</h2>
+          <h2 className="font-display text-xl font-semibold text-ink">Let's start with a few details</h2>
           <p className="mt-1 text-sm text-ink-soft">
-            All optional — this just helps us address you properly, and reach out if you'd like a hand later.
+            So we can address you properly and reach out with your shortlist if you'd like a hand.
           </p>
         </div>
       </div>
@@ -70,13 +77,17 @@ export default function IntroStep({ onContinue }: IntroStepProps) {
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Your name"
-            className="w-full rounded-xl border border-border bg-paper-raised px-4 py-2.5 text-sm text-ink placeholder:text-ink-faint focus:border-navy-500 focus:outline-none"
+            aria-invalid={nameError}
+            className={`w-full rounded-xl border bg-paper-raised px-4 py-2.5 text-sm text-ink placeholder:text-ink-faint focus:outline-none ${
+              nameError ? "border-negative" : "border-border focus:border-navy-500"
+            }`}
           />
+          {nameError && <p className="mt-1.5 text-sm text-negative">Enter your name.</p>}
         </div>
 
         <div>
           <label htmlFor="intro-pincode" className="mb-1.5 block text-sm font-medium text-ink">
-            Pincode <span className="font-normal text-ink-faint">(optional)</span>
+            Pincode
           </label>
           <input
             id="intro-pincode"
@@ -86,13 +97,17 @@ export default function IntroStep({ onContinue }: IntroStepProps) {
             value={pincode}
             onChange={(e) => setPincode(e.target.value.replace(/\D/g, "").slice(0, 6))}
             placeholder="6-digit pincode"
-            className="w-full rounded-xl border border-border bg-paper-raised px-4 py-2.5 text-sm text-ink placeholder:text-ink-faint focus:border-navy-500 focus:outline-none"
+            aria-invalid={pincodeError}
+            className={`w-full rounded-xl border bg-paper-raised px-4 py-2.5 text-sm text-ink placeholder:text-ink-faint focus:outline-none ${
+              pincodeError ? "border-negative" : "border-border focus:border-navy-500"
+            }`}
           />
+          {pincodeError && <p className="mt-1.5 text-sm text-negative">Enter a valid 6-digit pincode.</p>}
         </div>
 
         <div>
           <label htmlFor="intro-phone" className="mb-1.5 block text-sm font-medium text-ink">
-            Phone number <span className="font-normal text-ink-faint">(optional — only if you'd like us to follow up)</span>
+            Phone number
           </label>
           <input
             id="intro-phone"
@@ -101,7 +116,6 @@ export default function IntroStep({ onContinue }: IntroStepProps) {
             maxLength={10}
             value={phone}
             onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
-            onBlur={() => setPhoneTouched(true)}
             placeholder="10-digit mobile number"
             aria-invalid={phoneError}
             className={`w-full rounded-xl border bg-paper-raised px-4 py-2.5 text-sm text-ink placeholder:text-ink-faint focus:outline-none ${
@@ -120,8 +134,7 @@ export default function IntroStep({ onContinue }: IntroStepProps) {
         <button
           type="button"
           onClick={handleContinue}
-          disabled={!canContinue}
-          className="rounded-full bg-accent-gold px-8 py-3.5 text-base font-semibold text-stage shadow-sm transition hover:brightness-105 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
+          className="rounded-full bg-accent-gold px-8 py-3.5 text-base font-semibold text-stage shadow-sm transition hover:brightness-105 active:scale-[0.98]"
         >
           Continue
         </button>

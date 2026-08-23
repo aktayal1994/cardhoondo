@@ -309,6 +309,52 @@ export function questionIndex(id: string): number {
   return QUESTIONS.findIndex((q) => q.id === id);
 }
 
+/** All questions belonging to one of the 4 step-form routes (see
+ * app/questionnaire/*), in flow order. Used to scope the one-at-a-time chat
+ * UI to a single step instead of the whole 11-question flow. */
+export function questionsInSection(section: SectionId): QuestionDef[] {
+  return QUESTIONS.filter((q) => q.section === section);
+}
+
+/** Whether every required, currently-visible question in a section already
+ * has a complete answer -- used both to gate direct navigation to a later
+ * step (see each app/questionnaire/*\/page.tsx's guard) and to decide
+ * whether a revisited step should re-enter at its first unanswered question
+ * or just show everything as settled. */
+export function isSectionComplete(section: SectionId, answers: QuestionnaireAnswers): boolean {
+  return questionsInSection(section).every((q) => {
+    if (!isQuestionVisible(q, answers)) return true;
+    if (!q.required) return true;
+    return isAnswerComplete(q, answers[q.id]);
+  });
+}
+
+/** Plain-language rendering of an answer for the "what we know about you"
+ * sidebar and the settled-question summary row -- resolves each picked
+ * option's conditionalLabel (if any) rather than just joining raw values. */
+export function summarizeAnswer(question: QuestionDef, value: string | string[], answers: QuestionnaireAnswers): string {
+  const values = Array.isArray(value) ? value : [value];
+  return values
+    .map((v) => {
+      const option = question.options.find((o) => o.value === v);
+      return option?.conditionalLabel?.(answers) ?? option?.label ?? v;
+    })
+    .join(" + ");
+}
+
+/** Prompt/value rows for every already-answered, non-skipped question in a
+ * section -- used to build the sidebar's "prior steps" summary on a later
+ * step-form page. */
+export function profileEntriesForSection(
+  section: SectionId,
+  answers: QuestionnaireAnswers,
+  skipped: string[],
+): { prompt: string; value: string }[] {
+  return questionsInSection(section)
+    .filter((q) => !skipped.includes(q.id) && answers[q.id] !== undefined && isQuestionVisible(q, answers))
+    .map((q) => ({ prompt: q.prompt, value: summarizeAnswer(q, answers[q.id], answers) }));
+}
+
 export function sectionOf(id: string): SectionId | undefined {
   return QUESTIONS.find((q) => q.id === id)?.section;
 }
