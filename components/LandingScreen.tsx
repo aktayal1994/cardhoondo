@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -14,6 +15,7 @@ import {
   ArrowRight,
   X,
   Check,
+  ChevronDown,
 } from "lucide-react";
 
 const FAQS = [
@@ -360,6 +362,8 @@ function WhyCarDhoondo() {
 /* ---------------------------------------------------------------------- */
 
 function Faq() {
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
+
   const faqJsonLd = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
@@ -380,14 +384,36 @@ function Faq() {
           center
         />
 
-        <dl className="mt-12 divide-y divide-border">
-          {FAQS.map((f) => (
-            <div key={f.q} className="py-6">
-              <dt className="font-display font-semibold text-ink">{f.q}</dt>
-              <dd className="mt-2 text-sm leading-relaxed text-ink-soft">{f.a}</dd>
-            </div>
-          ))}
-        </dl>
+        {/* SEO note: the FAQPage JSON-LD below already carries every question's
+            full answer text for search engines regardless of open/closed UI
+            state, so conditionally rendering the answer here (rather than
+            keeping it in the DOM and just hiding it) doesn't cost any SEO
+            value while keeping the accordion implementation simple. */}
+        <div className="mt-12 divide-y divide-border">
+          {FAQS.map((f, i) => {
+            const isOpen = openIndex === i;
+            return (
+              <div key={f.q} className="py-2">
+                <button
+                  type="button"
+                  onClick={() => setOpenIndex(isOpen ? null : i)}
+                  aria-expanded={isOpen}
+                  className="flex w-full items-center justify-between gap-4 py-4 text-left"
+                >
+                  <span className="font-display font-semibold text-ink">{f.q}</span>
+                  <ChevronDown
+                    className={`h-5 w-5 shrink-0 text-ink-faint transition-transform duration-200 ${
+                      isOpen ? "rotate-180" : ""
+                    }`}
+                  />
+                </button>
+                {isOpen && (
+                  <p className="animate-fade-up pb-5 text-sm leading-relaxed text-ink-soft">{f.a}</p>
+                )}
+              </div>
+            );
+          })}
+        </div>
       </div>
       <script
         type="application/ld+json"
@@ -444,16 +470,31 @@ function Contact({ onStart }: { onStart: () => void }) {
 function Footer() {
   return (
     <footer className="bg-stage py-12">
-      <div className="mx-auto flex max-w-6xl flex-col items-center gap-4 px-6 text-center sm:flex-row sm:justify-between sm:text-left">
+      <div className="mx-auto flex max-w-6xl flex-col items-center gap-8 px-6 text-center sm:flex-row sm:items-start sm:justify-between sm:text-left">
         <div>
           <div className="flex items-center justify-center gap-2.5 sm:justify-start">
             <Image src="/cardhoondo-icon.png" alt="" width={237} height={237} className="h-7 w-7" />
             <p className="font-display text-base font-bold text-stage-ink">CarDhoondo</p>
           </div>
-          <p className="mt-2 text-sm text-stage-ink-soft">
+          <p className="mt-2 max-w-xs text-sm text-stage-ink-soft">
             No dealer commissions. No sponsored results. Just the car that fits your life.
           </p>
         </div>
+
+        {/* Same links as the top nav -- the top nav is hidden below `sm`, so
+            this is the only way to reach FAQ/Contact/Guides on mobile. */}
+        <nav className="flex items-center gap-6 text-sm font-medium text-stage-ink-soft">
+          <a href="#faq" className="transition hover:text-stage-ink">
+            FAQ
+          </a>
+          <Link href="/guides" className="transition hover:text-stage-ink">
+            Guides
+          </Link>
+          <a href="#contact" className="transition hover:text-stage-ink">
+            Contact
+          </a>
+        </nav>
+
         <p className="text-xs text-stage-ink-soft">
           &copy; {new Date().getFullYear()} CarDhoondo · Made for car buyers across India
         </p>

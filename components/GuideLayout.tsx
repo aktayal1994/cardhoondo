@@ -135,16 +135,29 @@ function BottomCta() {
 function GuideFooter() {
   return (
     <footer className="bg-stage py-12">
-      <div className="mx-auto flex max-w-6xl flex-col items-center gap-4 px-6 text-center sm:flex-row sm:justify-between sm:text-left">
+      <div className="mx-auto flex max-w-6xl flex-col items-center gap-8 px-6 text-center sm:flex-row sm:items-start sm:justify-between sm:text-left">
         <div>
           <div className="flex items-center justify-center gap-2.5 sm:justify-start">
             <Image src="/cardhoondo-icon.png" alt="" width={237} height={237} className="h-7 w-7" />
             <p className="font-display text-base font-bold text-stage-ink">CarDhoondo</p>
           </div>
-          <p className="mt-2 text-sm text-stage-ink-soft">
+          <p className="mt-2 max-w-xs text-sm text-stage-ink-soft">
             No dealer commissions. No sponsored results. Just the car that fits your life.
           </p>
         </div>
+
+        <nav className="flex items-center gap-6 text-sm font-medium text-stage-ink-soft">
+          <Link href="/#faq" className="transition hover:text-stage-ink">
+            FAQ
+          </Link>
+          <Link href="/guides" className="transition hover:text-stage-ink">
+            Guides
+          </Link>
+          <Link href="/#contact" className="transition hover:text-stage-ink">
+            Contact
+          </Link>
+        </nav>
+
         <p className="text-xs text-stage-ink-soft">
           &copy; {new Date().getFullYear()} CarDhoondo · Made for car buyers across India
         </p>
