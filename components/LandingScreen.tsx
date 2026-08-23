@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import {
   ShieldCheck,
   Ban,
@@ -87,6 +88,9 @@ function Nav({ onStart }: { onStart: () => void }) {
           <a href="#faq" className="transition hover:text-ink">
             FAQ
           </a>
+          <Link href="/guides" className="transition hover:text-ink">
+            Guides
+          </Link>
           <a href="#contact" className="transition hover:text-ink">
             Contact
           </a>
