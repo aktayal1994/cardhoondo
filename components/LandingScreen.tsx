@@ -439,17 +439,18 @@ function Contact({ onStart }: { onStart: () => void }) {
           Questions, feedback, or found a bug? We read everything.
         </h2>
         <p className="mt-4 text-ink-soft">
-          CarDhoondo is early and actively being built. If something felt off, or you just want to
-          say hi, reach out directly.
+          CarDhoondo is early and actively being built. If something felt off, you&apos;re
+          interested in collaborating or partnering with us, or you just want to say hi, reach out
+          directly.
         </p>
 
         <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
           <a
-            href="mailto:hello@cardhoondo.com"
+            href="mailto:mycardhoondo@gmail.com"
             className="flex items-center gap-2 rounded-full border border-navy-800 px-6 py-3 text-sm font-medium text-navy-800 transition hover:bg-navy-100"
           >
             <Mail className="h-4 w-4" strokeWidth={1.75} />
-            hello@cardhoondo.com
+            mycardhoondo@gmail.com
           </a>
           <button
             onClick={onStart}
