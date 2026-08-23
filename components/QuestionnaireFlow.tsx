@@ -23,6 +23,31 @@ interface QuestionnaireFlowProps {
   onSubmit: (answers: QuestionnaireAnswers, intro: IntroValues) => void;
 }
 
+/** One-line acknowledgment shown when the section named by the key has just
+ * been completed -- a block-level echo of the per-question reaction
+ * microcopy, closing the "only per-answer, never per-section" acknowledgment
+ * gap. No entry for "what_matters" since it's the last section; allDone's
+ * own message covers that transition instead. */
+const SECTION_BEATS: Partial<Record<SectionId, string>> = {
+  core_requirements: "Budget, fuel, seating, transmission — the non-negotiables are locked in.",
+  everyday_driving: "Good — now I know how you actually drive day to day.",
+};
+
+function SectionBeat({ from }: { from: SectionId }) {
+  const message = SECTION_BEATS[from];
+  if (!message) return null;
+  return (
+    <div className="stage-glow animate-fade-up mb-4 flex items-center gap-3 rounded-2xl bg-stage px-4 py-3">
+      <span className="flex shrink-0 gap-1" aria-hidden>
+        <span className="animate-pulse-dot h-1.5 w-1.5 rounded-full bg-accent-gold" style={{ animationDelay: "0ms" }} />
+        <span className="animate-pulse-dot h-1.5 w-1.5 rounded-full bg-accent-gold" style={{ animationDelay: "180ms" }} />
+        <span className="animate-pulse-dot h-1.5 w-1.5 rounded-full bg-accent-gold" style={{ animationDelay: "360ms" }} />
+      </span>
+      <p className="font-display text-sm text-stage-ink">{message}</p>
+    </div>
+  );
+}
+
 function summarize(question: QuestionDef, value: string | string[], answers: QuestionnaireAnswers): string {
   const values = Array.isArray(value) ? value : [value];
   return values
@@ -179,10 +204,12 @@ export default function QuestionnaireFlow({ onSubmit }: QuestionnaireFlowProps) 
             const isEditing = editingId === q.id;
             const wasSkipped = skipped.has(q.id);
             const showSectionHeader = q.section !== lastRenderedSection;
+            const previousSection = lastRenderedSection;
             lastRenderedSection = q.section;
 
             return (
               <div key={q.id}>
+                {showSectionHeader && previousSection !== null && <SectionBeat from={previousSection} />}
                 {showSectionHeader && <SectionDivider label={SECTIONS.find((s) => s.id === q.section)!.label} />}
                 {isEditing ? (
                   <div className="rounded-[20px] border border-navy-200 bg-navy-50/40 p-4">
@@ -219,6 +246,9 @@ export default function QuestionnaireFlow({ onSubmit }: QuestionnaireFlowProps) 
 
           {active && (
             <div ref={activeRef}>
+              {active.section !== lastRenderedSection && lastRenderedSection !== null && (
+                <SectionBeat from={lastRenderedSection} />
+              )}
               {active.section !== lastRenderedSection && <SectionDivider label={SECTIONS.find((s) => s.id === active.section)!.label} />}
               <QuestionCard
                 question={active}

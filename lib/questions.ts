@@ -171,9 +171,9 @@ export const QUESTIONS: QuestionDef[] = [
       return !(selected.length === 1 && selected[0] === "Electric");
     },
     options: [
-      { value: "Manual", label: "Manual", microcopy: "Noted — manual transmission." },
-      { value: "Automatic", label: "Automatic", microcopy: "Got it — automatic transmission." },
-      { value: "No preference", label: "No preference", microcopy: "Noted — either transmission works." },
+      { value: "Manual", label: "Manual", icon: Hand, microcopy: "Noted — manual transmission." },
+      { value: "Automatic", label: "Automatic", icon: Cog, microcopy: "Got it — automatic transmission." },
+      { value: "No preference", label: "No preference", icon: Shuffle, microcopy: "Noted — either transmission works." },
     ],
   },
 
@@ -187,11 +187,11 @@ export const QUESTIONS: QuestionDef[] = [
     type: "single",
     required: true,
     options: [
-      { value: "City, short trips", label: "City, short trips", microcopy: "Noted — tight streets and stop-start traffic just became a bigger factor." },
-      { value: "Highway, longer distances", label: "Highway, longer distances", microcopy: "Got it — highway stability and overtaking power just moved up." },
-      { value: "Hilly or ghat roads", label: "Hilly or ghat roads", microcopy: "Noted — braking on descents and cornering through hairpins just moved up." },
-      { value: "Rural or broken roads", label: "Rural or broken roads", microcopy: "Got it — ride quality over rough roads just became a priority." },
-      { value: "Mixed", label: "Mixed", microcopy: "Noted — we'll balance city and highway evidence evenly." },
+      { value: "City, short trips", label: "City, short trips", icon: Building2, microcopy: "Noted — tight streets and stop-start traffic just became a bigger factor." },
+      { value: "Highway, longer distances", label: "Highway, longer distances", icon: Route, microcopy: "Got it — highway stability and overtaking power just moved up." },
+      { value: "Hilly or ghat roads", label: "Hilly or ghat roads", icon: Mountain, microcopy: "Noted — braking on descents and cornering through hairpins just moved up." },
+      { value: "Rural or broken roads", label: "Rural or broken roads", icon: TreeDeciduous, microcopy: "Got it — ride quality over rough roads just became a priority." },
+      { value: "Mixed", label: "Mixed", icon: Shuffle, microcopy: "Noted — we'll balance city and highway evidence evenly." },
     ],
   },
   {
@@ -203,10 +203,10 @@ export const QUESTIONS: QuestionDef[] = [
     type: "single",
     required: true,
     options: [
-      { value: "Under 20km", label: "Under 20km", microcopy: "Noted — short daily distance." },
-      { value: "20-50km", label: "20–50km", microcopy: "Got it — a moderate daily commute." },
-      { value: "50-100km", label: "50–100km", microcopy: "Noted — a longer daily commute." },
-      { value: "100km+ or highly variable", label: "100km+ or highly variable", microcopy: "Got it — high daily distance." },
+      { value: "Under 20km", label: "Under 20km", icon: MapPin, microcopy: "Noted — short daily distance." },
+      { value: "20-50km", label: "20–50km", icon: Route, microcopy: "Got it — a moderate daily commute." },
+      { value: "50-100km", label: "50–100km", icon: Navigation, microcopy: "Noted — a longer daily commute." },
+      { value: "100km+ or highly variable", label: "100km+ or highly variable", icon: Compass, microcopy: "Got it — high daily distance." },
     ],
   },
   {
@@ -218,9 +218,9 @@ export const QUESTIONS: QuestionDef[] = [
     type: "single",
     required: true,
     options: [
-      { value: "Very tight", label: "Very tight — narrow lanes, basement, every inch counts", microcopy: "Noted — we'll steer clear of anything oversized." },
-      { value: "Somewhat tight", label: "Somewhat tight — manageable, but nothing oversized", microcopy: "Got it — nothing too large." },
-      { value: "Not tight", label: "Not tight — plenty of room", microcopy: "Noted — size isn't a constraint for you." },
+      { value: "Very tight", label: "Very tight — narrow lanes, basement, every inch counts", icon: Ruler, microcopy: "Noted — we'll steer clear of anything oversized." },
+      { value: "Somewhat tight", label: "Somewhat tight — manageable, but nothing oversized", icon: ParkingSquare, microcopy: "Got it — nothing too large." },
+      { value: "Not tight", label: "Not tight — plenty of room", icon: ParkingCircle, microcopy: "Noted — size isn't a constraint for you." },
     ],
   },
   {
@@ -232,11 +232,11 @@ export const QUESTIONS: QuestionDef[] = [
     type: "multiAny",
     required: true,
     options: [
-      { value: "Just me", label: "Just me", microcopy: "Noted — mostly solo drives." },
-      { value: "Partner", label: "Partner", microcopy: "Got it — comfort for two just moved up." },
-      { value: "Young kids", label: "Young kids", microcopy: "Noted — safety and rear legroom just became a bigger priority." },
-      { value: "Elderly parents", label: "Elderly parents", microcopy: "Got it — easy entry, rear comfort and safety just moved up." },
-      { value: "Other adults or friends", label: "Other adults or friends", microcopy: "Noted — extra space for guests just moved up." },
+      { value: "Just me", label: "Just me", icon: User, microcopy: "Noted — mostly solo drives." },
+      { value: "Partner", label: "Partner", icon: Heart, microcopy: "Got it — comfort for two just moved up." },
+      { value: "Young kids", label: "Young kids", icon: Baby, microcopy: "Noted — safety and rear legroom just became a bigger priority." },
+      { value: "Elderly parents", label: "Elderly parents", icon: UserRound, microcopy: "Got it — easy entry, rear comfort and safety just moved up." },
+      { value: "Other adults or friends", label: "Other adults or friends", icon: UsersRound, microcopy: "Noted — extra space for guests just moved up." },
     ],
   },
 
@@ -250,12 +250,12 @@ export const QUESTIONS: QuestionDef[] = [
     type: "multi2",
     required: true,
     options: [
-      { value: "Ride quality and handling", label: "Ride quality and handling", microcopy: "Ride quality and handling — locked in as a top priority." },
-      { value: "Safety and build quality", label: "Safety and build quality", microcopy: "Safety and build quality — locked in as a top priority." },
-      { value: "Fuel efficiency", label: "Fuel efficiency", microcopy: "Fuel efficiency — locked in as a top priority." },
-      { value: "Power and acceleration", label: "Power and acceleration", microcopy: "Power and acceleration — locked in as a top priority." },
-      { value: "Features and tech", label: "Features and tech", microcopy: "Features and tech — locked in as a top priority." },
-      { value: "Low running costs", label: "Low running costs", microcopy: "Low running costs — locked in as a top priority." },
+      { value: "Ride quality and handling", label: "Ride quality and handling", icon: Waves, microcopy: "Ride quality and handling — locked in as a top priority." },
+      { value: "Safety and build quality", label: "Safety and build quality", icon: ShieldCheck, microcopy: "Safety and build quality — locked in as a top priority." },
+      { value: "Fuel efficiency", label: "Fuel efficiency", icon: Leaf, microcopy: "Fuel efficiency — locked in as a top priority." },
+      { value: "Power and acceleration", label: "Power and acceleration", icon: Rocket, microcopy: "Power and acceleration — locked in as a top priority." },
+      { value: "Features and tech", label: "Features and tech", icon: Cpu, microcopy: "Features and tech — locked in as a top priority." },
+      { value: "Low running costs", label: "Low running costs", icon: PiggyBank, microcopy: "Low running costs — locked in as a top priority." },
     ],
   },
   {
@@ -275,12 +275,18 @@ export const QUESTIONS: QuestionDef[] = [
           const selected = Array.isArray(fuel) ? fuel : fuel ? [fuel] : [];
           return selected.length === 1 && selected[0] === "Electric" ? "Frequent charging stops" : undefined;
         },
+        icon: Fuel,
+        conditionalIcon: (answers) => {
+          const fuel = answers["q_fuel"];
+          const selected = Array.isArray(fuel) ? fuel : fuel ? [fuel] : [];
+          return selected.length === 1 && selected[0] === "Electric" ? BatteryCharging : undefined;
+        },
         microcopy: "Noted — fuel efficiency just moved up.",
       },
-      { value: "Jerky or bumpy rides", label: "Jerky or bumpy rides", microcopy: "Got it — ride comfort over bumps just moved up." },
-      { value: "Slow overtakes", label: "Slow overtakes", microcopy: "Noted — overtaking power just moved up." },
-      { value: "Poor visibility or comfort", label: "Poor visibility or comfort", microcopy: "Got it — visibility and ergonomics just moved up." },
-      { value: "Lack of modern tech", label: "Lack of modern tech", microcopy: "Noted — features and tech just moved up." },
+      { value: "Jerky or bumpy rides", label: "Jerky or bumpy rides", icon: Waves, microcopy: "Got it — ride comfort over bumps just moved up." },
+      { value: "Slow overtakes", label: "Slow overtakes", icon: Gauge, microcopy: "Noted — overtaking power just moved up." },
+      { value: "Poor visibility or comfort", label: "Poor visibility or comfort", icon: Eye, microcopy: "Got it — visibility and ergonomics just moved up." },
+      { value: "Lack of modern tech", label: "Lack of modern tech", icon: Cpu, microcopy: "Noted — features and tech just moved up." },
     ],
   },
   {

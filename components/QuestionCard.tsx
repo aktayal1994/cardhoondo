@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { isAnswerComplete, type QuestionDef } from "../lib/questions";
 import type { QuestionnaireAnswers } from "../lib/scoring/questionnaireWeights";
+import { BRAND_LOGOS } from "../lib/brandLogos";
 
 interface QuestionCardProps {
   question: QuestionDef;
@@ -90,18 +92,36 @@ export default function QuestionCard({ question, value, answers, onChange, onCon
         {question.options.map((option) => {
           const isSelected = selected.includes(option.value);
           const label = option.conditionalLabel?.(answers) ?? option.label;
+          const OptionIcon = option.conditionalIcon?.(answers) ?? option.icon;
+          const logoSrc = question.id === "q_brand_avoid" ? BRAND_LOGOS[option.value] : undefined;
           return (
             <button
               key={option.value}
               type="button"
               onClick={() => pick(option.value)}
               aria-pressed={isSelected}
-              className={`rounded-full border px-4 py-2.5 text-sm font-medium transition active:scale-95 ${
+              className={`flex items-center gap-2 rounded-full border px-4 py-2.5 text-sm font-medium transition active:scale-95 ${
                 isSelected
                   ? "border-navy-900 bg-navy-900 text-white shadow-sm"
                   : "border-border bg-paper-raised text-ink hover:border-navy-500 hover:bg-navy-50"
               }`}
             >
+              {logoSrc ? (
+                <span
+                  className={`flex h-5 w-5 shrink-0 items-center justify-center overflow-hidden rounded-full ${
+                    isSelected ? "bg-white" : "bg-paper"
+                  }`}
+                >
+                  <Image src={logoSrc} alt="" width={20} height={20} className="h-full w-full object-contain p-0.5" />
+                </span>
+              ) : (
+                OptionIcon && (
+                  <OptionIcon
+                    className={`h-4 w-4 shrink-0 ${isSelected ? "text-white" : "text-navy-600"}`}
+                    strokeWidth={1.75}
+                  />
+                )
+              )}
               {label}
             </button>
           );
