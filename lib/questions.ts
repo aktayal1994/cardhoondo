@@ -1,39 +1,80 @@
 /**
- * The 13-question flow, sourced from docs/questionnaire.md. Question ids and
- * option label strings are load-bearing: they must match
- * lib/scoring/questionnaireWeights.ts's WEIGHT_RULES and
- * lib/scoring/recommend.ts's passesStructuralFilters verbatim (case-sensitive)
- * or an answer silently stops affecting the score/filter.
+ * The v3 questionnaire (11 questions across 3 categories, plus a Name/
+ * Pincode/Phone intro step handled separately -- see IntroStep.tsx). Sourced
+ * from docs/questionnaire.md. Question ids and option value strings are
+ * load-bearing: they must match lib/scoring/questionnaireWeights.ts's
+ * WEIGHT_RULES and lib/scoring/recommend.ts's passesStructuralFilters
+ * verbatim (case-sensitive) or an answer silently stops affecting the
+ * score/filter.
  *
- * Array order here is the actual chat-flow order: grouped by section (per
- * CLAUDE.md's "3 labeled sections, not a flat Q-of-13 counter" decision),
- * not raw Q1..Q13 numeric order -- Q10 (parking) flow-appears inside "Who
- * it's for" alongside Q5/Q6, ahead of Q7-9/11-13's "What matters" section.
- * Scoring doesn't care about answer order, only presentation does.
+ * Array order here is the actual chat-flow order, grouped by category per
+ * docs/questionnaire.md's "Core requirements / Your everyday driving / What
+ * matters to you" structure. Scoring doesn't care about answer order, only
+ * presentation does.
  */
 import {
-  Car,
-  Route,
-  Fuel,
   Wallet,
+  Fuel,
   Users,
+  Settings2,
+  Car,
+  Gauge,
+  ParkingSquare,
   Baby,
   SlidersHorizontal,
-  Scale,
   Frown,
-  ParkingSquare,
+  Ban,
+  IndianRupee,
+  Wind,
+  Zap,
   Sparkles,
-  Wrench,
-  CalendarClock,
+  Bus,
+  Shuffle,
+  Hand,
+  Cog,
+  Building2,
+  Route,
+  Mountain,
+  TreeDeciduous,
+  MapPin,
+  Navigation,
+  Compass,
+  Ruler,
+  ParkingCircle,
+  User,
+  Heart,
+  UserRound,
+  UsersRound,
+  ShieldCheck,
+  Leaf,
+  Rocket,
+  Cpu,
+  PiggyBank,
+  BatteryCharging,
+  Eye,
+  Waves,
   type LucideIcon,
 } from "lucide-react";
+import type { QuestionnaireAnswers } from "./scoring/questionnaireWeights";
+import { BRAND_LIST } from "./scoring/recommend";
 
-export type QuestionType = "single" | "multi2";
-export type SectionId = "your_drives" | "who_its_for" | "what_matters";
+export type QuestionType = "single" | "multi2" | "multiAny";
+export type SectionId = "core_requirements" | "everyday_driving" | "what_matters";
 
 export interface QuestionOption {
   value: string;
   label: string;
+  /** Overrides `label` when it returns a string -- used for the one
+   * fuel-conditional case (frustration's refuelling/charging swap). The
+   * underlying `value` never changes, so WEIGHT_RULES only needs one entry. */
+  conditionalLabel?: (answers: QuestionnaireAnswers) => string | undefined;
+  /** Leading icon shown on the option chip. Omitted only for q_brand_avoid,
+   * whose options render a real brand logo image instead (see
+   * BrandChip in QuestionCard.tsx). */
+  icon?: LucideIcon;
+  /** Overrides `icon` when it returns a value -- mirrors conditionalLabel for
+   * the same refuelling/charging swap case. */
+  conditionalIcon?: (answers: QuestionnaireAnswers) => LucideIcon | undefined;
   /** Short reaction line shown once this option is picked -- reinforces that
    * the flow is listening, not a static form. */
   microcopy: string;
@@ -48,128 +89,160 @@ export interface QuestionDef {
   type: QuestionType;
   required: boolean;
   options: QuestionOption[];
+  /** Multi-select cap for "multiAny" -- undefined means no cap. */
+  maxSelect?: number;
+  /** If present and returns false given the answers so far, this question is
+   * skipped entirely (not shown, not counted in progress, no "Skipped" entry
+   * in the profile panel). Only q_transmission uses this today (EV-only fuel
+   * selection). Known limitation: editing an earlier answer to make a
+   * previously-hidden question visible again mid-session doesn't retroactively
+   * re-insert it -- the flow only evaluates this walking forward. */
+  shouldShow?: (answers: QuestionnaireAnswers) => boolean;
 }
 
 export const SECTIONS: { id: SectionId; label: string }[] = [
-  { id: "your_drives", label: "Your drives" },
-  { id: "who_its_for", label: "Who it's for" },
-  { id: "what_matters", label: "What matters" },
+  { id: "core_requirements", label: "Core requirements" },
+  { id: "everyday_driving", label: "Your everyday driving" },
+  { id: "what_matters", label: "What matters to you" },
 ];
 
 export const QUESTIONS: QuestionDef[] = [
-  // -- Your drives --------------------------------------------------------
+  // -- Category 1: Core requirements --------------------------------------
   {
-    id: "q1_usage",
-    section: "your_drives",
-    prompt: "What's your primary usage for the car?",
-    explainer: "We'll weigh reviews toward how the car actually rides and handles for your kind of driving.",
-    icon: Car,
-    type: "single",
+    id: "q_budget",
+    section: "core_requirements",
+    prompt: "What is your budget range?",
+    explainer: "We'll only ever show cars whose on-road price fits your selected range(s). Pick more than one if you're flexible.",
+    icon: Wallet,
+    type: "multiAny",
     required: true,
     options: [
-      { value: "City Driving", label: "City Driving", microcopy: "Noted — tight streets and stop-start traffic just became a bigger factor." },
-      { value: "Highway Driving", label: "Highway Driving", microcopy: "Got it — highway stability and overtaking power just moved up." },
-      { value: "Mixed", label: "Mixed", microcopy: "Noted — we'll balance city and highway evidence evenly." },
-      { value: "Rural/Bad Roads", label: "Rural / Bad Roads", microcopy: "Got it — ride quality over rough roads just became a priority." },
+      { value: "<5L", label: "Under ₹5 lakh", icon: IndianRupee, microcopy: "Noted — under ₹5 lakh on-road." },
+      { value: "5-10L", label: "₹5–10 lakh", icon: IndianRupee, microcopy: "Got it — ₹5–10 lakh on-road." },
+      { value: "10-15L", label: "₹10–15 lakh", icon: IndianRupee, microcopy: "Noted — ₹10–15 lakh on-road." },
+      { value: "15-20L", label: "₹15–20 lakh", icon: IndianRupee, microcopy: "Got it — ₹15–20 lakh on-road." },
+      { value: "20-25L", label: "₹20–25 lakh", icon: IndianRupee, microcopy: "Noted — ₹20–25 lakh on-road." },
+      { value: ">25L", label: "Above ₹25 lakh", icon: IndianRupee, microcopy: "Got it — above ₹25 lakh on-road." },
     ],
   },
   {
-    id: "q2_trip_pattern",
-    section: "your_drives",
-    prompt: "How do you mostly drive — short trips or long ones?",
-    explainer: "Short hops and long hauls wear a car differently — this tells us which mileage and reliability reviews to trust most for you.",
-    icon: Route,
-    type: "single",
-    required: true,
-    options: [
-      { value: "Mostly short city hops", label: "Mostly short city hops", microcopy: "Noted — real-world city mileage claims just got more weight." },
-      { value: "Regular long drives", label: "Regular long drives", microcopy: "Got it — highway mileage and long-haul comfort just moved up." },
-      { value: "Both equally", label: "Both equally", microcopy: "Noted — we'll weigh city and highway mileage evenly." },
-    ],
-  },
-  {
-    id: "q3_fuel",
-    section: "your_drives",
+    id: "q_fuel",
+    section: "core_requirements",
     prompt: "What fuel type are you open to considering?",
-    explainer: "We'll only ever show cars in the fuel type you're open to — or all of them, your call.",
+    explainer: "Pick as many as you're open to. Leave it open (or pick \"No preference\") and we'll use your daily commute to recommend the fuel that actually makes sense for you.",
     icon: Fuel,
-    type: "single",
+    type: "multiAny",
     required: false,
     options: [
-      { value: "Petrol", label: "Petrol", microcopy: "Noted — sticking to petrol." },
-      { value: "Diesel", label: "Diesel", microcopy: "Got it — diesel it is." },
-      { value: "EV", label: "EV", microcopy: "Noted — electric only." },
-      { value: "No preference", label: "No preference", microcopy: "Got it — we'll consider every fuel type." },
+      { value: "Petrol", label: "Petrol", icon: Fuel, microcopy: "Noted — petrol's in the mix." },
+      { value: "Diesel", label: "Diesel", icon: Fuel, microcopy: "Got it — diesel's in the mix." },
+      { value: "CNG", label: "CNG", icon: Wind, microcopy: "Noted — CNG's in the mix." },
+      { value: "Electric", label: "Electric", icon: Zap, microcopy: "Noted — electric's in the mix." },
+      { value: "No preference", label: "No preference — recommend one for me", icon: Sparkles, microcopy: "Got it — we'll recommend a fuel type based on your daily driving." },
     ],
   },
   {
-    id: "q4_budget",
-    section: "your_drives",
-    prompt: "What is your budget range?",
-    explainer: "We'll only ever show cars whose on-road price fits this range.",
-    icon: Wallet,
-    type: "single",
-    required: true,
-    options: [
-      { value: "<5L", label: "Under ₹5 lakh", microcopy: "Noted — under ₹5 lakh on-road." },
-      { value: "5-10L", label: "₹5–10 lakh", microcopy: "Got it — ₹5–10 lakh on-road." },
-      { value: "10-15L", label: "₹10–15 lakh", microcopy: "Noted — ₹10–15 lakh on-road." },
-      { value: "15-20L", label: "₹15–20 lakh", microcopy: "Got it — ₹15–20 lakh on-road." },
-      { value: "20-25L", label: "₹20–25 lakh", microcopy: "Noted — ₹20–25 lakh on-road." },
-      { value: ">25L", label: "Above ₹25 lakh", microcopy: "Got it — above ₹25 lakh on-road." },
-    ],
-  },
-
-  // -- Who it's for --------------------------------------------------------
-  {
-    id: "q5_seating",
-    section: "who_its_for",
+    id: "q_seating",
+    section: "core_requirements",
     prompt: "What seating capacity do you need?",
     explainer: "We'll filter out anything that can't seat your household.",
     icon: Users,
     type: "single",
     required: true,
     options: [
-      { value: "4/5 seater", label: "4/5 seater", microcopy: "Noted — a 4 or 5 seater." },
-      { value: "7 seater", label: "7 seater", microcopy: "Got it — needs a proper third row." },
-      { value: "Either works", label: "Either works", microcopy: "Noted — seating's flexible, we won't filter on it." },
+      { value: "4/5 seater", label: "4/5 seater", icon: Car, microcopy: "Noted — a 4 or 5 seater." },
+      { value: "7 seater", label: "7 seater", icon: Bus, microcopy: "Got it — needs a proper third row." },
+      { value: "Either works", label: "Either works", icon: Shuffle, microcopy: "Noted — seating's flexible, we won't filter on it." },
     ],
   },
   {
-    id: "q6_who_rides",
-    section: "who_its_for",
-    prompt: "Who's usually in the car with you?",
-    explainer: "Comfort and safety priorities shift depending on who's usually riding with you.",
-    icon: Baby,
+    id: "q_transmission",
+    section: "core_requirements",
+    prompt: "Manual or automatic?",
+    explainer: "We'll only show cars in the transmission you're open to.",
+    icon: Settings2,
+    type: "single",
+    required: true,
+    shouldShow: (answers) => {
+      const fuel = answers["q_fuel"];
+      const selected = Array.isArray(fuel) ? fuel : fuel ? [fuel] : [];
+      // Skipped entirely for an EV-only selection -- manual/automatic
+      // doesn't apply to EVs.
+      return !(selected.length === 1 && selected[0] === "Electric");
+    },
+    options: [
+      { value: "Manual", label: "Manual", microcopy: "Noted — manual transmission." },
+      { value: "Automatic", label: "Automatic", microcopy: "Got it — automatic transmission." },
+      { value: "No preference", label: "No preference", microcopy: "Noted — either transmission works." },
+    ],
+  },
+
+  // -- Category 2: Your everyday driving -----------------------------------
+  {
+    id: "q_drive_type",
+    section: "everyday_driving",
+    prompt: "How do you mostly drive?",
+    explainer: "We'll weigh reviews toward how the car actually rides and handles for your kind of driving.",
+    icon: Car,
     type: "single",
     required: true,
     options: [
-      { value: "Mostly just me", label: "Mostly just me", microcopy: "Noted — mostly solo drives." },
-      { value: "Partner", label: "Partner", microcopy: "Got it — comfort for two just moved up." },
-      { value: "Young kids", label: "Young kids", microcopy: "Noted — safety and rear legroom just became a bigger priority." },
-      { value: "Elderly parents", label: "Elderly parents", microcopy: "Got it — easy entry, rear comfort and safety just moved up." },
-      { value: "Mixed group", label: "Mixed group", microcopy: "Noted — we'll weigh space and safety for a full car." },
+      { value: "City, short trips", label: "City, short trips", microcopy: "Noted — tight streets and stop-start traffic just became a bigger factor." },
+      { value: "Highway, longer distances", label: "Highway, longer distances", microcopy: "Got it — highway stability and overtaking power just moved up." },
+      { value: "Hilly or ghat roads", label: "Hilly or ghat roads", microcopy: "Noted — braking on descents and cornering through hairpins just moved up." },
+      { value: "Rural or broken roads", label: "Rural or broken roads", microcopy: "Got it — ride quality over rough roads just became a priority." },
+      { value: "Mixed", label: "Mixed", microcopy: "Noted — we'll balance city and highway evidence evenly." },
     ],
   },
   {
-    id: "q10_parking",
-    section: "who_its_for",
-    prompt: "Where do you usually park?",
-    explainer: "Tight parking rewards a smaller turning radius and narrower width — we'll weigh that in.",
+    id: "q_daily_commute",
+    section: "everyday_driving",
+    prompt: "About how far do you drive in a typical day?",
+    explainer: "Helps us recommend the right fuel type if you've left that open, and weighs mileage evidence to match.",
+    icon: Gauge,
+    type: "single",
+    required: true,
+    options: [
+      { value: "Under 20km", label: "Under 20km", microcopy: "Noted — short daily distance." },
+      { value: "20-50km", label: "20–50km", microcopy: "Got it — a moderate daily commute." },
+      { value: "50-100km", label: "50–100km", microcopy: "Noted — a longer daily commute." },
+      { value: "100km+ or highly variable", label: "100km+ or highly variable", microcopy: "Got it — high daily distance." },
+    ],
+  },
+  {
+    id: "q_parking_tightness",
+    section: "everyday_driving",
+    prompt: "How tight is your parking situation?",
+    explainer: "A physically bigger car is a real hassle in a tight spot — we'll weigh this against each car's actual length, not just reviews.",
     icon: ParkingSquare,
     type: "single",
     required: true,
     options: [
-      { value: "Open street parking", label: "Open street parking", microcopy: "Noted — open street parking." },
-      { value: "Tight covered or basement parking", label: "Tight covered or basement parking", microcopy: "Got it — turning radius and tight-space handling just moved up." },
-      { value: "Dedicated open space", label: "Dedicated open space", microcopy: "Noted — you've got room to spare." },
-      { value: "No fixed parking", label: "No fixed parking", microcopy: "Got it — easy maneuvering just became more useful." },
+      { value: "Very tight", label: "Very tight — narrow lanes, basement, every inch counts", microcopy: "Noted — we'll steer clear of anything oversized." },
+      { value: "Somewhat tight", label: "Somewhat tight — manageable, but nothing oversized", microcopy: "Got it — nothing too large." },
+      { value: "Not tight", label: "Not tight — plenty of room", microcopy: "Noted — size isn't a constraint for you." },
+    ],
+  },
+  {
+    id: "q_who_rides",
+    section: "everyday_driving",
+    prompt: "Who's usually in the car with you?",
+    explainer: "Pick everyone who's regularly with you — comfort and safety priorities shift depending on who's usually riding along.",
+    icon: Baby,
+    type: "multiAny",
+    required: true,
+    options: [
+      { value: "Just me", label: "Just me", microcopy: "Noted — mostly solo drives." },
+      { value: "Partner", label: "Partner", microcopy: "Got it — comfort for two just moved up." },
+      { value: "Young kids", label: "Young kids", microcopy: "Noted — safety and rear legroom just became a bigger priority." },
+      { value: "Elderly parents", label: "Elderly parents", microcopy: "Got it — easy entry, rear comfort and safety just moved up." },
+      { value: "Other adults or friends", label: "Other adults or friends", microcopy: "Noted — extra space for guests just moved up." },
     ],
   },
 
-  // -- What matters --------------------------------------------------------
+  // -- Category 3: What matters to you -------------------------------------
   {
-    id: "q7_top2_priorities",
+    id: "q_top2_priorities",
     section: "what_matters",
     prompt: "Which 2 of these matter most to you?",
     explainer: "Pick exactly two — we'll weigh review evidence toward what matters most to you, and give the rest a fair but lighter weight.",
@@ -182,27 +255,11 @@ export const QUESTIONS: QuestionDef[] = [
       { value: "Fuel efficiency", label: "Fuel efficiency", microcopy: "Fuel efficiency — locked in as a top priority." },
       { value: "Power and acceleration", label: "Power and acceleration", microcopy: "Power and acceleration — locked in as a top priority." },
       { value: "Features and tech", label: "Features and tech", microcopy: "Features and tech — locked in as a top priority." },
+      { value: "Low running costs", label: "Low running costs", microcopy: "Low running costs — locked in as a top priority." },
     ],
   },
   {
-    id: "q8_compromise",
-    section: "what_matters",
-    prompt: "What are you most okay to compromise on?",
-    explainer: "Tell us what you're okay giving up a little on, so we don't over-weight it in your score.",
-    icon: Scale,
-    type: "single",
-    required: true,
-    options: [
-      { value: "Ride comfort", label: "Ride comfort", microcopy: "Noted — ride comfort is negotiable for you." },
-      { value: "Features", label: "Features", microcopy: "Got it — features are the first thing you'd trade off." },
-      { value: "After-sales support", label: "After-sales support", microcopy: "Noted — after-sales isn't your top concern." },
-      { value: "Cabin space", label: "Cabin space", microcopy: "Got it — cabin space is negotiable." },
-      { value: "Performance", label: "Performance", microcopy: "Noted — performance is the first thing you'd trade off." },
-      { value: "Safety", label: "Safety", microcopy: "Got it — noted, though we'll still surface any real safety concerns." },
-    ],
-  },
-  {
-    id: "q9_frustration",
+    id: "q_frustration",
     section: "what_matters",
     prompt: "In your day-to-day driving, what frustrates you the most?",
     explainer: "Your biggest everyday annoyance points us toward the reviews that matter most.",
@@ -210,56 +267,35 @@ export const QUESTIONS: QuestionDef[] = [
     type: "single",
     required: true,
     options: [
-      { value: "Frequent refuelling", label: "Frequent refuelling", microcopy: "Noted — fuel efficiency just moved up." },
+      {
+        value: "Frequent refuelling",
+        label: "Frequent refuelling",
+        conditionalLabel: (answers) => {
+          const fuel = answers["q_fuel"];
+          const selected = Array.isArray(fuel) ? fuel : fuel ? [fuel] : [];
+          return selected.length === 1 && selected[0] === "Electric" ? "Frequent charging stops" : undefined;
+        },
+        microcopy: "Noted — fuel efficiency just moved up.",
+      },
       { value: "Jerky or bumpy rides", label: "Jerky or bumpy rides", microcopy: "Got it — ride comfort over bumps just moved up." },
       { value: "Slow overtakes", label: "Slow overtakes", microcopy: "Noted — overtaking power just moved up." },
       { value: "Poor visibility or comfort", label: "Poor visibility or comfort", microcopy: "Got it — visibility and ergonomics just moved up." },
       { value: "Lack of modern tech", label: "Lack of modern tech", microcopy: "Noted — features and tech just moved up." },
-      { value: "Parking difficulty", label: "Parking difficulty", microcopy: "Got it — maneuverability just moved up." },
     ],
   },
   {
-    id: "q11_exciting_feature",
+    id: "q_brand_avoid",
     section: "what_matters",
-    prompt: "Pick one feature that excites you the most",
-    explainer: "The one feature that'd make you say yes in a showroom — we'll check if the shortlist actually has it.",
-    icon: Sparkles,
-    type: "single",
-    required: true,
-    options: [
-      { value: "Panoramic sunroof", label: "Panoramic sunroof", microcopy: "Noted — sunroof quality just moved up." },
-      { value: "ADAS and safety tech", label: "ADAS and safety tech", microcopy: "Got it — ADAS reliability just moved up." },
-      { value: "Big touchscreen", label: "Big touchscreen", microcopy: "Noted — touchscreen responsiveness just moved up." },
-      { value: "Turbo engine", label: "Turbo engine", microcopy: "Got it — turbo performance just moved up." },
-    ],
-  },
-  {
-    id: "q12_service_cost_priority",
-    section: "what_matters",
-    prompt: "Would you prefer a car with lower service/maintenance cost even if it compromises on features or fun?",
-    explainer: "Some cars are cheap to buy but expensive to maintain — tell us how much that trade-off matters.",
-    icon: Wrench,
-    type: "single",
-    required: true,
-    options: [
-      { value: "Yes", label: "Yes", microcopy: "Noted — low running costs just became a bigger priority." },
-      { value: "No", label: "No", microcopy: "Got it — you're fine trading running cost for other things." },
-    ],
-  },
-  {
-    id: "q13_ownership_duration",
-    section: "what_matters",
-    prompt: "How long do you expect to keep the car?",
-    explainer: "How long you'll keep it changes whether long-term reliability or resale value matters more.",
-    icon: CalendarClock,
-    type: "single",
-    required: true,
-    options: [
-      { value: "<3 years", label: "Under 3 years", microcopy: "Noted — resale value just moved up." },
-      { value: "3-5 years", label: "3–5 years", microcopy: "Got it — a balance of resale and reliability." },
-      { value: "5-7 years", label: "5–7 years", microcopy: "Noted — long-term reliability just moved up." },
-      { value: "7+ years", label: "7+ years", microcopy: "Got it — long-term reliability just became the priority, resale matters less." },
-    ],
+    prompt: "Any brands you'd rather skip?",
+    explainer: "We'll leave these off your shortlist entirely, no matter the budget.",
+    icon: Ban,
+    type: "multiAny",
+    required: false,
+    options: BRAND_LIST.map((brand) => ({
+      value: brand,
+      label: brand,
+      microcopy: `Noted — we won't show any ${brand}.`,
+    })),
   },
 ];
 
@@ -271,11 +307,31 @@ export function sectionOf(id: string): SectionId | undefined {
   return QUESTIONS.find((q) => q.id === id)?.section;
 }
 
+export function isQuestionVisible(question: QuestionDef, answers: QuestionnaireAnswers): boolean {
+  return !question.shouldShow || question.shouldShow(answers);
+}
+
+/** Next index >= fromIndex whose question is visible given answers so far,
+ * or QUESTIONS.length if none remain. Used to walk past conditionally
+ * hidden questions (e.g. q_transmission on an EV-only fuel pick) without
+ * rendering them or counting them toward progress. */
+export function nextVisibleIndex(fromIndex: number, answers: QuestionnaireAnswers): number {
+  let i = fromIndex;
+  while (i < QUESTIONS.length && !isQuestionVisible(QUESTIONS[i], answers)) i++;
+  return i;
+}
+
 /** Whether an in-progress value counts as a finished answer for this
- * question -- single-select is complete the moment it has a value;
- * multi2 needs exactly 2 picks. Drives auto-advance in the chat flow and
- * auto-close-on-complete in edit-in-place. */
+ * question -- single-select is complete the moment it has a value; multi2
+ * needs exactly 2 picks; multiAny is complete once it has >=1 pick if
+ * required, or always complete if optional (0 picks is a valid "no
+ * preference"/"no exclusions" answer). Drives auto-advance in the chat flow
+ * and auto-close-on-complete in edit-in-place. */
 export function isAnswerComplete(question: QuestionDef, value: string | string[] | undefined): boolean {
   if (question.type === "multi2") return Array.isArray(value) && value.length === 2;
+  if (question.type === "multiAny") {
+    if (!question.required) return true;
+    return Array.isArray(value) && value.length >= 1;
+  }
   return typeof value === "string" && value.length > 0;
 }

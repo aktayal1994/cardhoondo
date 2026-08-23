@@ -3,22 +3,40 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { ArrowLeft, Pencil, PanelRightOpen, X } from "lucide-react";
-import { QUESTIONS, SECTIONS, isAnswerComplete, type QuestionDef, type SectionId } from "../lib/questions";
+import {
+  QUESTIONS,
+  SECTIONS,
+  isAnswerComplete,
+  isQuestionVisible,
+  nextVisibleIndex,
+  type QuestionDef,
+  type SectionId,
+} from "../lib/questions";
 import type { QuestionnaireAnswers } from "../lib/scoring/questionnaireWeights";
 import QuestionCard from "./QuestionCard";
+import IntroStep, { type IntroValues } from "./IntroStep";
 
 interface QuestionnaireFlowProps {
-  onSubmit: (answers: QuestionnaireAnswers) => void;
+  /** intro carries the optional Name/Pincode/Phone step's values -- see
+   * IntroStep.tsx and docs/questionnaire.md's "Intro" section. Not part of
+   * `answers` since these aren't scored questionnaire questions. */
+  onSubmit: (answers: QuestionnaireAnswers, intro: IntroValues) => void;
 }
 
-function summarize(question: QuestionDef, value: string | string[]): string {
+function summarize(question: QuestionDef, value: string | string[], answers: QuestionnaireAnswers): string {
   const values = Array.isArray(value) ? value : [value];
   return values
-    .map((v) => question.options.find((o) => o.value === v)?.label ?? v)
+    .map((v) => {
+      const option = question.options.find((o) => o.value === v);
+      return option?.conditionalLabel?.(answers) ?? option?.label ?? v;
+    })
     .join(" + ");
 }
 
 export default function QuestionnaireFlow({ onSubmit }: QuestionnaireFlowProps) {
+  const [introDone, setIntroDone] = useState(false);
+  const [introValues, setIntroValues] = useState<IntroValues>({ name: "", pincode: "", phone_number: "" });
+
   const [answers, setAnswers] = useState<QuestionnaireAnswers>({});
   const [skipped, setSkipped] = useState<Set<string>>(new Set());
   const [progressIndex, setProgressIndex] = useState(0);
@@ -26,7 +44,40 @@ export default function QuestionnaireFlow({ onSubmit }: QuestionnaireFlowProps) 
   const [profileOpen, setProfileOpen] = useState(false);
   const activeRef = useRef<HTMLDivElement>(null);
 
-  const settled = QUESTIONS.slice(0, progressIndex);
+  // Walk progressIndex forward past any conditionally-hidden question (only
+  // q_transmission today, skipped for an EV-only fuel pick) as soon as
+  // answers change, so it's never rendered and never counted toward
+  // progress. Also strips a previously-stored answer for a question that
+  // just became invisible (e.g. editing fuel to EV-only after already
+  // answering transmission) so a stale answer can't leak into scoring/
+  // filtering once its governing condition no longer holds -- see
+  // lib/questions.ts's isQuestionVisible() doc comment for the one known
+  // limitation this doesn't cover (re-showing a question that becomes
+  // visible again isn't retroactive).
+  useEffect(() => {
+    setAnswers((prev) => {
+      let changed = false;
+      const next = { ...prev };
+      for (const q of QUESTIONS) {
+        if (q.id in next && !isQuestionVisible(q, prev)) {
+          delete next[q.id];
+          changed = true;
+        }
+      }
+      return changed ? next : prev;
+    });
+    // Also re-run whenever progressIndex itself changes (not just answers) --
+    // otherwise landing on q_transmission via the normal auto-advance timer
+    // (which fires *after* this effect's answers-triggered run already
+    // happened) would never get re-checked for visibility.
+    setProgressIndex((i) => {
+      const advanced = nextVisibleIndex(i, answers);
+      return advanced === i ? i : advanced;
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [answers, progressIndex]);
+
+  const settled = QUESTIONS.slice(0, progressIndex).filter((q) => isQuestionVisible(q, answers));
   const active = progressIndex < QUESTIONS.length ? QUESTIONS[progressIndex] : null;
   const allDone = progressIndex >= QUESTIONS.length;
 
@@ -36,7 +87,12 @@ export default function QuestionnaireFlow({ onSubmit }: QuestionnaireFlowProps) 
 
   function commitActive(question: QuestionDef, value: string | string[]) {
     setAnswers((prev) => ({ ...prev, [question.id]: value }));
-    if (isAnswerComplete(question, value)) {
+    // multiAny has no natural "just picked the last one" signal -- being
+    // complete just means >=1 item selected (or always, if optional), so
+    // auto-advancing here would fire again on every subsequent pick too
+    // (stacking timers and skipping questions). It gets an explicit
+    // Continue button (see the onConfirm prop below) instead.
+    if (question.type !== "multiAny" && isAnswerComplete(question, value)) {
       window.setTimeout(() => setProgressIndex((i) => i + 1), 550);
     }
   }
@@ -49,7 +105,7 @@ export default function QuestionnaireFlow({ onSubmit }: QuestionnaireFlowProps) 
       next.delete(question.id);
       return next;
     });
-    if (isAnswerComplete(question, value)) {
+    if (question.type !== "multiAny" && isAnswerComplete(question, value)) {
       window.setTimeout(() => setEditingId(null), 550);
     }
   }
@@ -71,7 +127,20 @@ export default function QuestionnaireFlow({ onSubmit }: QuestionnaireFlowProps) 
 
   const profileEntries = settled
     .filter((q) => !skipped.has(q.id) && answers[q.id] !== undefined)
-    .map((q) => ({ prompt: q.prompt, value: summarize(q, answers[q.id]) }));
+    .map((q) => ({ prompt: q.prompt, value: summarize(q, answers[q.id], answers) }));
+
+  if (!introDone) {
+    return (
+      <div className="min-h-screen bg-paper">
+        <IntroStep
+          onContinue={(values) => {
+            setIntroValues(values);
+            setIntroDone(true);
+          }}
+        />
+      </div>
+    );
+  }
 
   let lastRenderedSection: SectionId | null = null;
 
@@ -120,7 +189,9 @@ export default function QuestionnaireFlow({ onSubmit }: QuestionnaireFlowProps) 
                     <QuestionCard
                       question={q}
                       value={answers[q.id]}
+                      answers={answers}
                       onChange={(v) => commitEdit(q, v)}
+                      onConfirm={q.type === "multiAny" ? () => setEditingId(null) : undefined}
                       compact
                     />
                   </div>
@@ -133,7 +204,7 @@ export default function QuestionnaireFlow({ onSubmit }: QuestionnaireFlowProps) 
                     <div>
                       <p className="text-sm text-ink-faint">{q.prompt}</p>
                       <p className="mt-0.5 text-sm font-medium text-ink">
-                        {wasSkipped ? "Skipped" : summarize(q, answers[q.id])}
+                        {wasSkipped ? "Skipped" : summarize(q, answers[q.id], answers)}
                       </p>
                     </div>
                     <span className="mt-1 flex items-center gap-1 text-xs text-ink-faint opacity-0 transition group-hover:opacity-100">
@@ -149,8 +220,14 @@ export default function QuestionnaireFlow({ onSubmit }: QuestionnaireFlowProps) 
           {active && (
             <div ref={activeRef}>
               {active.section !== lastRenderedSection && <SectionDivider label={SECTIONS.find((s) => s.id === active.section)!.label} />}
-              <QuestionCard question={active} value={answers[active.id]} onChange={(v) => commitActive(active, v)} />
-              {!active.required && (
+              <QuestionCard
+                question={active}
+                value={answers[active.id]}
+                answers={answers}
+                onChange={(v) => commitActive(active, v)}
+                onConfirm={active.type === "multiAny" ? () => setProgressIndex((i) => i + 1) : undefined}
+              />
+              {!active.required && active.type !== "multiAny" && (
                 <button
                   type="button"
                   onClick={() => skipActive(active)}
@@ -167,7 +244,7 @@ export default function QuestionnaireFlow({ onSubmit }: QuestionnaireFlowProps) 
               <p className="text-ink-soft">That's everything we need.</p>
               <button
                 type="button"
-                onClick={() => onSubmit(answers)}
+                onClick={() => onSubmit(answers, introValues)}
                 className="mt-4 rounded-full bg-accent-gold px-8 py-4 text-base font-semibold text-stage shadow-sm transition hover:brightness-105 active:scale-[0.98]"
               >
                 Show my recommendations

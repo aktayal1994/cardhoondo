@@ -1,9 +1,13 @@
 /**
  * TypeScript port of scripts/recommend.py. Structural catalog filters
- * (Q3 fuel / Q4 budget / Q5 seating) narrow the field, scoreCar() runs
- * across every surviving variant, results are deduped to the best-scoring
- * variant per car (never two variants of the same car on the shortlist),
- * survivors are ranked.
+ * (q_budget/q_fuel/q_seating/q_transmission/q_brand_avoid) narrow the field,
+ * scoreCar() runs across every surviving variant, a soft parking-tightness
+ * penalty and fuel-recommendation nudge get applied, results are deduped to
+ * the best-scoring variant per car (never two variants of the same car on
+ * the shortlist), survivors are ranked.
+ *
+ * See docs/questionnaire.md (v3) for the full rationale behind each filter
+ * and soft adjustment below.
  *
  * Unlike the Python version, this doesn't read local JSON files -- it's a
  * pure function over already-fetched data, so the Next.js API route (which
@@ -20,6 +24,63 @@ import type { QuestionnaireAnswers } from "./questionnaireWeights";
 // does have. Below this floor, exclude outright rather than rank at all --
 // "not enough data to recommend confidently" is a real, honest answer.
 export const MIN_FACETS_FOR_ELIGIBILITY = 5;
+
+// Parking-tightness soft penalty (q_parking_tightness) -- multiplicative on
+// composite_score, not a hard exclusion, so a borderline car isn't thrown
+// away over a few centimetres. Thresholds chosen against the real corpus-wide
+// catalog Length distribution (59 cars, 3965-4789mm, median 4345mm as of the
+// Aug 2026 audit) -- tune these constants if the shortlist behavior feels off
+// once this is live, same spirit as MIN_FACETS_FOR_ELIGIBILITY above.
+const PARKING_LENGTH_RULES: Record<string, { thresholdMm: number; penaltyPer100mm: number } | null> = {
+  "Very tight": { thresholdMm: 4000, penaltyPer100mm: 0.08 },
+  "Somewhat tight": { thresholdMm: 4400, penaltyPer100mm: 0.03 },
+  "Not tight": null,
+};
+const PARKING_PENALTY_FLOOR = 0.5; // never fully zero out a car for length alone
+
+// Daily-commute fuel-recommendation nudge (q_daily_commute) -- only applied
+// when the user's fuel answer is ambiguous (empty, "No preference", or 2+
+// fuels selected). A soft multiplier, not a filter -- someone with an
+// explicit single fuel choice (a real veto) is never second-guessed by this.
+const COMMUTE_FUEL_NUDGE: Record<string, Record<string, number>> = {
+  "Under 20km": { Petrol: 1.06, CNG: 1.06, Electric: 1.08, Diesel: 0.9 },
+  "20-50km": { Petrol: 1.02, CNG: 1.02 },
+  "50-100km": { Diesel: 1.06, Electric: 1.04 },
+  "100km+ or highly variable": { Diesel: 1.08 },
+};
+
+function asList(answer: string | string[] | undefined): string[] {
+  if (answer == null) return [];
+  return Array.isArray(answer) ? answer : [answer];
+}
+
+export function parkingPenaltyMultiplier(variant: CatalogVariant, answers: QuestionnaireAnswers): number {
+  const tier = answers["q_parking_tightness"] as string | undefined;
+  const rule = tier ? PARKING_LENGTH_RULES[tier] : null;
+  if (!rule) return 1.0;
+
+  const lengthText = String(
+    (variant.spec_sections?.["Dimensions & Capacity"] as Record<string, unknown> | undefined)?.["Length"] ?? "",
+  );
+  const match = lengthText.match(/(\d+)/);
+  if (!match) return 1.0;
+  const lengthMm = parseInt(match[1], 10);
+
+  const overMm = Math.max(0, lengthMm - rule.thresholdMm);
+  const penalty = (overMm / 100) * rule.penaltyPer100mm;
+  return Math.max(PARKING_PENALTY_FLOOR, 1.0 - penalty);
+}
+
+export function commuteFuelNudgeMultiplier(variant: CatalogVariant, answers: QuestionnaireAnswers): number {
+  const fuelAnswer = asList(answers["q_fuel"]).filter((f) => f !== "No preference");
+  if (fuelAnswer.length === 1) return 1.0; // decisive choice -- not our place to second-guess it
+
+  const commute = answers["q_daily_commute"] as string | undefined;
+  const nudges = commute ? COMMUTE_FUEL_NUDGE[commute] : undefined;
+  if (!nudges) return 1.0;
+
+  return nudges[variant.fuel_type ?? ""] ?? 1.0;
+}
 
 /** Brand = the car_id's slug prefix, e.g. mahindra_scorpio_n -> mahindra.
  * Mirrors scripts/aggregate_brand_facets.py's brand_of() exactly -- this is
@@ -38,6 +99,11 @@ const BUDGET_RANGES: Record<string, [number, number]> = {
   "20-25L": [2_000_000, 2_500_000],
   ">25L": [2_500_000, 10 ** 9],
 };
+
+export const BRAND_LIST = [
+  "Citroen", "Force", "Honda", "Hyundai", "Jeep", "Kia", "MG", "Mahindra",
+  "Maruti", "Nissan", "Renault", "Skoda", "Tata", "Toyota", "VinFast", "Volkswagen",
+];
 
 /**
  * Matches the <car_slug>_<fuel>_<transmission> convention the extraction
@@ -83,31 +149,64 @@ export function passesStructuralFilters(
   variant: CatalogVariant,
   answers: QuestionnaireAnswers,
 ): { ok: boolean; reason: string } {
-  const budgetAnswer = answers["q4_budget"] as string | undefined;
-  if (budgetAnswer && budgetAnswer in BUDGET_RANGES) {
-    const [lo, hi] = BUDGET_RANGES[budgetAnswer];
+  // q_budget: multi-select, OR-matched -- a variant passes if its price
+  // falls in ANY selected band (was single-select in v2).
+  const validBands = asList(answers["q_budget"]).filter((b) => b in BUDGET_RANGES);
+  if (validBands.length > 0) {
     const price = variant.on_road_price ?? variant.ex_showroom_price;
     if (price == null) return { ok: false, reason: "no price data" };
-    if (!(price >= lo && price < hi)) {
-      return { ok: false, reason: `on-road price ${price.toLocaleString()} outside ${budgetAnswer}` };
+    const inAnyBand = validBands.some((b) => {
+      const [lo, hi] = BUDGET_RANGES[b];
+      return price >= lo && price < hi;
+    });
+    if (!inAnyBand) {
+      return { ok: false, reason: `on-road price ${price.toLocaleString()} outside ${validBands.join(", ")}` };
     }
   }
 
-  const fuelAnswer = answers["q3_fuel"] as string | undefined;
-  if (fuelAnswer && fuelAnswer !== "No preference") {
+  // q_fuel: multi-select, OR-matched. Empty selection or an explicit "No
+  // preference" both mean "open to all fuels" -- no filter applied either
+  // way, and q_daily_commute's nudge (commuteFuelNudgeMultiplier, applied by
+  // the caller) is what actually recommends a fuel for these ambiguous cases.
+  const fuelAnswer = asList(answers["q_fuel"]).filter((f) => f !== "No preference");
+  if (fuelAnswer.length > 0) {
     const variantFuel = (variant.fuel_type ?? "").trim().toLowerCase();
-    if (variantFuel !== fuelAnswer.trim().toLowerCase()) {
-      return { ok: false, reason: `fuel is ${variant.fuel_type}, wanted ${fuelAnswer}` };
+    const wanted = new Set(fuelAnswer.map((f) => f.trim().toLowerCase()));
+    if (!wanted.has(variantFuel)) {
+      return { ok: false, reason: `fuel is ${variant.fuel_type}, wanted one of ${fuelAnswer.join(", ")}` };
     }
   }
 
-  const seatAnswer = answers["q5_seating"] as string | undefined;
+  const seatAnswer = answers["q_seating"] as string | undefined;
   const seatsN = variant.seating_capacity;
   if (seatAnswer === "7 seater" && seatsN !== 7) {
     return { ok: false, reason: `seats=${variant.seating_capacity}, wanted 7` };
   }
   if (seatAnswer === "4/5 seater" && seatsN !== 4 && seatsN !== 5) {
     return { ok: false, reason: `seats=${variant.seating_capacity}, wanted 4/5` };
+  }
+
+  // q_transmission: hard filter on the catalog's real spec field. Skipped by
+  // the frontend entirely for EV-only fuel selections.
+  const transAnswer = answers["q_transmission"] as string | undefined;
+  if (transAnswer && transAnswer !== "No preference") {
+    const variantTrans = String(
+      (variant.spec_sections?.["Engine & Transmission"] as Record<string, unknown> | undefined)?.[
+        "Transmission Type"
+      ] ?? "",
+    )
+      .trim()
+      .toLowerCase();
+    if (variantTrans !== transAnswer.trim().toLowerCase()) {
+      return { ok: false, reason: `transmission is ${variantTrans || "unknown"}, wanted ${transAnswer}` };
+    }
+  }
+
+  // q_brand_avoid: unconditional hard exclude, any budget. A personal veto,
+  // not a spec constraint -- see docs/questionnaire.md.
+  const avoidBrands = new Set(asList(answers["q_brand_avoid"]).map((b) => b.trim().toLowerCase()));
+  if (avoidBrands.has(variant.brand.trim().toLowerCase())) {
+    return { ok: false, reason: `brand ${variant.brand} is on the avoid list` };
   }
 
   return { ok: true, reason: "" };
@@ -124,6 +223,8 @@ export interface RecommendCandidate {
   raw_composite_score: number;
   coverage_ratio: number;
   facets_with_data: number;
+  parking_penalty_multiplier: number;
+  commute_fuel_nudge_multiplier: number;
   top_contributors: ScoreBreakdownItem[];
 }
 
@@ -187,6 +288,14 @@ export function recommend(input: RecommendInput): RecommendOutput {
         continue;
       }
 
+      // Soft, multiplicative adjustments -- applied on top of the
+      // coverage-adjusted composite_score, never on raw_composite_score
+      // (kept as the pre-adjustment number for transparency, same
+      // precedent as coverage_ratio itself).
+      const parkingMult = parkingPenaltyMultiplier(variant, answers);
+      const commuteMult = commuteFuelNudgeMultiplier(variant, answers);
+      const adjustedScore = result.composite_score * parkingMult * commuteMult;
+
       candidates.push({
         car_id: carId,
         brand: variant.brand,
@@ -194,10 +303,12 @@ export function recommend(input: RecommendInput): RecommendOutput {
         variant_id: variant.variant_id,
         powertrain_id: powertrainId,
         price_on_road: variant.on_road_price,
-        composite_score: result.composite_score,
+        composite_score: adjustedScore,
         raw_composite_score: result.raw_composite_score,
         coverage_ratio: result.coverage_ratio,
         facets_with_data: result.facets_with_data,
+        parking_penalty_multiplier: parkingMult,
+        commute_fuel_nudge_multiplier: commuteMult,
         top_contributors: result.breakdown.slice(0, 5),
       });
     }

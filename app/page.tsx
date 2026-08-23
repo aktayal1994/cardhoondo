@@ -10,6 +10,7 @@ import CompareView from "../components/CompareView";
 import type { QuestionnaireAnswers } from "../lib/scoring/questionnaireWeights";
 import type { RecommendOutput } from "../lib/scoring/recommend";
 import type { WriteupOutput } from "../lib/llm/writeup";
+import type { IntroValues } from "../components/IntroStep";
 
 type Step = "landing" | "questionnaire" | "thinking" | "results" | "detail" | "compare" | "error";
 
@@ -31,7 +32,7 @@ export default function HomePage() {
 
   const [selectedCarId, setSelectedCarId] = useState<string | null>(null);
 
-  const handleSubmit = useCallback(async (answers: QuestionnaireAnswers) => {
+  const handleSubmit = useCallback(async (answers: QuestionnaireAnswers, intro: IntroValues) => {
     setStep("thinking");
     setRecommendOutput(null);
     setRecommendationResultId(null);
@@ -43,7 +44,13 @@ export default function HomePage() {
       const res = await fetch("/api/recommend", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ answers, top_n: 3 }),
+        body: JSON.stringify({
+          answers,
+          top_n: 3,
+          name: intro.name || undefined,
+          pincode: intro.pincode || undefined,
+          phone_number: intro.phone_number || undefined,
+        }),
       });
       if (!res.ok) throw new Error("recommend failed");
       const json: RecommendResponse = await res.json();

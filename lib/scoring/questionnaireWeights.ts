@@ -1,12 +1,16 @@
 /**
  * TypeScript port of scripts/questionnaire_weights.py -- kept as a 1:1 port,
  * not a rewrite, so the two stay easy to diff against each other if the
- * Python policy data changes. See docs/questionnaire.md for what each
+ * Python policy data changes. See docs/questionnaire.md (v3) for what each
  * question id/answer means and docs/review_taxonomy.md for the facet list.
  *
  * Pure policy data (which question answer boosts which facet, and by how
  * much) -- kept separate from scoreRecommendation.ts the same way the
  * Python version keeps it separate from score_recommendation.py.
+ *
+ * q_budget, q_fuel, q_transmission, q_parking_tightness, q_brand_avoid are
+ * structural filters / soft score-multipliers handled entirely in
+ * recommend.ts -- they carry no facet-weight rule here.
  */
 
 export const FACET_THEME_MAP: Record<string, string> = {
@@ -88,26 +92,46 @@ type Rule = [target: string, multiplier: number];
 // name. Multiple applicable rules compose multiplicatively onto a baseline
 // weight of 1.0 per facet.
 export const WEIGHT_RULES: Record<string, Record<string, Rule[]>> = {
-  q1_usage: {
-    "City Driving": [["parking_maneuverability", 1.5]],
-    "Highway Driving": [["highway_stability", 1.8], ["highway_overtaking", 1.5]],
-    Mixed: [["highway_stability", 1.2], ["parking_maneuverability", 1.2]],
-    "Rural/Bad Roads": [["suspension_softness", 2.0], ["nvh_refinement", 1.3]],
-  },
-  q2_trip_pattern: {
-    "Mostly short city hops": [["city_mileage_actual", 1.8], ["engine_gearbox_issues", 1.5]],
-    "Regular long drives": [
+  q_drive_type: {
+    // Merges v2's q1_usage + q2_trip_pattern into one question -- each
+    // option now fires both the road-character weights and the
+    // mileage/reliability weights that used to need two separate answers.
+    "City, short trips": [
+      ["parking_maneuverability", 1.5],
+      ["city_mileage_actual", 1.8],
+      ["engine_gearbox_issues", 1.5],
+    ],
+    "Highway, longer distances": [
+      ["highway_stability", 1.8],
+      ["highway_overtaking", 1.5],
       ["highway_mileage_actual", 1.8],
-      ["highway_stability", 1.5],
       ["seat_cushioning_support", 1.5],
     ],
-    "Both equally": [["city_mileage_actual", 1.2], ["highway_mileage_actual", 1.2]],
+    "Hilly or ghat roads": [
+      ["braking_performance", 1.5],
+      ["handling_cornering", 1.5],
+      ["engine_refinement", 1.3],
+    ],
+    "Rural or broken roads": [
+      ["suspension_softness", 2.0],
+      ["nvh_refinement", 1.3],
+      ["ground_clearance_practicality", 1.4],
+      ["offroad_traction_capability", 1.2],
+    ],
+    Mixed: [
+      ["highway_stability", 1.2],
+      ["parking_maneuverability", 1.2],
+      ["city_mileage_actual", 1.2],
+      ["highway_mileage_actual", 1.2],
+    ],
   },
-  // q3 (fuel type) and q4 (budget) are catalog filters only -- no weight impact.
-  q5_seating: {
+  // q_daily_commute feeds a fuel-recommendation *score nudge*, applied in
+  // recommend.ts against a variant's fuel type (only when the fuel answer
+  // is ambiguous) -- not a facet weight, so no rule here.
+  q_seating: {
     "7 seater": [["third_row_usability", 2.0]],
   },
-  q6_who_rides: {
+  q_who_rides: {
     Partner: [["seat_cushioning_support", 1.3]],
     "Young kids": [["safety_build_quality", 1.5], ["rear_legroom_kneeroom", 1.3]],
     "Elderly parents": [
@@ -115,65 +139,43 @@ export const WEIGHT_RULES: Record<string, Record<string, Rule[]>> = {
       ["rear_legroom_kneeroom", 1.5],
       ["seat_cushioning_support", 1.3],
     ],
-    "Mixed group": [
+    "Other adults or friends": [
       ["third_row_usability", 1.3],
       ["rear_legroom_kneeroom", 1.3],
-      ["safety_build_quality", 1.3],
     ],
   },
-  q7_top2_priorities: {
+  q_top2_priorities: {
     "Ride quality and handling": [["ride_quality", 2.5]],
     "Safety and build quality": [["safety_build_quality", 2.5]],
     "Fuel efficiency": [["mileage_efficiency", 2.5]],
     "Power and acceleration": [["power_drivability", 2.5]],
     "Features and tech": [["feature_tech", 2.5]],
+    "Low running costs": [["service_cost", 2.0]],
   },
-  q8_compromise: {
-    "Ride comfort": [["ride_quality", 0.6]],
-    Features: [["feature_tech", 0.5]],
-    "After-sales support": [["after_sales_dealer", 0.5]],
-    "Cabin space": [["cabin_space", 0.5]],
-    Performance: [["power_drivability", 0.5]],
-    Safety: [["safety_build_quality", 0.5]],
-  },
-  q9_frustration: {
+  q_frustration: {
+    // "Frequent refuelling" is the option value even when the displayed
+    // label swaps to "Frequent charging stops" for EV-only fuel
+    // selections (same underlying facet, see docs/questionnaire.md).
     "Frequent refuelling": [["mileage_efficiency", 1.8]],
     "Jerky or bumpy rides": [["suspension_softness", 1.8]],
     "Slow overtakes": [["highway_overtaking", 1.8]],
     "Poor visibility or comfort": [["visibility_ergonomics", 1.8]],
     "Lack of modern tech": [["feature_tech", 1.5]],
-    "Parking difficulty": [["parking_maneuverability", 1.8]],
-  },
-  q10_parking: {
-    "Tight covered or basement parking": [["turning_radius", 1.8], ["width_tight_spaces", 1.8]],
-    "No fixed parking": [["parking_maneuverability", 1.3]],
-  },
-  q11_exciting_feature: {
-    "Panoramic sunroof": [["sunroof_quality", 2.0]],
-    "ADAS and safety tech": [["adas_reliability", 2.0]],
-    "Big touchscreen": [["touchscreen_lag", 2.0]],
-    "Turbo engine": [["turbo_lag", 2.0], ["highway_overtaking", 1.5]],
-  },
-  q12_service_cost_priority: {
-    Yes: [["service_cost", 2.0]],
-    No: [["service_cost", 0.7]],
-  },
-  q13_ownership_duration: {
-    "<3 years": [["resale_value", 2.0], ["reliability", 0.8]],
-    "3-5 years": [["resale_value", 1.5], ["reliability", 1.2]],
-    "5-7 years": [["reliability", 1.5]],
-    "7+ years": [["reliability", 2.0], ["resale_value", 0.7]],
   },
 };
 
 export type QuestionnaireAnswers = Record<string, string | string[]>;
 
 /**
- * answers: {question_id: answer}, e.g. {q7_top2_priorities: ["Ride quality
- * and handling", "Safety and build quality"]}. Q7 is the one multi-select
- * question (pick exactly 2) -- pass an array for it, plain strings for
- * everything else. Returns {facet_name: weight}, clamped to
- * [MIN_FACET_WEIGHT, MAX_FACET_WEIGHT].
+ * answers: {question_id: answer}, e.g. {q_top2_priorities: ["Ride quality
+ * and handling", "Safety and build quality"]}. q_top2_priorities (pick
+ * exactly 2) and q_who_rides (pick any) are the multi-select questions --
+ * pass an array for those, plain strings for everything else.
+ * Structural-filter questions (q_budget, q_fuel, q_transmission,
+ * q_parking_tightness, q_brand_avoid) can be present in answers too;
+ * they're simply ignored here since they have no WEIGHT_RULES entry
+ * (recommend.ts reads them directly instead). Returns {facet_name: weight},
+ * clamped to [MIN_FACET_WEIGHT, MAX_FACET_WEIGHT].
  */
 export function deriveWeightVector(answers: QuestionnaireAnswers): Record<string, number> {
   const weights: Record<string, number> = {};

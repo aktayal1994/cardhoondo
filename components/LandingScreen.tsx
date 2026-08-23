@@ -18,7 +18,7 @@ import {
 const FAQS = [
   {
     q: "How does CarDhoondo recommend a car?",
-    a: "You answer 13 quick questions about how you actually drive — road conditions, family size, budget, and what matters most to you. We match your answers against a database of facts extracted from real ownership and expert car reviews, and recommend the 2–3 cars with the strongest evidence behind them for your specific situation.",
+    a: "You answer 11 quick questions about how you actually drive — road conditions, family size, budget, and what matters most to you. We match your answers against a database of facts extracted from real ownership and expert car reviews, and recommend the 2–3 cars with the strongest evidence behind them for your specific situation.",
   },
   {
     q: "Is CarDhoondo really free? How do you make money?",
@@ -156,7 +156,7 @@ function Hero({ onStart }: { onStart: () => void }) {
               Find My Car
               <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" strokeWidth={2.25} />
             </button>
-            <p className="text-xs text-stage-ink-soft sm:text-sm">13 questions · ~3 minutes · No signup required</p>
+            <p className="text-xs text-stage-ink-soft sm:text-sm">11 questions · ~3 minutes · No signup required</p>
           </div>
         </div>
       </div>
@@ -220,7 +220,7 @@ const STEPS = [
   {
     icon: ListChecks,
     title: "Tell us how you actually drive",
-    body: "13 quick questions grouped into your drives, who it's for, and what matters — no jargon, about 3 minutes.",
+    body: "11 quick questions grouped into core requirements, your everyday driving, and what matters to you — no jargon, about 3 minutes.",
   },
   {
     icon: ScanSearch,
@@ -274,7 +274,7 @@ function HowItWorks({ onStart }: { onStart: () => void }) {
           onClick={onStart}
           className="mt-14 flex items-center gap-2 rounded-full bg-navy-900 px-7 py-3.5 text-sm font-semibold text-white shadow-sm transition hover:bg-navy-950 active:scale-[0.98]"
         >
-          Start the 13 questions
+          Start the 11 questions
           <ArrowRight className="h-4 w-4" strokeWidth={2.25} />
         </button>
       </div>
