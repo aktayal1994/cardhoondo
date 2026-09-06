@@ -105,6 +105,60 @@ body {
   }
 }
 
+/* One keyframe drives both the entrance (fade+drift in) and the ongoing
+   idle float, so a single element only ever animates `transform` once --
+   layering a separate entrance animation and a separate float animation on
+   the same property would just have the second one clobber the first
+   instead of composing. --chip-rot/--chip-delay are set per-chip inline. */
+@keyframes chip-in-float {
+  0% { opacity: 0; transform: translateY(-16px) scale(0.92) rotate(var(--chip-rot, 0deg)); }
+  14% { opacity: 1; transform: translateY(0) scale(1) rotate(var(--chip-rot, 0deg)); }
+  55% { transform: translateY(-8px) scale(1) rotate(var(--chip-rot, 0deg)); }
+  100% { opacity: 1; transform: translateY(0) scale(1) rotate(var(--chip-rot, 0deg)); }
+}
+
+.animate-chip-float {
+  opacity: 0;
+  animation: chip-in-float 4.8s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+  animation-delay: var(--chip-delay, 0s);
+}
+
+@keyframes marquee-scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  animation: marquee-scroll 32s linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-chip-float {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: rotate(var(--chip-rot, 0deg)) !important;
+  }
+  .animate-marquee {
+    animation: none !important;
+  }
+}
+
+/* Single elevation tier for the whole site, tinted to ink (warm near-black)
+   rather than pure black -- borrowed from the Airbnb DESIGN.md reference's
+   own one-shadow-tier discipline (a card either has this or no shadow at
+   all; no progressive tiers). Used sparingly, only where elevation signals
+   real hierarchy (the evidence-preview card, the stat band). */
+.shadow-card {
+  box-shadow:
+    0 0 0 1px rgba(29, 26, 21, 0.04),
+    0 2px 6px rgba(29, 26, 21, 0.05),
+    0 12px 28px -8px rgba(29, 26, 21, 0.12);
+}
+
 /* Scoped to direct children only (not descendants) so nested ".not-prose"
    graphics -- e.g. the dealer-tricks data-viz cards, which have their own
    <p>/<ul> deep inside -- never inherit article typography. */

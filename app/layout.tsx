@@ -28,11 +28,11 @@ const SITE_URL = "https://cardhoondo.com";
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "CarDhoondo — Which Car Should You Buy? Honest, Unbiased Car Recommendations for India",
+    default: "CarDhoondo - Which Car Should You Buy? Honest, Unbiased Car Recommendations for India",
     template: "%s | CarDhoondo",
   },
   description:
-    "Confused which car to buy in India? Answer 11 quick questions about how you actually drive and live — CarDhoondo matches your answers against real, evidence-backed car reviews and recommends 2–3 cars that genuinely fit. No dealer commissions, no sponsored results.",
+    "Confused which car to buy in India? Answer 11 quick questions about how you actually drive and live. CarDhoondo matches your answers against real, evidence-backed car reviews and recommends 2-3 cars that genuinely fit. No dealer commissions, no sponsored results.",
   keywords: [
     "which car to buy in India",
     "car recommendation India",
@@ -61,16 +61,16 @@ export const metadata: Metadata = {
     locale: "en_IN",
     url: SITE_URL,
     siteName: "CarDhoondo",
-    title: "CarDhoondo — Which Car Should You Buy? Honest, Unbiased Car Recommendations",
+    title: "CarDhoondo - Which Car Should You Buy? Honest, Unbiased Car Recommendations",
     description:
-      "Asked chacha. Asked colleagues. Watched 15 YouTube videos. Still confused which car to buy? Answer 11 quick questions and get 2–3 cars backed by real review evidence — no dealer commissions, no sponsored results.",
-    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "CarDhoondo — Your Perfect Car Found" }],
+      "Asked chacha. Asked colleagues. Watched 15 YouTube videos. Still confused which car to buy? Answer 11 quick questions and get 2-3 cars backed by real review evidence. No dealer commissions, no sponsored results.",
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "CarDhoondo - Your Perfect Car Found" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "CarDhoondo — Honest, Unbiased Car Recommendations for India",
+    title: "CarDhoondo - Honest, Unbiased Car Recommendations for India",
     description:
-      "Answer 11 quick questions about how you drive and live. Get 2–3 cars backed by real review evidence — no dealer commissions, no sponsored results.",
+      "Answer 11 quick questions about how you drive and live. Get 2-3 cars backed by real review evidence. No dealer commissions, no sponsored results.",
     images: ["/og-image.png"],
   },
   robots: {
@@ -87,7 +87,7 @@ const jsonLd = [
     url: SITE_URL,
     logo: `${SITE_URL}/cardhoondo-logo.png`,
     description:
-      "AI-powered car recommendation platform for first and second-time car buyers in India. Honest, unbiased recommendations backed by real review evidence — no dealer commissions, no sponsored results.",
+      "AI-powered car recommendation platform for first and second-time car buyers in India. Honest, unbiased recommendations backed by real review evidence. No dealer commissions, no sponsored results.",
     areaServed: {
       "@type": "Country",
       name: "India",
