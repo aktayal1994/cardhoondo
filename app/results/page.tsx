@@ -119,6 +119,7 @@ export default function ResultsPage() {
     return (
       <ResultsScreen
         recommendOutput={recommendOutput}
+        recommendationResultId={recommendationResultId}
         writeup={writeup}
         writeupError={writeupError}
         onSelectCar={(carId) => {

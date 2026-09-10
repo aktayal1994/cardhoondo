@@ -24,6 +24,7 @@ const LIMITS: Record<string, number> = {
   // Tightest limit: this is the one route that spends money (Gemini call) per request.
   "/api/writeup": 8,
   "/api/car-detail": 40,
+  "/api/feedback": 20,
 };
 
 const buckets = new Map<string, Bucket>();
@@ -78,5 +79,5 @@ export function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/api/recommend", "/api/writeup", "/api/car-detail"],
+  matcher: ["/api/recommend", "/api/writeup", "/api/car-detail", "/api/feedback"],
 };

@@ -7,9 +7,11 @@ import type { WriteupOutput, WriteupCarOutput, WriteupFacetEntry } from "../lib/
 import type { ScoreBreakdownItem } from "../lib/scoring/types";
 import { confidenceLabel, verdictPhrase } from "../lib/verdict";
 import { formatINR } from "../lib/format";
+import FeedbackPrompt from "./FeedbackPrompt";
 
 interface ResultsScreenProps {
   recommendOutput: RecommendOutput;
+  recommendationResultId: string;
   writeup: WriteupOutput | null;
   writeupError: boolean;
   onSelectCar: (carId: string) => void;
@@ -36,6 +38,7 @@ function fallbackEntries(breakdown: ScoreBreakdownItem[]): { positive: ScoreBrea
 
 export default function ResultsScreen({
   recommendOutput,
+  recommendationResultId,
   writeup,
   writeupError,
   onSelectCar,
@@ -113,6 +116,8 @@ export default function ResultsScreen({
           rather than guess.
         </p>
       )}
+
+      <FeedbackPrompt recommendationResultId={recommendationResultId} />
     </main>
   );
 }
