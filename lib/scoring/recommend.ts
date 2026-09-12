@@ -177,12 +177,21 @@ export function passesStructuralFilters(
     }
   }
 
+  // CarDekho's own spec field is genuinely multi-valued for most 3-row cars
+  // ("6, 7" meaning the trim can be configured either way) -- check
+  // membership against every number mentioned, not equality against a
+  // single value (which silently excluded ~96% of real 7-seat-capable
+  // variants when seating_capacity was stored as a plain number/null).
   const seatAnswer = answers["q_seating"] as string | undefined;
-  const seatsN = variant.seating_capacity;
-  if (seatAnswer === "7 seater" && seatsN !== 7) {
+  const seatNumbers = new Set(
+    String(variant.seating_capacity ?? "")
+      .match(/\d+/g)
+      ?.map(Number) ?? []
+  );
+  if (seatAnswer === "7 seater" && !seatNumbers.has(7)) {
     return { ok: false, reason: `seats=${variant.seating_capacity}, wanted 7` };
   }
-  if (seatAnswer === "4/5 seater" && seatsN !== 4 && seatsN !== 5) {
+  if (seatAnswer === "4/5 seater" && !seatNumbers.has(4) && !seatNumbers.has(5)) {
     return { ok: false, reason: `seats=${variant.seating_capacity}, wanted 4/5` };
   }
 

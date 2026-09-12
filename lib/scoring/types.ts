@@ -74,7 +74,7 @@ export interface CatalogVariant {
   url: string | null;
   on_road_price: number | null;
   ex_showroom_price: number | null;
-  seating_capacity: number | null;
+  seating_capacity: string | null;
   fuel_type: string | null;
   drive_type: string | null;
   spec_sections: Record<string, Record<string, unknown>>;
