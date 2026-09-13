@@ -81,6 +81,13 @@ export default function ResultsScreen({
         to rank confidently.
       </p>
 
+      {/* Moved up from the very bottom of the page -- a prompt only the
+          most engaged scrollers ever saw was structurally undercounting
+          how the recommendation actually landed. Right after the intro
+          line means every visitor sees it before deciding whether to read
+          on, not just the ones who make it through all 3 cards. */}
+      <FeedbackPrompt recommendationResultId={recommendationResultId} />
+
       <div className="mt-8 space-y-6">
         {shortlist.map((candidate, idx) => (
           <ResultCard
@@ -116,8 +123,6 @@ export default function ResultsScreen({
           rather than guess.
         </p>
       )}
-
-      <FeedbackPrompt recommendationResultId={recommendationResultId} />
     </main>
   );
 }

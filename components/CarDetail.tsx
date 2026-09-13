@@ -5,6 +5,7 @@ import { ArrowLeft } from "lucide-react";
 import type { ScoreResult, ScoreBreakdownItem } from "../lib/scoring/types";
 import { verdictPhrase, confidenceSentence } from "../lib/verdict";
 import { formatINR, humanize } from "../lib/format";
+import FeedbackPrompt from "./FeedbackPrompt";
 
 interface CarDetailData {
   car_id: string;
@@ -106,6 +107,15 @@ export default function CarDetail({ recommendationResultId, carId, fallbackLabel
           ))}
           {byTheme.size === 0 && (
             <p className="text-sm text-ink-soft">No review evidence available for this car yet.</p>
+          )}
+
+          {/* Second feedback touchpoint -- reaching this page at all is
+              itself a trust signal (they clicked into the evidence), so
+              asking here too catches sentiment the shortlist-level prompt
+              alone would miss, e.g. someone who trusted the shortlist but
+              found one car's specific evidence unconvincing. */}
+          {byTheme.size > 0 && (
+            <FeedbackPrompt recommendationResultId={recommendationResultId} carId={carId} variant="evidence" />
           )}
         </div>
       )}

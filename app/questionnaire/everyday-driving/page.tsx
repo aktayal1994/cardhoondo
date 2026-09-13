@@ -6,6 +6,7 @@ import StepProgress from "../../../components/StepProgress";
 import StepQuestionForm from "../../../components/StepQuestionForm";
 import { loadQuestionnaireState, type QuestionnaireState } from "../../../lib/questionnaireStore";
 import { isSectionComplete, profileEntriesForSection } from "../../../lib/questions";
+import { trackEvent } from "../../../lib/analytics";
 
 export default function EverydayDrivingPage() {
   const router = useRouter();
@@ -37,7 +38,10 @@ export default function EverydayDrivingPage() {
         priorProfileEntries={profileEntriesForSection("core_requirements", state.answers, state.skipped)}
         transitionMessage="Good — now I know how you actually drive day to day."
         backHref="/questionnaire/core-requirements"
-        onSectionComplete={() => router.push("/questionnaire/what-matters")}
+        onSectionComplete={() => {
+          trackEvent("questionnaire_step_complete", { step: "everyday_driving" });
+          router.push("/questionnaire/what-matters");
+        }}
       />
     </div>
   );

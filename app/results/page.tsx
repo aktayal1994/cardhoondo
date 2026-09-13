@@ -10,6 +10,7 @@ import { loadQuestionnaireState, clearQuestionnaireState } from "../../lib/quest
 import { isSectionComplete } from "../../lib/questions";
 import type { RecommendOutput } from "../../lib/scoring/recommend";
 import type { WriteupOutput } from "../../lib/llm/writeup";
+import { trackEvent } from "../../lib/analytics";
 
 type Step = "loading" | "thinking" | "results" | "detail" | "compare" | "error";
 
@@ -68,6 +69,19 @@ export default function ResultsPage() {
       setRecommendationResultId(json.recommendation_result_id);
       setRecommendReady(true);
 
+      // shortlist_size=0 is a real product-quality signal worth its own
+      // event, not just a smaller number on results_viewed -- it's the
+      // exact failure mode a thin/broken structural filter produces (see
+      // the seating_capacity bug this same session found and fixed), and
+      // it's invisible in a plain pageview count.
+      trackEvent("results_viewed", {
+        shortlist_size: json.shortlist.length,
+        skipped_no_data_count: json.cars_skipped_no_review_data.length,
+      });
+      if (json.shortlist.length === 0) {
+        trackEvent("recommendation_empty");
+      }
+
       fetch("/api/writeup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -123,10 +137,14 @@ export default function ResultsPage() {
         writeup={writeup}
         writeupError={writeupError}
         onSelectCar={(carId) => {
+          trackEvent("evidence_drilldown_view", { car_id: carId });
           setSelectedCarId(carId);
           setStep("detail");
         }}
-        onCompare={() => setStep("compare")}
+        onCompare={() => {
+          trackEvent("compare_view_used");
+          setStep("compare");
+        }}
         onRestart={restart}
       />
     );

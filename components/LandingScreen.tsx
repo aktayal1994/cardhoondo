@@ -59,7 +59,7 @@ const FAQS = [
 
 const PRIMARY_CTA = "Find my car";
 
-export default function LandingScreen({ onStart }: { onStart: () => void }) {
+export default function LandingScreen({ onStart }: { onStart: (location: string) => void }) {
   return (
     <main className="min-h-screen overflow-x-clip bg-paper">
       {/* nav + hero are budgeted to fit one screen (min-h-dvh) so the CTA band
@@ -229,7 +229,7 @@ function RevealOnScroll({
 /* Nav                                                                     */
 /* ---------------------------------------------------------------------- */
 
-function Nav({ onStart }: { onStart: () => void }) {
+function Nav({ onStart }: { onStart: (location: string) => void }) {
   return (
     <header className="sticky top-0 z-40 border-b border-border/80 bg-paper/90 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
@@ -261,7 +261,7 @@ function Nav({ onStart }: { onStart: () => void }) {
           </a>
         </nav>
         <MagneticButton
-          onClick={onStart}
+          onClick={() => onStart("nav")}
           strength={0.25}
           className="rounded-full bg-accent-gold px-5 py-2.5 text-sm font-semibold text-stage shadow-sm transition hover:brightness-105"
         >
@@ -314,7 +314,7 @@ function OpinionCloud() {
   );
 }
 
-function Hero({ onStart }: { onStart: () => void }) {
+function Hero({ onStart }: { onStart: (location: string) => void }) {
   return (
     <section id="top" className="flex flex-1 flex-col bg-paper">
       {/* One clean photo (no baked-in text), so headline placement/size is
@@ -365,7 +365,7 @@ function Hero({ onStart }: { onStart: () => void }) {
           </p>
           <div className="flex flex-col items-center gap-1 sm:items-end">
             <MagneticButton
-              onClick={onStart}
+              onClick={() => onStart("hero")}
               className="group flex items-center gap-2 rounded-full bg-accent-gold px-6 py-2.5 text-sm font-semibold text-stage shadow-lg shadow-black/30 transition hover:brightness-105 sm:px-8 sm:py-3.5 sm:text-base"
             >
               {PRIMARY_CTA}
@@ -509,7 +509,7 @@ const STEPS = [
   },
 ];
 
-function HowItWorks({ onStart }: { onStart: () => void }) {
+function HowItWorks({ onStart }: { onStart: (location: string) => void }) {
   const reduce = useReducedMotion();
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -590,7 +590,7 @@ function HowItWorks({ onStart }: { onStart: () => void }) {
 
       <div className="mx-auto max-w-6xl px-6 pb-20 sm:pb-24 pt-10">
         <button
-          onClick={onStart}
+          onClick={() => onStart("how_it_works")}
           className="flex items-center gap-2 rounded-full bg-navy-900 px-7 py-3.5 text-sm font-semibold text-white shadow-sm transition hover:bg-navy-950 active:scale-[0.98]"
         >
           {PRIMARY_CTA}
@@ -820,7 +820,7 @@ function Faq() {
 /* Contact                                                                  */
 /* ---------------------------------------------------------------------- */
 
-function Contact({ onStart }: { onStart: () => void }) {
+function Contact({ onStart }: { onStart: (location: string) => void }) {
   return (
     <section id="contact" className="border-t border-border bg-navy-50 py-20 sm:py-24">
       <div className="mx-auto max-w-3xl px-6 text-center">
@@ -844,7 +844,7 @@ function Contact({ onStart }: { onStart: () => void }) {
             mycardhoondo@gmail.com
           </a>
           <MagneticButton
-            onClick={onStart}
+            onClick={() => onStart("contact")}
             className="rounded-full bg-accent-gold px-6 py-3 text-sm font-semibold text-stage shadow-sm transition hover:brightness-105"
           >
             {PRIMARY_CTA}

@@ -6,6 +6,7 @@ import StepProgress from "../../../components/StepProgress";
 import StepQuestionForm from "../../../components/StepQuestionForm";
 import { loadQuestionnaireState, type QuestionnaireState } from "../../../lib/questionnaireStore";
 import { isSectionComplete, profileEntriesForSection } from "../../../lib/questions";
+import { trackEvent } from "../../../lib/analytics";
 
 export default function WhatMattersPage() {
   const router = useRouter();
@@ -42,7 +43,10 @@ export default function WhatMattersPage() {
         // acknowledgment/wait screen for this final handoff, so a second
         // beat here would just be a redundant pause before it.
         backHref="/questionnaire/everyday-driving"
-        onSectionComplete={() => router.push("/results")}
+        onSectionComplete={() => {
+          trackEvent("questionnaire_step_complete", { step: "what_matters" });
+          router.push("/results");
+        }}
       />
     </div>
   );

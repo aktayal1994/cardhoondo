@@ -6,6 +6,7 @@ import IntroStep, { type IntroValues } from "../../../components/IntroStep";
 import StepProgress from "../../../components/StepProgress";
 import StepTransition from "../../../components/StepTransition";
 import { loadQuestionnaireState, saveIntro } from "../../../lib/questionnaireStore";
+import { trackEvent } from "../../../lib/analytics";
 
 export default function IntroPage() {
   const router = useRouter();
@@ -26,6 +27,7 @@ export default function IntroPage() {
 
   function handleContinue(values: IntroValues) {
     saveIntro(values);
+    trackEvent("intro_submitted");
     setTransitioning(`Thanks, ${values.name} — let's find your car.`);
   }
 

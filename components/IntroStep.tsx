@@ -14,14 +14,33 @@ interface IntroStepProps {
   onContinue: (values: IntroValues) => void;
 }
 
-/** Exactly 10 digits, starts with 6-9 (real Indian mobile numbering), and
- * rejects all-same-digit input (e.g. "9999999999") as obvious junk/test
- * entry -- mirrors the server-side check in
+/** No OTP verification exists (deliberately not built), so this is the only
+ * line of defense against garbage phone numbers -- someone forced through a
+ * mandatory field will type SOMETHING, and it needs to at least not be an
+ * obvious placeholder. Exactly 10 digits, starts with 6-9 (real Indian
+ * mobile numbering), rejects all-same-digit ("9999999999") and a full
+ * ascending/descending run ("9876543210", "6789012345" with wraparound) --
+ * the two patterns anyone typing a throwaway number reaches for first.
+ * This is a cheap filter, not a guarantee: it cannot catch a real-looking
+ * but simply wrong or disconnected number. Mirrors the server-side check in
  * web/app/api/recommend/route.ts's isValidPhoneNumber(). */
 function isValidPhoneNumber(phone: string): boolean {
   if (!/^[6-9]\d{9}$/.test(phone)) return false;
   if (/^(\d)\1{9}$/.test(phone)) return false;
+  if (isSequentialRun(phone)) return false;
   return true;
+}
+
+function isSequentialRun(digits: string): boolean {
+  let ascending = true;
+  let descending = true;
+  for (let i = 1; i < digits.length; i++) {
+    const prev = Number(digits[i - 1]);
+    const curr = Number(digits[i]);
+    if (((curr - prev + 10) % 10) !== 1) ascending = false;
+    if (((prev - curr + 10) % 10) !== 1) descending = false;
+  }
+  return ascending || descending;
 }
 
 function isValidPincode(pincode: string): boolean {

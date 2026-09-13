@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import LandingScreen from "../components/LandingScreen";
+import { trackEvent } from "../lib/analytics";
 
 /**
  * The questionnaire itself now lives at real routes under /questionnaire/*
@@ -12,5 +13,12 @@ import LandingScreen from "../components/LandingScreen";
  */
 export default function HomePage() {
   const router = useRouter();
-  return <LandingScreen onStart={() => router.push("/questionnaire/intro")} />;
+  return (
+    <LandingScreen
+      onStart={(location) => {
+        trackEvent("cta_click", { location });
+        router.push("/questionnaire/intro");
+      }}
+    />
+  );
 }

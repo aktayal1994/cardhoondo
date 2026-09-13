@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import StepProgress from "../../../components/StepProgress";
 import StepQuestionForm from "../../../components/StepQuestionForm";
 import { loadQuestionnaireState, type QuestionnaireState } from "../../../lib/questionnaireStore";
+import { trackEvent } from "../../../lib/analytics";
 
 export default function CoreRequirementsPage() {
   const router = useRouter();
@@ -32,7 +33,10 @@ export default function CoreRequirementsPage() {
         priorProfileEntries={[]}
         transitionMessage="Budget, fuel, seating, transmission — the non-negotiables are locked in."
         backHref="/questionnaire/intro"
-        onSectionComplete={() => router.push("/questionnaire/everyday-driving")}
+        onSectionComplete={() => {
+          trackEvent("questionnaire_step_complete", { step: "core_requirements" });
+          router.push("/questionnaire/everyday-driving");
+        }}
       />
     </div>
   );
