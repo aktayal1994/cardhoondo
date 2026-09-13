@@ -72,10 +72,10 @@ export default function IntroStep({ initialValues, onContinue }: IntroStepProps)
   }
 
   return (
-    <div className="animate-fade-up mx-auto max-w-lg px-4 py-12 sm:px-6">
+    <div className="animate-fade-up-blur mx-auto max-w-lg px-4 py-12 sm:px-6">
       <div className="flex items-start gap-3">
-        <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-navy-50">
-          <UserRound className="h-4.5 w-4.5 text-navy-700" strokeWidth={1.75} />
+        <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-border bg-charcoal-800/70">
+          <UserRound className="h-4.5 w-4.5 text-accent-rust-soft" strokeWidth={1.75} />
         </div>
         <div>
           <h2 className="font-display text-xl font-semibold text-ink">Let's start with a few details</h2>
@@ -98,7 +98,7 @@ export default function IntroStep({ initialValues, onContinue }: IntroStepProps)
             placeholder="Your name"
             aria-invalid={nameError}
             className={`w-full rounded-xl border bg-paper-raised px-4 py-2.5 text-sm text-ink placeholder:text-ink-faint focus:outline-none ${
-              nameError ? "border-negative" : "border-border focus:border-navy-500"
+              nameError ? "border-negative" : "border-border transition focus:border-accent-rust/70 focus:shadow-glow-sm"
             }`}
           />
           {nameError && <p className="mt-1.5 text-sm text-negative">Enter your name.</p>}
@@ -118,7 +118,7 @@ export default function IntroStep({ initialValues, onContinue }: IntroStepProps)
             placeholder="6-digit pincode"
             aria-invalid={pincodeError}
             className={`w-full rounded-xl border bg-paper-raised px-4 py-2.5 text-sm text-ink placeholder:text-ink-faint focus:outline-none ${
-              pincodeError ? "border-negative" : "border-border focus:border-navy-500"
+              pincodeError ? "border-negative" : "border-border transition focus:border-accent-rust/70 focus:shadow-glow-sm"
             }`}
           />
           {pincodeError && <p className="mt-1.5 text-sm text-negative">Enter a valid 6-digit pincode.</p>}
@@ -138,7 +138,7 @@ export default function IntroStep({ initialValues, onContinue }: IntroStepProps)
             placeholder="10-digit mobile number"
             aria-invalid={phoneError}
             className={`w-full rounded-xl border bg-paper-raised px-4 py-2.5 text-sm text-ink placeholder:text-ink-faint focus:outline-none ${
-              phoneError ? "border-negative" : "border-border focus:border-navy-500"
+              phoneError ? "border-negative" : "border-border transition focus:border-accent-rust/70 focus:shadow-glow-sm"
             }`}
           />
           {phoneError && (
@@ -153,7 +153,7 @@ export default function IntroStep({ initialValues, onContinue }: IntroStepProps)
         <button
           type="button"
           onClick={handleContinue}
-          className="rounded-full bg-accent-gold px-8 py-3.5 text-base font-semibold text-stage shadow-sm transition hover:brightness-105 active:scale-[0.98]"
+          className="rounded-full bg-accent-rust px-8 py-3.5 text-base font-semibold text-stage shadow-glow-sm transition hover:brightness-110 active:scale-[0.98]"
         >
           Continue
         </button>

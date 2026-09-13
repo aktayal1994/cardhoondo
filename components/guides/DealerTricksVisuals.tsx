@@ -12,7 +12,7 @@ import { ArrowRight, Check } from "lucide-react";
 
 function VisualLabel({ children }: { children: React.ReactNode }) {
   return (
-    <p className="font-display text-xs font-semibold uppercase tracking-wide text-navy-600">
+    <p className="font-display text-xs font-semibold uppercase tracking-wide text-accent-rust-soft">
       {children}
     </p>
   );
@@ -41,7 +41,7 @@ export function VariantLadderVisual() {
           <div
             key={tier.name}
             className={`rounded-xl border p-3 sm:p-4 ${
-              i === 2 ? "border-accent-gold bg-accent-gold/5" : "border-border bg-paper"
+              i === 2 ? "border-accent-rust bg-accent-rust/5" : "border-border bg-paper"
             }`}
           >
             <p className="text-xs font-semibold uppercase tracking-wide text-ink-faint">{tier.name}</p>
@@ -87,7 +87,7 @@ export function QuoteBreakdownVisual() {
             <span className="flex items-center gap-2 text-sm text-ink">
               {line.label}
               {line.verify && (
-                <span className="rounded-full bg-accent-gold/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-accent-gold">
+                <span className="rounded-full bg-accent-rust/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-accent-rust">
                   Verify separately
                 </span>
               )}
@@ -116,7 +116,7 @@ export function UrgencyVisual() {
   return (
     <div className="not-prose my-8 rounded-2xl border border-border bg-paper-raised p-6">
       <VisualLabel>Illustrative example</VisualLabel>
-      <div className="mt-4 rounded-xl border border-accent-gold/40 bg-accent-gold/5 p-4 text-center">
+      <div className="mt-4 rounded-xl border border-accent-rust/40 bg-accent-rust/5 p-4 text-center">
         <p className="font-display text-lg font-bold text-ink sm:text-xl">₹45,000 off — today only</p>
         <p className="mt-1 text-xs text-ink-faint">Verbal offer, no validity date given</p>
       </div>
@@ -125,7 +125,7 @@ export function UrgencyVisual() {
         <ArrowRight className="h-3.5 w-3.5 shrink-0 text-ink-faint" />
         <span className="rounded-full border border-border bg-paper px-3 py-1.5">Compare elsewhere</span>
         <ArrowRight className="h-3.5 w-3.5 shrink-0 text-ink-faint" />
-        <span className="rounded-full bg-accent-gold px-3 py-1.5 text-stage">Then decide</span>
+        <span className="rounded-full bg-accent-rust px-3 py-1.5 text-stage">Then decide</span>
       </div>
       <VisualCaption>
         A genuine best price survives a written quotation and a second opinion. One that
@@ -149,8 +149,8 @@ export function EmiVsTotalVisual() {
           <p className="mt-0.5 text-xs text-ink-faint">how it&rsquo;s pitched to you</p>
         </div>
         <span className="font-mono text-xs text-ink-faint">× 60 months</span>
-        <div className="flex items-center gap-2 rounded-xl border border-accent-gold bg-accent-gold/10 px-5 py-3 text-center">
-          <Check className="h-4 w-4 shrink-0 text-accent-gold" />
+        <div className="flex items-center gap-2 rounded-xl border border-accent-rust bg-accent-rust/10 px-5 py-3 text-center">
+          <Check className="h-4 w-4 shrink-0 text-accent-rust" />
           <div>
             <p className="font-mono text-xl font-semibold text-ink">₹1,20,000 more</p>
             <p className="mt-0.5 text-xs text-ink-faint">what it actually costs, before interest</p>

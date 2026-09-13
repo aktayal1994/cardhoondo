@@ -83,11 +83,10 @@ export default function FeedbackPrompt({ recommendationResultId, carId, variant 
     }
   }
 
-  const headline =
-    variant === "evidence" ? "Does this evidence feel trustworthy?" : "Does this shortlist feel right for you?";
+  const headline = variant === "evidence" ? "Does this evidence feel trustworthy?" : "Does this shortlist feel right for you?";
 
   return (
-    <div className="mt-6 rounded-[20px] border border-border bg-paper-raised p-5 sm:p-6">
+    <div className="mt-6 rounded-[20px] border border-border bg-paper-raised p-5 shadow-card sm:p-6">
       <p className="text-sm font-medium text-ink">{headline}</p>
 
       <div className="mt-3 flex flex-wrap gap-2">
@@ -102,8 +101,8 @@ export default function FeedbackPrompt({ recommendationResultId, carId, variant 
               disabled={reactionStatus === "sending" && !isSelected}
               className={`rounded-full border px-4 py-2.5 text-sm font-medium transition active:scale-95 ${
                 isSelected
-                  ? "border-navy-900 bg-navy-900 text-white shadow-sm"
-                  : "border-border bg-paper text-ink hover:border-navy-500 hover:bg-navy-50"
+                  ? "border-accent-rust bg-accent-rust text-charcoal-950 shadow-glow-sm"
+                  : "border-border bg-paper text-ink hover:border-accent-rust/50 hover:bg-charcoal-800/60"
               }`}
             >
               {r.label}
@@ -112,15 +111,13 @@ export default function FeedbackPrompt({ recommendationResultId, carId, variant 
         })}
       </div>
 
-      {reactionStatus === "error" && (
-        <p className="mt-2 text-sm text-negative">Couldn&apos;t send that — mind trying again?</p>
-      )}
+      {reactionStatus === "error" && <p className="mt-2 text-sm text-negative">Couldn&apos;t send that — mind trying again?</p>}
 
       {reaction && reactionStatus !== "error" && (
         <div className="animate-fade-up mt-4">
           {reactionStatus === "sent" && commentStatus === "idle" && (
             <p className="mb-2 flex items-center gap-1.5 text-xs font-medium text-ink-faint">
-              <span className="h-1 w-1 rounded-full bg-accent-gold" />
+              <span className="h-1 w-1 rounded-full bg-accent-rust" />
               Got it — thanks. Anything specific? (optional)
             </p>
           )}
@@ -131,14 +128,14 @@ export default function FeedbackPrompt({ recommendationResultId, carId, variant 
                 onChange={(e) => setComment(e.target.value.slice(0, 500))}
                 rows={2}
                 placeholder="e.g. wanted more diesel options, didn't expect this brand..."
-                className="w-full resize-none rounded-xl border border-border bg-paper px-3.5 py-2.5 text-sm text-ink placeholder:text-ink-faint focus:border-navy-500 focus:outline-none"
+                className="w-full resize-none rounded-xl border border-border bg-paper px-3.5 py-2.5 text-sm text-ink placeholder:text-ink-faint transition focus:border-accent-rust/70 focus:shadow-glow-sm focus:outline-none"
               />
               <div className="mt-3 flex items-center gap-3">
                 <button
                   type="button"
                   onClick={addComment}
                   disabled={!comment.trim() || commentStatus === "sending"}
-                  className="rounded-full bg-navy-900 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-navy-950 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40"
+                  className="rounded-full bg-accent-rust px-6 py-2.5 text-sm font-semibold text-charcoal-950 shadow-glow-sm transition hover:brightness-110 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 disabled:shadow-none"
                 >
                   {commentStatus === "sending" ? "Sending…" : "Add note"}
                 </button>
@@ -148,7 +145,7 @@ export default function FeedbackPrompt({ recommendationResultId, carId, variant 
           )}
           {commentStatus === "sent" && (
             <p className="flex items-center gap-1.5 text-sm font-medium text-ink">
-              <span className="h-1 w-1 rounded-full bg-accent-gold" />
+              <span className="h-1 w-1 rounded-full bg-accent-rust" />
               Thanks — this helps us get better.
             </p>
           )}

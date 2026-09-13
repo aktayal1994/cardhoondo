@@ -1,14 +1,15 @@
 import "./globals.css";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import Script from "next/script";
-import { Plus_Jakarta_Sans, Be_Vietnam_Pro, JetBrains_Mono } from "next/font/google";
+import { Source_Serif_4, Be_Vietnam_Pro, JetBrains_Mono } from "next/font/google";
 import GAPageTracker from "../components/GAPageTracker";
 
 const GA_MEASUREMENT_ID = "G-YQ93EFYPEZ";
 
-const displayFont = Plus_Jakarta_Sans({
+const displayFont = Source_Serif_4({
   subsets: ["latin"],
-  weight: ["600", "700", "800"],
+  weight: ["500", "600", "700"],
+  style: ["normal", "italic"],
   variable: "--font-display-face",
   display: "swap",
 });
@@ -29,14 +30,18 @@ const dataFont = JetBrains_Mono({
 
 const SITE_URL = "https://cardhoondo.com";
 
+export const viewport: Viewport = {
+  themeColor: "#0a0908",
+};
+
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "CarDhoondo - Which Car Should You Buy? Honest, Unbiased Car Recommendations for India",
+    default: "Which Car to Buy in India? Unbiased Advice | CarDhoondo",
     template: "%s | CarDhoondo",
   },
   description:
-    "Confused which car to buy in India? Answer 11 quick questions about how you actually drive and live. CarDhoondo matches your answers against real, evidence-backed car reviews and recommends 2-3 cars that genuinely fit. No dealer commissions, no sponsored results.",
+    "Confused which car to buy in India? Answer 11 quick questions, get 2-3 evidence-backed car recommendations. No dealer commissions, no sponsored results.",
   keywords: [
     "which car to buy in India",
     "car recommendation India",
@@ -45,13 +50,17 @@ export const metadata: Metadata = {
     "car buying guide India",
     "confused which car to buy",
     "AI car recommendation India",
-    "best car for family India",
+    "best car for family of 4 India",
     "EV or petrol which car to buy",
     "car finder India",
     "car suggestion tool India",
     "no dealer commission car advice",
     "first car India",
     "second car India",
+    "SUV vs sedan India which to buy",
+    "base model vs top variant car India",
+    "how much car can I afford India",
+    "best car for bad roads India",
   ],
   authors: [{ name: "CarDhoondo" }],
   creator: "CarDhoondo",

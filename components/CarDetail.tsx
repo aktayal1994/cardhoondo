@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { motion } from "motion/react";
 import { ArrowLeft } from "lucide-react";
 import type { ScoreResult, ScoreBreakdownItem } from "../lib/scoring/types";
 import { verdictPhrase, confidenceSentence } from "../lib/verdict";
@@ -88,22 +89,27 @@ export default function CarDetail({ recommendationResultId, carId, fallbackLabel
       {!data && !error && (
         <div className="mt-8 space-y-4" aria-hidden>
           {[0, 1, 2].map((i) => (
-            <div key={i} className="h-20 animate-pulse rounded-xl bg-navy-50" />
+            <div key={i} className="h-20 animate-pulse rounded-xl bg-charcoal-800" />
           ))}
         </div>
       )}
 
       {data && (
         <div className="mt-8 space-y-8">
-          {Array.from(byTheme.entries()).map(([theme, items]) => (
-            <section key={theme}>
+          {Array.from(byTheme.entries()).map(([theme, items], i) => (
+            <motion.section
+              key={theme}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: Math.min(i, 6) * 0.05, ease: [0.16, 1, 0.3, 1] }}
+            >
               <h2 className="font-display text-xs font-semibold uppercase tracking-wide text-ink-faint">{humanize(theme)}</h2>
               <div className="mt-3 space-y-4">
                 {items.map((item) => (
                   <FacetDetail key={item.facet} item={item} />
                 ))}
               </div>
-            </section>
+            </motion.section>
           ))}
           {byTheme.size === 0 && (
             <p className="text-sm text-ink-soft">No review evidence available for this car yet.</p>
@@ -128,7 +134,7 @@ function FacetDetail({ item }: { item: ScoreBreakdownItem }) {
   const dotClass = item.score >= 0.2 ? "bg-positive" : item.score > -0.2 ? "bg-neutral-verdict" : "bg-negative";
 
   return (
-    <div className="rounded-xl border border-border bg-paper-raised p-4">
+    <div className="rounded-xl border border-border bg-paper-raised p-4 shadow-card">
       <div className="flex items-center justify-between gap-3">
         <p className="font-medium text-ink capitalize">{humanize(item.facet)}</p>
         <span className="flex items-center gap-1.5 text-sm text-ink-soft">

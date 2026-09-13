@@ -56,7 +56,7 @@ export default function GuideLayout({
         </div>
       )}
       <article className="mx-auto max-w-2xl px-6 py-14">
-        <p className="font-display text-sm font-semibold uppercase tracking-wide text-navy-600">{eyebrow}</p>
+        <p className="font-display text-sm font-semibold uppercase tracking-wide text-accent-rust-soft">{eyebrow}</p>
         {/* The hero image already carries the headline as baked-in text for
             readers -- this h1 stays in the DOM (visually hidden) so search
             engines and screen readers still get a real, crawlable heading,
@@ -79,16 +79,11 @@ export default function GuideLayout({
 
 function GuideNav() {
   return (
-    <header className="sticky top-0 z-40 border-b border-border/80 bg-paper/90 backdrop-blur">
+    <header className="sticky top-0 z-40 border-b border-border bg-paper/90 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
-        <Link href="/" className="flex items-center" aria-label="CarDhoondo home">
-          <Image
-            src="/cardhoondo-logo.png"
-            alt="CarDhoondo — Your Perfect Car Found"
-            width={489}
-            height={105}
-            className="h-8 w-auto sm:h-9"
-          />
+        <Link href="/" className="flex items-center gap-2.5" aria-label="CarDhoondo home">
+          <Image src="/cardhoondo-icon.png" alt="" width={237} height={237} className="h-8 w-8" />
+          <span className="font-display text-base font-bold text-ink">CarDhoondo</span>
         </Link>
         <nav className="hidden items-center gap-8 text-sm font-medium text-ink-soft sm:flex">
           <Link href="/guides" className="transition hover:text-ink">
@@ -103,7 +98,7 @@ function GuideNav() {
         </nav>
         <Link
           href="/questionnaire/intro"
-          className="rounded-full bg-accent-gold px-5 py-2.5 text-sm font-semibold text-stage shadow-sm transition hover:brightness-105 active:scale-[0.98]"
+          className="rounded-full bg-accent-rust px-5 py-2.5 text-sm font-semibold text-stage shadow-sm transition hover:brightness-105 active:scale-[0.98]"
         >
           Find my car
         </Link>
@@ -124,7 +119,7 @@ function BottomCta() {
       </p>
       <Link
         href="/questionnaire/intro"
-        className="mt-5 inline-flex items-center gap-2 rounded-full bg-accent-gold px-6 py-3 text-sm font-semibold text-stage shadow-sm transition hover:brightness-105 active:scale-[0.98]"
+        className="mt-5 inline-flex items-center gap-2 rounded-full bg-accent-rust px-6 py-3 text-sm font-semibold text-stage shadow-sm transition hover:brightness-105 active:scale-[0.98]"
       >
         Find my car <ArrowRight className="h-4 w-4" />
       </Link>

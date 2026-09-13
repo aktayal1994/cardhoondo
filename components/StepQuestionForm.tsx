@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { AnimatePresence, motion } from "motion/react";
 import { ArrowLeft, Pencil, PanelRightOpen, X } from "lucide-react";
 import {
   questionsInSection,
@@ -186,7 +187,7 @@ export default function StepQuestionForm({
           <a
             href={backHref}
             aria-label="Back to previous step"
-            className="flex h-9 w-9 items-center justify-center rounded-full text-ink-soft transition hover:bg-navy-50"
+            className="flex h-9 w-9 items-center justify-center rounded-full text-ink-soft transition hover:bg-charcoal-800/70"
           >
             <ArrowLeft className="h-5 w-5" strokeWidth={1.75} />
           </a>
@@ -198,7 +199,7 @@ export default function StepQuestionForm({
           type="button"
           onClick={() => setProfileOpen(true)}
           aria-label="What we know about you"
-          className="flex h-9 w-9 items-center justify-center rounded-full text-ink-soft transition hover:bg-navy-50 lg:hidden"
+          className="flex h-9 w-9 items-center justify-center rounded-full text-ink-soft transition hover:bg-charcoal-800/70 lg:hidden"
         >
           <PanelRightOpen className="h-5 w-5" strokeWidth={1.75} />
         </button>
@@ -211,9 +212,9 @@ export default function StepQuestionForm({
             const isEditing = editingId === q.id;
             const wasSkipped = skipped.has(q.id);
             return (
-              <div key={q.id}>
+              <motion.div key={q.id} layout transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}>
                 {isEditing ? (
-                  <div className="rounded-[20px] border border-navy-200 bg-navy-50/40 p-4">
+                  <div className="rounded-[20px] border border-border bg-charcoal-800/40 p-4">
                     <QuestionCard
                       question={q}
                       value={answers[q.id]}
@@ -227,7 +228,7 @@ export default function StepQuestionForm({
                   <button
                     type="button"
                     onClick={() => setEditingId(q.id)}
-                    className="group flex w-full items-start justify-between gap-3 rounded-xl px-1 py-1 text-left transition hover:bg-navy-50/60"
+                    className="group flex w-full items-start justify-between gap-3 rounded-xl px-1 py-1 text-left transition hover:bg-charcoal-800/50"
                   >
                     <div>
                       <p className="text-sm text-ink-faint">{q.prompt}</p>
@@ -241,30 +242,39 @@ export default function StepQuestionForm({
                     </span>
                   </button>
                 )}
-              </div>
+              </motion.div>
             );
           })}
 
-          {active && (
-            <div ref={activeRef}>
-              <QuestionCard
-                question={active}
-                value={answers[active.id]}
-                answers={answers}
-                onChange={(v) => commitActive(active, v)}
-                onConfirm={active.type === "multiAny" ? () => confirmMultiAny() : undefined}
-              />
-              {!active.required && active.type !== "multiAny" && (
-                <button
-                  type="button"
-                  onClick={() => skipActive(active)}
-                  className="ml-12 mt-3 text-sm text-ink-faint underline decoration-dotted underline-offset-4 hover:text-ink-soft"
-                >
-                  Skip — I don't have a preference
-                </button>
-              )}
-            </div>
-          )}
+          <AnimatePresence mode="wait">
+            {active && (
+              <motion.div
+                key={active.id}
+                ref={activeRef}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+              >
+                <QuestionCard
+                  question={active}
+                  value={answers[active.id]}
+                  answers={answers}
+                  onChange={(v) => commitActive(active, v)}
+                  onConfirm={active.type === "multiAny" ? () => confirmMultiAny() : undefined}
+                />
+                {!active.required && active.type !== "multiAny" && (
+                  <button
+                    type="button"
+                    onClick={() => skipActive(active)}
+                    className="ml-12 mt-3 text-sm text-ink-faint underline decoration-dotted underline-offset-4 hover:text-ink-soft"
+                  >
+                    Skip — I don't have a preference
+                  </button>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {allDone && (
             <div className="animate-fade-up ml-12">
@@ -272,7 +282,7 @@ export default function StepQuestionForm({
               <button
                 type="button"
                 onClick={continueManually}
-                className="mt-4 rounded-full bg-navy-900 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-navy-950 active:scale-95"
+                className="mt-4 rounded-full bg-accent-rust px-6 py-2.5 text-sm font-semibold text-charcoal-950 shadow-glow-sm transition hover:brightness-110 active:scale-95"
               >
                 Continue
               </button>
@@ -289,15 +299,15 @@ export default function StepQuestionForm({
 
       {profileOpen && (
         <div className="fixed inset-0 z-20 lg:hidden">
-          <div className="absolute inset-0 bg-ink/30" onClick={() => setProfileOpen(false)} />
-          <div className="absolute inset-y-0 right-0 w-full max-w-sm overflow-y-auto bg-paper-raised p-5 shadow-xl">
+          <div className="absolute inset-0 bg-charcoal-950/70" onClick={() => setProfileOpen(false)} />
+          <div className="absolute inset-y-0 right-0 w-full max-w-sm overflow-y-auto border-l border-border bg-paper-raised p-5 shadow-card">
             <div className="mb-3 flex items-center justify-between">
               <p className="font-medium text-ink">What we know about you</p>
               <button
                 type="button"
                 onClick={() => setProfileOpen(false)}
                 aria-label="Close"
-                className="flex h-8 w-8 items-center justify-center rounded-full text-ink-soft hover:bg-navy-50"
+                className="flex h-8 w-8 items-center justify-center rounded-full text-ink-soft hover:bg-charcoal-800/70"
               >
                 <X className="h-5 w-5" strokeWidth={1.75} />
               </button>
@@ -324,7 +334,7 @@ function ProfilePanel({ entries, hideTitle }: { entries: ProfileEntry[]; hideTit
       {!hideTitle && <p className="mb-3 font-display font-semibold text-ink">What we know about you</p>}
       <ul className="space-y-3">
         {entries.map((e) => (
-          <li key={e.prompt} className="animate-fade-up border-l-2 border-navy-100 pl-3">
+          <li key={e.prompt} className="animate-fade-up border-l-2 border-accent-rust/40 pl-3">
             <p className="text-xs text-ink-faint">{e.prompt}</p>
             <p className="text-sm font-medium text-ink">{e.value}</p>
           </li>

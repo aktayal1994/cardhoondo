@@ -1,5 +1,6 @@
 "use client";
 
+import { motion } from "motion/react";
 import { CheckCircle2, MinusCircle, Scale as ScaleIcon } from "lucide-react";
 import { ALL_FACETS } from "../lib/scoring/questionnaireWeights";
 import type { RecommendOutput, RecommendCandidate } from "../lib/scoring/recommend";
@@ -60,7 +61,7 @@ export default function ResultsScreen({
         </p>
         <button
           onClick={onRestart}
-          className="mt-6 rounded-full border border-navy-800 px-6 py-3 text-sm font-medium text-navy-800 hover:bg-navy-50"
+          className="mt-6 rounded-full border border-border px-6 py-3 text-sm font-medium text-ink-soft transition hover:border-accent-rust/50 hover:text-ink"
         >
           Try different answers
         </button>
@@ -70,16 +71,22 @@ export default function ResultsScreen({
 
   return (
     <main className="mx-auto max-w-3xl px-4 py-10 sm:px-6 sm:py-14">
-      <div className="flex items-baseline justify-between">
-        <h1 className="font-display text-2xl font-bold text-ink">Your shortlist</h1>
-        <button onClick={onRestart} className="text-sm text-ink-faint underline decoration-dotted underline-offset-4 hover:text-ink-soft">
-          Start over
-        </button>
-      </div>
-      <p className="mt-1 text-ink-soft">
-        {shortlist.length === 1 ? "One car" : `${shortlist.length} cars`} matched your answers with enough evidence
-        to rank confidently.
-      </p>
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+      >
+        <div className="flex items-baseline justify-between">
+          <h1 className="font-display text-2xl font-bold text-ink">Your shortlist</h1>
+          <button onClick={onRestart} className="text-sm text-ink-faint underline decoration-dotted underline-offset-4 hover:text-ink-soft">
+            Start over
+          </button>
+        </div>
+        <p className="mt-1 text-ink-soft">
+          {shortlist.length === 1 ? "One car" : `${shortlist.length} cars`} matched your answers with enough evidence
+          to rank confidently.
+        </p>
+      </motion.div>
 
       {/* Moved up from the very bottom of the page -- a prompt only the
           most engaged scrollers ever saw was structurally undercounting
@@ -105,7 +112,7 @@ export default function ResultsScreen({
       {shortlist.length > 1 && (
         <button
           onClick={onCompare}
-          className="mt-8 flex w-full items-center justify-center gap-2 rounded-full border border-border bg-paper-raised py-3 text-sm font-medium text-ink hover:border-navy-500"
+          className="mt-8 flex w-full items-center justify-center gap-2 rounded-full border border-border bg-paper-raised py-3 text-sm font-medium text-ink transition hover:border-accent-rust/50"
         >
           <ScaleIcon className="h-4 w-4" strokeWidth={1.75} />
           Compare these cars side by side
@@ -113,7 +120,7 @@ export default function ResultsScreen({
       )}
 
       {writeup?.closing_note && (
-        <p className="mt-6 rounded-xl bg-navy-50 p-4 text-sm text-navy-800">{writeup.closing_note}</p>
+        <p className="mt-6 rounded-xl border border-border bg-charcoal-800/40 p-4 text-sm text-ink-soft">{writeup.closing_note}</p>
       )}
 
       {cars_skipped_no_review_data.length > 0 && (
@@ -147,12 +154,17 @@ function ResultCard({
   const { positive, negative } = fallbackEntries(candidate.top_contributors);
 
   return (
-    <article className="animate-fade-up rounded-[20px] border border-border bg-paper-raised p-5 sm:p-6">
+    <motion.article
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, delay: (rank - 1) * 0.08, ease: [0.16, 1, 0.3, 1] }}
+      className="rounded-[20px] border border-border bg-paper-raised p-5 shadow-card sm:p-6"
+    >
       <div className="flex flex-wrap items-center gap-2">
-        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-navy-900 font-mono text-xs font-medium text-white">
+        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-accent-rust font-mono text-xs font-medium text-charcoal-950 shadow-glow-sm">
           {rank}
         </span>
-        <span className="rounded-full bg-navy-50 px-3 py-1 text-xs font-medium text-navy-800">{confidence}</span>
+        <span className="rounded-full border border-border bg-charcoal-800/60 px-3 py-1 text-xs font-medium text-ink-soft">{confidence}</span>
       </div>
 
       <h2 className="mt-3 font-display text-xl font-semibold text-ink">{carModelLabel(candidate)}</h2>
@@ -161,8 +173,13 @@ function ResultCard({
       </p>
 
       <div className="mt-4">
-        <div className="h-1.5 w-full overflow-hidden rounded-full bg-navy-100">
-          <div className="h-full rounded-full bg-navy-700" style={{ width: `${coveragePct}%` }} />
+        <div className="h-1.5 w-full overflow-hidden rounded-full bg-charcoal-800">
+          <motion.div
+            className="h-full rounded-full bg-accent-rust"
+            initial={{ width: 0 }}
+            animate={{ width: `${coveragePct}%` }}
+            transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+          />
         </div>
         <p className="mt-1.5 font-mono text-xs text-ink-faint">
           {candidate.facets_with_data} of {TOTAL_FACETS} review factors covered
@@ -176,9 +193,9 @@ function ResultCard({
         </>
       ) : writeupPending ? (
         <div className="mt-4 space-y-2" aria-hidden>
-          <div className="h-3.5 w-4/5 animate-pulse rounded bg-navy-50" />
-          <div className="h-3.5 w-full animate-pulse rounded bg-navy-50" />
-          <div className="h-3.5 w-3/5 animate-pulse rounded bg-navy-50" />
+          <div className="h-3.5 w-4/5 animate-pulse rounded bg-charcoal-800" />
+          <div className="h-3.5 w-full animate-pulse rounded bg-charcoal-800" />
+          <div className="h-3.5 w-3/5 animate-pulse rounded bg-charcoal-800" />
         </div>
       ) : (
         <p className="mt-4 text-sm text-ink-soft">
@@ -191,11 +208,11 @@ function ResultCard({
 
       <button
         onClick={onSelect}
-        className="mt-5 text-sm font-medium text-navy-700 underline decoration-dotted underline-offset-4 hover:text-navy-900"
+        className="mt-5 text-sm font-medium text-accent-rust-soft underline decoration-dotted underline-offset-4 hover:text-accent-rust"
       >
         See full evidence for this car →
       </button>
-    </article>
+    </motion.article>
   );
 }
 

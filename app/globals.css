@@ -2,44 +2,62 @@
 
 @theme {
   --font-sans: var(--font-body), "Be Vietnam Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --font-display: var(--font-display-face), "Plus Jakarta Sans", var(--font-sans);
+  --font-display: var(--font-display-face), "Source Serif 4", Georgia, serif;
   --font-mono: var(--font-data), "JetBrains Mono", ui-monospace, monospace;
 
-  --color-navy-950: #0b1c30;
-  --color-navy-900: #102b47;
-  --color-navy-800: #163a5e;
-  --color-navy-700: #1e4c78;
-  --color-navy-600: #2c6295;
-  --color-navy-500: #3b76ad;
-  --color-navy-100: #e4ecf4;
-  --color-navy-50: #f3f7fb;
+  /* "Nightdrive" -- a dark cinematic canvas, replacing the earlier warm-paper
+     "evidence dossier" theme. Near-black warm ground (not blue-black, so it
+     never reads as generic fintech-navy), one glowing amber accent doing the
+     job headlights do at night: the thing that cuts through the dark and
+     tells you where to look. Motion-only redesign (no WebGL) inspired by
+     razorpay.com/foundation-model's scroll-driven cinematic pacing.
 
-  --color-paper: #faf8f4;
-  --color-paper-raised: #ffffff;
-  --color-ink: #1d1a15;
-  --color-ink-soft: #5b564c;
-  --color-ink-faint: #948e80;
-  --color-border: #e7e1d6;
+     The charcoal scale keeps its light-theme direction (950/900 = darkest,
+     50 = lightest) -- it's a surface-elevation ramp now, not a text-color
+     ramp. Any UI that needs to READ as text uses ink/ink-soft/ink-faint or
+     the accent tones instead, never charcoal-6/7/800 directly, since those
+     were calibrated as dark *text on light paper* and are illegible here. */
+  --color-charcoal-950: #050403;
+  --color-charcoal-900: #0f0d09;
+  --color-charcoal-800: #1b1812;
+  --color-charcoal-700: #2a251c;
+  --color-charcoal-600: #453e2e;
+  --color-charcoal-500: #6b6250;
+  --color-charcoal-100: #d9d2c0;
+  --color-charcoal-50: #efe9db;
 
-  --color-positive: #2f8f5b;
-  --color-positive-bg: #eaf6ef;
-  --color-negative: #bf5b3e;
-  --color-negative-bg: #fbeee7;
-  --color-neutral-verdict: #8a8578;
-  --color-neutral-verdict-bg: #f1efe9;
+  --color-paper: #0a0908;
+  --color-paper-raised: #17140f;
+  --color-ink: #f4efe3;
+  --color-ink-soft: #ada496;
+  --color-ink-faint: #857f6d;
+  --color-border: #2b271e;
 
-  --color-accent-gold: #c8922a;
-  --color-accent-gold-soft: #e8c98a;
+  --color-positive: #7cc99a;
+  --color-positive-bg: rgba(124, 201, 154, 0.12);
+  --color-negative: #e2837c;
+  --color-negative-bg: rgba(226, 131, 124, 0.12);
+  --color-neutral-verdict: #a89f8c;
+  --color-neutral-verdict-bg: rgba(168, 159, 140, 0.14);
 
-  --color-stage: #12100e;
-  --color-stage-raised: #1c1916;
-  --color-stage-ink: #f4ede0;
-  --color-stage-ink-soft: #b8b0a0;
-  --color-stage-border: #322d27;
+  /* Accent-rust -- one glowing amber, the brand color and the only "loud"
+     hue on the page. -soft is a brighter tint, safe as small-text-on-dark. */
+  --color-accent-rust: #e2984a;
+  --color-accent-rust-soft: #f0be80;
+
+  /* Kept for backward compatibility with components written for the old
+     "one dark section on an otherwise light page" model (StepTransition,
+     ThinkingBridge, GuideLayout's footer/CTA) -- the whole app is the stage
+     now, so these just mirror the main tokens. */
+  --color-stage: var(--color-paper);
+  --color-stage-raised: var(--color-paper-raised);
+  --color-stage-ink: var(--color-ink);
+  --color-stage-ink-soft: var(--color-ink-soft);
+  --color-stage-border: var(--color-border);
 }
 
 html {
-  color-scheme: light;
+  color-scheme: dark;
 }
 
 body {
@@ -50,6 +68,11 @@ body {
 
 * {
   -webkit-tap-highlight-color: transparent;
+}
+
+::selection {
+  background: var(--color-accent-rust);
+  color: var(--color-charcoal-950);
 }
 
 @keyframes fade-up {
@@ -65,6 +88,27 @@ body {
 
 .animate-fade-up {
   animation: fade-up 0.35s ease-out;
+  animation-fill-mode: both;
+}
+
+/* A slower, blurred version for large cinematic headline reveals -- the
+   text arrives out of a soft focus rather than just sliding up. */
+@keyframes fade-up-blur {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+    filter: blur(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+.animate-fade-up-blur {
+  animation: fade-up-blur 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  animation-fill-mode: both;
 }
 
 @keyframes pulse-dot {
@@ -82,18 +126,159 @@ body {
 .stagger-4 { animation-delay: 0.5s; }
 .stagger-5 { animation-delay: 0.64s; }
 
-.animate-fade-up {
-  animation-fill-mode: both;
-}
-
 /* background-image, not the `background` shorthand -- the shorthand resets
    background-color to transparent for any sub-property it doesn't mention,
-   which was silently wiping out the bg-stage utility on every section that
-   combined the two classes (a real regression, caught from a screenshot). */
+   which previously wiped out a solid bg utility on any section combining
+   the two classes (a real regression once, caught from a screenshot). */
 .stage-glow {
   background-image:
-    radial-gradient(38% 32% at 96% 0%, rgba(200, 146, 42, 0.14), transparent 65%),
-    radial-gradient(45% 40% at 8% 92%, rgba(59, 118, 173, 0.16), transparent 65%);
+    radial-gradient(38% 32% at 92% 0%, rgba(226, 152, 74, 0.14), transparent 65%),
+    radial-gradient(45% 40% at 8% 100%, rgba(69, 62, 46, 0.35), transparent 65%);
+}
+
+/* Ambient drifting glow -- a slow, cheap (no WebGL) stand-in for a "camera
+   moving through a dark scene": two soft radial blobs that crawl very
+   slowly across a fixed-position layer behind page content. Respects
+   prefers-reduced-motion below. */
+@keyframes drift-a {
+  0%, 100% { transform: translate(-6%, -4%) scale(1); }
+  50% { transform: translate(4%, 6%) scale(1.15); }
+}
+@keyframes drift-b {
+  0%, 100% { transform: translate(5%, 3%) scale(1); }
+  50% { transform: translate(-5%, -5%) scale(1.1); }
+}
+
+/* No `position` here on purpose -- the one usage site (NightCanvas) pairs
+   this class with Tailwind's `fixed` utility so the whole backdrop stays
+   pinned to the viewport as the page scrolls. Setting position here too
+   fought that utility on source order and won (both are single-class
+   selectors of equal specificity), silently downgrading it to `absolute`
+   and stretching the starfield/glow across the full multi-thousand-pixel
+   page instead of the viewport -- most scroll positions then showed a dead,
+   pure-black gap between the sparse background-image dots. Caught from a
+   screenshot, same class of bug as the .stage-glow background-shorthand
+   regression above. */
+.ambient-glow {
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.ambient-glow::before,
+.ambient-glow::after {
+  content: "";
+  position: absolute;
+  width: 60%;
+  height: 60%;
+  border-radius: 9999px;
+  filter: blur(90px);
+  opacity: 0.55;
+}
+
+.ambient-glow::before {
+  top: -10%;
+  right: -10%;
+  background: radial-gradient(circle, rgba(226, 152, 74, 0.22), transparent 70%);
+  animation: drift-a 22s ease-in-out infinite;
+}
+
+.ambient-glow::after {
+  bottom: -15%;
+  left: -10%;
+  background: radial-gradient(circle, rgba(124, 201, 154, 0.08), transparent 70%);
+  animation: drift-b 26s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ambient-glow::before,
+  .ambient-glow::after {
+    animation: none !important;
+  }
+}
+
+/* A sparse "night sky" of small fixed dots, the dark canvas's one recurring
+   texture motif -- replaces the light theme's graph-paper dot-grid. Two
+   layers at different densities/opacities read as depth without any extra
+   markup or a canvas element. */
+.starfield {
+  background-image:
+    radial-gradient(1.5px 1.5px at 20% 30%, rgba(244, 239, 227, 0.5), transparent 100%),
+    radial-gradient(1px 1px at 65% 15%, rgba(244, 239, 227, 0.35), transparent 100%),
+    radial-gradient(1.5px 1.5px at 80% 60%, rgba(244, 239, 227, 0.4), transparent 100%),
+    radial-gradient(1px 1px at 40% 80%, rgba(244, 239, 227, 0.3), transparent 100%),
+    radial-gradient(1px 1px at 10% 65%, rgba(244, 239, 227, 0.35), transparent 100%),
+    radial-gradient(1.5px 1.5px at 92% 35%, rgba(244, 239, 227, 0.3), transparent 100%),
+    radial-gradient(1px 1px at 55% 50%, rgba(244, 239, 227, 0.25), transparent 100%),
+    radial-gradient(1px 1px at 30% 10%, rgba(244, 239, 227, 0.3), transparent 100%);
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+}
+
+.dot-grid {
+  background-image: radial-gradient(circle, rgba(244, 239, 227, 0.1) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
+.dot-grid-dark {
+  background-image: radial-gradient(circle, rgba(244, 239, 227, 0.14) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
+/* Warm glow shadows -- replace the old "stamped paper" hard-offset shadow,
+   which relied on a dark offset reading against a light page and disappears
+   against a dark one. A glow reads as "this is lit up / important" instead
+   of "this is pinned down," the right metaphor shift for a night canvas. */
+.shadow-glow {
+  box-shadow: 0 0 0 1px rgba(226, 152, 74, 0.18), 0 8px 30px -8px rgba(226, 152, 74, 0.35);
+}
+
+.shadow-glow-sm {
+  box-shadow: 0 0 0 1px rgba(226, 152, 74, 0.22), 0 4px 16px -6px rgba(226, 152, 74, 0.4);
+}
+
+.shadow-card {
+  box-shadow: 0 1px 0 0 rgba(244, 239, 227, 0.04) inset, 0 12px 32px -16px rgba(0, 0, 0, 0.6);
+}
+
+@keyframes stamp-in {
+  0% { opacity: 0; transform: scale(1.3); }
+  60% { opacity: 1; transform: scale(0.97); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+.animate-stamp-in {
+  animation: stamp-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-stamp-in {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .animate-fade-up-blur {
+    animation: none !important;
+    opacity: 1 !important;
+    filter: none !important;
+    transform: none !important;
+  }
+}
+
+/* The case-index car-name strip -- two copies of the same list laid end to
+   end, scrolling exactly one copy's width so the loop point is invisible.
+   Paused on hover so it's actually readable, not just decorative motion. */
+@keyframes marquee-scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+.marquee-track {
+  animation: marquee-scroll 32s linear infinite;
+}
+
+.marquee-track:hover {
+  animation-play-state: paused;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -103,60 +288,6 @@ body {
     opacity: 1;
     transform: none;
   }
-}
-
-/* One keyframe drives both the entrance (fade+drift in) and the ongoing
-   idle float, so a single element only ever animates `transform` once --
-   layering a separate entrance animation and a separate float animation on
-   the same property would just have the second one clobber the first
-   instead of composing. --chip-rot/--chip-delay are set per-chip inline. */
-@keyframes chip-in-float {
-  0% { opacity: 0; transform: translateY(-16px) scale(0.92) rotate(var(--chip-rot, 0deg)); }
-  14% { opacity: 1; transform: translateY(0) scale(1) rotate(var(--chip-rot, 0deg)); }
-  55% { transform: translateY(-8px) scale(1) rotate(var(--chip-rot, 0deg)); }
-  100% { opacity: 1; transform: translateY(0) scale(1) rotate(var(--chip-rot, 0deg)); }
-}
-
-.animate-chip-float {
-  opacity: 0;
-  animation: chip-in-float 4.8s cubic-bezier(0.16, 1, 0.3, 1) infinite;
-  animation-delay: var(--chip-delay, 0s);
-}
-
-@keyframes marquee-scroll {
-  from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
-}
-
-.animate-marquee {
-  animation: marquee-scroll 32s linear infinite;
-}
-
-.animate-marquee:hover {
-  animation-play-state: paused;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .animate-chip-float {
-    animation: none !important;
-    opacity: 1 !important;
-    transform: rotate(var(--chip-rot, 0deg)) !important;
-  }
-  .animate-marquee {
-    animation: none !important;
-  }
-}
-
-/* Single elevation tier for the whole site, tinted to ink (warm near-black)
-   rather than pure black -- borrowed from the Airbnb DESIGN.md reference's
-   own one-shadow-tier discipline (a card either has this or no shadow at
-   all; no progressive tiers). Used sparingly, only where elevation signals
-   real hierarchy (the evidence-preview card, the stat band). */
-.shadow-card {
-  box-shadow:
-    0 0 0 1px rgba(29, 26, 21, 0.04),
-    0 2px 6px rgba(29, 26, 21, 0.05),
-    0 12px 28px -8px rgba(29, 26, 21, 0.12);
 }
 
 /* Scoped to direct children only (not descendants) so nested ".not-prose"
@@ -209,7 +340,7 @@ body {
 
 .prose-guide > ul > li::marker,
 .prose-guide > ol > li::marker {
-  color: var(--color-accent-gold);
+  color: var(--color-accent-rust);
 }
 
 .prose-guide > p strong,
@@ -220,13 +351,13 @@ body {
 }
 
 .prose-guide > p a {
-  color: var(--color-navy-600);
+  color: var(--color-accent-rust-soft);
   text-decoration: underline;
   text-underline-offset: 2px;
 }
 
 .prose-guide > blockquote {
-  border-left: 3px solid var(--color-accent-gold);
+  border-left: 3px solid var(--color-accent-rust);
   padding-left: 1rem;
   margin: 1.5rem 0;
   color: var(--color-ink);

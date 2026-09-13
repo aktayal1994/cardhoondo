@@ -5,15 +5,14 @@ import Image from "next/image";
 import Link from "next/link";
 import {
   motion,
-  useMotionValue,
-  useSpring,
   useInView,
   useReducedMotion,
+  useScroll,
+  useTransform,
+  useMotionValue,
   animate,
   AnimatePresence,
 } from "motion/react";
-import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import {
   ShieldCheck,
   Ban,
@@ -24,15 +23,26 @@ import {
   PhoneCall,
   Mail,
   ArrowRight,
+  ArrowDown,
   X,
   Check,
   ChevronDown,
   Quote,
 } from "lucide-react";
 
-if (typeof window !== "undefined") {
-  gsap.registerPlugin(ScrollTrigger);
-}
+/**
+ * "Nightdrive" -- a dark, cinematic scroll-driven redesign of the earlier
+ * warm-paper "evidence dossier" landing page, inspired by the pacing and
+ * restraint of razorpay.com/foundation-model (staged scroll reveals, a
+ * near-black canvas, big serif statements, generous negative space) but
+ * built entirely with CSS + Framer Motion -- no WebGL/3D canvas, so it stays
+ * fast and reliable on mid-range Indian Android phones. The car's own
+ * night-driving metaphor replaces Razorpay's own blue network-globe motif:
+ * one glowing amber accent is the thing that finds you in the dark, the
+ * same way a recommendation cuts through fifty conflicting opinions. Every
+ * section keeps its original copy/positioning (already SEO- and
+ * research-tuned) -- only the visual and motion language changed.
+ */
 
 const FAQS = [
   {
@@ -59,76 +69,120 @@ const FAQS = [
 
 const PRIMARY_CTA = "Find my car";
 
+interface SiteStats {
+  claims: number;
+  cars: number;
+}
+
+// Last-known-good numbers, shown instantly while the real fetch resolves
+// (and kept if it fails) -- this is exactly the kind of value that drifted
+// stale once already (hardcoded 4,036 written Aug 22, real count well past
+// it by September), so it's now a floor/fallback, never the source of truth.
+const FALLBACK_STATS: SiteStats = { claims: 4036, cars: 59 };
+
+/** Fetches live claim/car counts from /api/stats once on mount. Marketing
+ * copy that cites these numbers should never go stale again the way the
+ * old hardcoded 4,036 did. */
+function useLiveStats(): SiteStats {
+  const [stats, setStats] = useState<SiteStats>(FALLBACK_STATS);
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/stats")
+      .then((res) => (res.ok ? res.json() : Promise.reject(new Error("stats fetch failed"))))
+      .then((data: Partial<SiteStats>) => {
+        if (!cancelled && typeof data.claims === "number" && typeof data.cars === "number") {
+          setStats({ claims: data.claims, cars: data.cars });
+        }
+      })
+      .catch(() => {
+        /* keep the fallback -- a marketing stat rendering slightly stale
+           beats the section breaking if /api/stats or Supabase is down */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+  return stats;
+}
+
+/** Rounds down to a clean, safely-an-understatement number for the
+ * shorter "4,000+" style teaser copy -- the exact count still appears
+ * verbatim in the stat card below it. */
+function approxFloor(n: number, step = 100): number {
+  return Math.floor(n / step) * step;
+}
+
 export default function LandingScreen({ onStart }: { onStart: (location: string) => void }) {
+  const stats = useLiveStats();
   return (
-    <main className="min-h-screen overflow-x-clip bg-paper">
-      {/* nav + hero are budgeted to fit one screen (min-h-dvh) so the CTA band
-          is visible without scrolling on first load -- if content ever needs
-          more room (e.g. large system font settings), min-h lets it grow
-          rather than clipping anything. */}
-      <div className="flex min-h-dvh flex-col">
+    <main className="relative min-h-screen overflow-x-clip bg-paper text-ink">
+      <NightCanvas />
+      <div className="relative z-10">
         <Nav onStart={onStart} />
-        <Hero onStart={onStart} />
+        <Hero onStart={onStart} claims={stats.claims} />
+        <TrustAndStats stats={stats} />
+        <CaseIndex carsCount={stats.cars} />
+        <HowItWorks onStart={onStart} />
+        <EvidencePreview />
+        <WhyCarDhoondo />
+        <Faq />
+        <Contact onStart={onStart} />
+        <Footer />
       </div>
-      <TrustAndStats />
-      <CarMarquee />
-      <HowItWorks onStart={onStart} />
-      <EvidencePreview />
-      <WhyCarDhoondo />
-      <Faq />
-      <Contact onStart={onStart} />
-      <Footer />
     </main>
   );
 }
 
 /* ---------------------------------------------------------------------- */
-/* Shared motion primitives                                                */
+/* Fixed backdrop: a night sky the whole page scrolls over                 */
 /* ---------------------------------------------------------------------- */
 
-/** Pulls toward the cursor on hover, spring-settles back to rest on leave.
-    Skipped entirely under reduced-motion -- the button just stays put. */
-function MagneticButton({
+function NightCanvas() {
+  return (
+    <div className="starfield ambient-glow fixed inset-0 z-0" aria-hidden />
+  );
+}
+
+/* ---------------------------------------------------------------------- */
+/* Shared primitives                                                       */
+/* ---------------------------------------------------------------------- */
+
+/** The primary CTA everywhere on the page: a glowing amber pill, the one
+ * loud element on an otherwise dark, quiet canvas -- the "headlight" that
+ * always tells you where to go next. */
+function GlowButton({
   onClick,
-  className,
+  href,
   children,
-  strength = 0.3,
+  className = "",
+  size = "md",
 }: {
   onClick?: () => void;
-  className?: string;
+  href?: string;
   children: React.ReactNode;
-  strength?: number;
+  className?: string;
+  size?: "md" | "sm";
 }) {
-  const ref = useRef<HTMLButtonElement>(null);
-  const reduce = useReducedMotion();
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-  const springX = useSpring(x, { stiffness: 220, damping: 16, mass: 0.4 });
-  const springY = useSpring(y, { stiffness: 220, damping: 16, mass: 0.4 });
-
-  function handleMouseMove(e: React.MouseEvent) {
-    if (reduce || !ref.current) return;
-    const rect = ref.current.getBoundingClientRect();
-    x.set((e.clientX - (rect.left + rect.width / 2)) * strength);
-    y.set((e.clientY - (rect.top + rect.height / 2)) * strength);
-  }
-
-  function handleMouseLeave() {
-    x.set(0);
-    y.set(0);
-  }
-
-  return (
-    <motion.button
-      ref={ref}
-      onClick={onClick}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      style={reduce ? undefined : { x: springX, y: springY }}
-      whileTap={{ scale: 0.96 }}
-      className={className}
-    >
+  const padding = size === "sm" ? "px-5 py-2.5 text-sm" : "px-7 py-3.5 text-[15px]";
+  const classes = `group inline-flex items-center gap-2 rounded-full bg-accent-rust font-semibold text-charcoal-950 shadow-glow-sm transition hover:brightness-110 ${padding} ${className}`;
+  const content = (
+    <>
       {children}
+      <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" strokeWidth={2.5} />
+    </>
+  );
+  if (href) {
+    return (
+      <motion.span whileTap={{ scale: 0.96 }} className="inline-block">
+        <Link href={href} className={classes}>
+          {content}
+        </Link>
+      </motion.span>
+    );
+  }
+  return (
+    <motion.button whileTap={{ scale: 0.96 }} onClick={onClick} className={classes}>
+      {content}
     </motion.button>
   );
 }
@@ -165,43 +219,7 @@ function CountUpNumber({ value, className }: { value: number; className?: string
   );
 }
 
-/** A gentle 3D tilt that tracks the cursor, so the evidence card feels like
-    a physical object rather than a flat screenshot. Off under reduced-motion. */
-function TiltCard({ children, className }: { children: React.ReactNode; className?: string }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const reduce = useReducedMotion();
-  const rotateX = useSpring(0, { stiffness: 220, damping: 22 });
-  const rotateY = useSpring(0, { stiffness: 220, damping: 22 });
-
-  function handleMouseMove(e: React.MouseEvent<HTMLDivElement>) {
-    if (reduce || !ref.current) return;
-    const rect = ref.current.getBoundingClientRect();
-    const px = (e.clientX - rect.left) / rect.width - 0.5;
-    const py = (e.clientY - rect.top) / rect.height - 0.5;
-    rotateY.set(px * 9);
-    rotateX.set(py * -9);
-  }
-
-  function handleMouseLeave() {
-    rotateX.set(0);
-    rotateY.set(0);
-  }
-
-  return (
-    <motion.div
-      ref={ref}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      style={reduce ? undefined : { rotateX, rotateY, transformPerspective: 1000 }}
-      className={className}
-    >
-      {children}
-    </motion.div>
-  );
-}
-
-/** A plain scroll-reveal lift, used for section headers and list content
-    that isn't already handled by a more specific animation below. */
+/** A plain scroll-reveal lift, used for section headers and list content. */
 function RevealOnScroll({
   children,
   className,
@@ -215,7 +233,7 @@ function RevealOnScroll({
   return (
     <motion.div
       className={className}
-      initial={reduce ? false : { opacity: 0, y: 26 }}
+      initial={reduce ? false : { opacity: 0, y: 24 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.3 }}
       transition={{ duration: 0.6, delay, ease: [0.16, 1, 0.3, 1] }}
@@ -225,25 +243,93 @@ function RevealOnScroll({
   );
 }
 
+/** A small circular "verdict stamp" mark, hand-drawn as SVG, used wherever
+ * the page wants to visually assert "this has been checked." */
+function VerdictStamp({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 100 100" className={className} aria-hidden>
+      <circle cx="50" cy="50" r="43" fill="none" stroke="currentColor" strokeWidth="3" opacity="0.9" />
+      <circle cx="50" cy="50" r="34" fill="none" stroke="currentColor" strokeWidth="1.25" strokeDasharray="2 4" opacity="0.55" />
+      <path d="M30 51 L43 64 L71 34" fill="none" stroke="currentColor" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function StampReveal({ children, className }: { children: React.ReactNode; className?: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const isInView = useInView(ref, { once: true, amount: 0.6 });
+  const reduce = useReducedMotion();
+  return (
+    <div ref={ref} className={`${className ?? ""} ${reduce || isInView ? "animate-stamp-in" : "opacity-0"}`}>
+      {children}
+    </div>
+  );
+}
+
+/** Splits a heading into words and reveals them with a staggered blur-fade,
+ * the page's signature "cinematic statement" motion -- used for every major
+ * section headline, not just the hero. */
+function StaggerHeading({
+  text,
+  as: Tag = "h2",
+  className,
+}: {
+  text: string;
+  as?: "h1" | "h2";
+  className?: string;
+}) {
+  const reduce = useReducedMotion();
+  const words = text.split(" ");
+  if (reduce) return <Tag className={className}>{text}</Tag>;
+  return (
+    <Tag className={className}>
+      <motion.span
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true, amount: 0.6 }}
+        transition={{ staggerChildren: 0.045 }}
+        className="inline"
+      >
+        {words.map((w, i) => (
+          <motion.span
+            key={i}
+            variants={{
+              hidden: { opacity: 0, y: 14, filter: "blur(6px)" },
+              show: { opacity: 1, y: 0, filter: "blur(0px)" },
+            }}
+            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+            className="inline-block"
+          >
+            {w}
+            {i < words.length - 1 ? " " : ""}
+          </motion.span>
+        ))}
+      </motion.span>
+    </Tag>
+  );
+}
+
 /* ---------------------------------------------------------------------- */
 /* Nav                                                                     */
 /* ---------------------------------------------------------------------- */
 
+function Brandmark({ textClass = "text-ink" }: { textClass?: string }) {
+  return (
+    <span className="flex items-center gap-2.5">
+      <Image src="/cardhoondo-icon.png" alt="" width={237} height={237} priority className="h-7 w-7 sm:h-8 sm:w-8" />
+      <span className={`font-display text-lg font-bold tracking-tight ${textClass}`}>CarDhoondo</span>
+    </span>
+  );
+}
+
 function Nav({ onStart }: { onStart: (location: string) => void }) {
   return (
-    <header className="sticky top-0 z-40 border-b border-border/80 bg-paper/90 backdrop-blur">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
-        <a href="#top" className="flex items-center" aria-label="CarDhoondo home">
-          <Image
-            src="/cardhoondo-logo.png"
-            alt="CarDhoondo - Your Perfect Car Found"
-            width={489}
-            height={105}
-            priority
-            className="h-8 w-auto sm:h-9"
-          />
+    <header className="sticky top-0 z-40 border-b border-border bg-paper/80 backdrop-blur-md">
+      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
+        <a href="#top" aria-label="CarDhoondo home">
+          <Brandmark />
         </a>
-        <nav className="hidden items-center gap-8 text-sm font-medium text-ink-soft sm:flex">
+        <nav className="hidden items-center gap-7 text-sm font-medium text-ink-soft sm:flex">
           <a href="#how-it-works" className="transition hover:text-ink">
             How it works
           </a>
@@ -260,128 +346,275 @@ function Nav({ onStart }: { onStart: (location: string) => void }) {
             Contact
           </a>
         </nav>
-        <MagneticButton
-          onClick={() => onStart("nav")}
-          strength={0.25}
-          className="rounded-full bg-accent-gold px-5 py-2.5 text-sm font-semibold text-stage shadow-sm transition hover:brightness-105"
-        >
+        <GlowButton onClick={() => onStart("nav")} size="sm">
           {PRIMARY_CTA}
-        </MagneticButton>
+        </GlowButton>
       </div>
     </header>
   );
 }
 
 /* ---------------------------------------------------------------------- */
-/* Hero                                                                    */
+/* Hero: the "evidence mosaic" car (kept -- already token-driven, now       */
+/* glows amber-on-dark for free) plus a scroll-linked parallax fade and a  */
+/* cursor-following headlight glow.                                       */
 /* ---------------------------------------------------------------------- */
 
-const HERO_ALT =
-  "A couple stands on a coastal road as CarDhoondo highlights one clear, confidently recommended car.";
+// Each one is a complete, self-contained thought on its own -- "Colleague
+// says wait." (wait for *what*?) tested as confusing rather than relatable.
+// Every chip now names both the source AND the actual conflicting advice.
+const COMPLAINTS = ["Chacha: “Buy diesel, no question.”", "Colleague: “Wait, new model's coming.”", "YouTube: 15 different Top 10 lists."];
 
-const OPINIONS = [
-  { text: "Chacha says diesel", top: "4%", left: "50%", rotate: -5, delay: "0s" },
-  { text: "Colleague says wait", top: "22%", left: "58%", rotate: 4, delay: "1.1s" },
-  { text: "YouTube: Top 10 SUVs", top: "4%", left: "76%", rotate: 3, delay: "2.2s" },
-];
+/** A proper shaded crossover-SUV silhouette (the body shape of what
+ * CarDhoondo actually recommends, not a generic sedan) -- body panel
+ * contour, glass with a diagonal reflection, alloy wheels with spokes,
+ * head/tail lamps, a roof rail. The "assembled from evidence" concept is
+ * kept but restrained: a handful of small data-point dots along real seams
+ * (headlamp, mirror, door handle, wheel hub) rather than turning the whole
+ * car into visible squares. The reveal itself is a blur-to-focus resolve,
+ * timed to land right as the hero's complaint chips dim -- "the confusion
+ * clears and your recommendation comes into focus," the actual product
+ * moment, not a generic entrance animation. */
+function EvidenceCar({ claims }: { claims: number }) {
+  const reduce = useReducedMotion();
 
-/** The literal visual of the hero's own headline: too many scattered
-    opinions floating around, none of them about you. Confined to a narrow
-    band in the upper-right (sky/mountain, never the headline column on the
-    left or the people/car documented as this crop's protected safe zone),
-    so it never risks the hard-won hero crop math or the headline's own
-    legibility. */
-function OpinionCloud() {
+  const vbW = 480;
+  const vbH = 235;
+  const sill = 175;
+  const wheelR = 44;
+
+  // Proportions checked against real SUV side-profile references (short,
+  // raked cab-forward nose; wheels ~40% of total body height, set into
+  // genuine flared arches cut into the body -- not just resting under a
+  // flat sill; a fastback-style roofline with a small rear spoiler kick;
+  // two separate window panes split by a B-pillar), not guessed freehand.
+  const body =
+    "M20,175 C20,166 26,160 34,158 L36,144 " +
+    "C41,118 54,99 74,89 C88,82 100,77 112,70 " +
+    "C120,58 130,49 144,43 C154,39 167,37 181,36 L318,41 " +
+    "C330,42 339,44 346,48 C351,46 355,45.5 359,47.5 " +
+    "C367,54 374,63 380,74 C386,87 391,99 395,111 " +
+    "C407,115 419,121 427,131 C434,139 438,149 438,159 L438,175 " +
+    "L398,175 A48,48 0 0 0 302,175 L178,175 A48,48 0 0 0 82,175 L20,175 Z";
+
+  const rimLight =
+    "M34,158 C41,118 54,99 74,89 C88,82 100,77 112,70 " +
+    "C120,58 130,49 144,43 C154,39 167,37 181,36 L318,41 " +
+    "C330,42 339,44 346,48 C351,46 355,45.5 359,47.5 " +
+    "C367,54 374,63 380,74 C386,87 391,99 395,111";
+
+  const glass = "M112,88 C120,64 132,52 146,46 L316,50 C328,51 336,53 343,56 C355,63 366,74 375,86 L390,100 L100,96 Z";
+  const bPillar = "M247,49 L256,50 L254,96 L245,95 Z";
+  const roofRail = "M188,34 L314,38";
+  const characterLine = "M92,140 C180,144 300,144 418,136";
+  const doorHandleFront = "M150,105 L166,106";
+  const doorHandleRear = "M280,109 L296,110";
+  const mirror = "M120,74 C114,71 108,73 107,79 C106,85 111,88 117,86 L122,79 Z";
+
   return (
-    <div className="pointer-events-none absolute inset-0 z-[1] hidden sm:block" aria-hidden>
-      {OPINIONS.map((op) => (
-        <span
-          key={op.text}
-          className="animate-chip-float absolute rounded-full border border-white/25 bg-black/30 px-3 py-1.5 font-mono text-[11px] text-white/85 backdrop-blur-sm"
-          style={
-            {
-              top: op.top,
-              left: op.left,
-              "--chip-rot": `${op.rotate}deg`,
-              "--chip-delay": op.delay,
-            } as React.CSSProperties
-          }
-        >
-          {op.text}
-        </span>
-      ))}
-    </div>
+    <motion.div
+      initial={reduce ? undefined : { filter: "blur(18px)", opacity: 0.35 }}
+      animate={{ filter: "blur(0px)", opacity: 1 }}
+      transition={{ duration: 1, delay: 1.05, ease: [0.16, 1, 0.3, 1] }}
+      className="relative mx-auto w-full max-w-[460px]"
+    >
+      <svg
+        viewBox={`0 0 ${vbW} ${vbH}`}
+        className="h-auto w-full drop-shadow-[0_10px_24px_rgba(0,0,0,0.55)]"
+        role="img"
+        aria-label="A crossover SUV, illustrated, being illuminated from the evidence behind CarDhoondo's recommendations"
+      >
+        <defs>
+          <linearGradient id="carBodyGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="var(--color-charcoal-600)" />
+            <stop offset="45%" stopColor="var(--color-charcoal-800)" />
+            <stop offset="100%" stopColor="var(--color-charcoal-900)" />
+          </linearGradient>
+          <linearGradient id="glassGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="#3a4a52" />
+            <stop offset="55%" stopColor="#212d34" />
+            <stop offset="100%" stopColor="#161e23" />
+          </linearGradient>
+          <radialGradient id="wheelGrad" cx="35%" cy="35%" r="70%">
+            <stop offset="0%" stopColor="var(--color-charcoal-500)" />
+            <stop offset="100%" stopColor="var(--color-charcoal-950)" />
+          </radialGradient>
+        </defs>
+
+        <ellipse cx={vbW / 2 - 5} cy={sill + wheelR + 6} rx="205" ry="11" fill="#000" opacity="0.45" />
+
+        <g>
+          <path d={body} fill="url(#carBodyGrad)" stroke="var(--color-charcoal-950)" strokeWidth="1.5" />
+          {/* rim-light along the roof/hood edge -- the "lit from above" cue */}
+          <path d={rimLight} fill="none" stroke="var(--color-accent-rust)" strokeWidth="1.75" opacity="0.65" strokeLinecap="round" />
+
+          <path d={glass} fill="url(#glassGrad)" />
+          <path d={bPillar} fill="var(--color-charcoal-950)" />
+          <path d="M126,80 L150,58" stroke="#8a9aa2" strokeWidth="2.5" opacity="0.4" strokeLinecap="round" />
+          <path d="M180,52 L192,72" stroke="#8a9aa2" strokeWidth="1.5" opacity="0.25" strokeLinecap="round" />
+
+          <path d={characterLine} fill="none" stroke="var(--color-charcoal-950)" strokeWidth="1" opacity="0.4" />
+          <path d={doorHandleFront} stroke="var(--color-charcoal-950)" strokeWidth="2.5" opacity="0.6" strokeLinecap="round" />
+          <path d={doorHandleRear} stroke="var(--color-charcoal-950)" strokeWidth="2.5" opacity="0.6" strokeLinecap="round" />
+          <path d={roofRail} stroke="var(--color-charcoal-950)" strokeWidth="3" opacity="0.5" strokeLinecap="round" />
+          <path d={mirror} fill="var(--color-charcoal-950)" opacity="0.85" />
+
+          {/* head + tail lamps */}
+          <path d="M22,152 C22,147 26,144 32,145 L42,149 L40,158 L26,158 C23,158 22,155 22,152 Z" fill="var(--color-accent-rust)" opacity="0.95" />
+          <path d="M420,133 C425,134 429,137 430,142 L428,151 L418,149 L419,139 Z" fill="#c85a4a" opacity="0.9" />
+
+          {/* wheels -- large flared arches (cut into the body path above) with */}
+          {/* the tire sitting inside, matched in radius to the arch cutout */}
+          {[130, 350].map((cx) => (
+            <g key={cx}>
+              <circle cx={cx} cy={sill} r={wheelR} fill="var(--color-charcoal-950)" />
+              <circle cx={cx} cy={sill} r={wheelR * 0.66} fill="url(#wheelGrad)" stroke="var(--color-charcoal-600)" strokeWidth="1" />
+              <circle cx={cx} cy={sill} r={wheelR * 0.18} fill="var(--color-charcoal-800)" />
+              {[0, 60, 120, 180, 240, 300].map((deg) => {
+                const rad = (deg * Math.PI) / 180;
+                const len = wheelR * 0.5;
+                const x2 = cx + Math.cos(rad) * len;
+                const y2 = sill + Math.sin(rad) * len;
+                return <line key={deg} x1={cx} y1={sill} x2={x2} y2={y2} stroke="var(--color-charcoal-600)" strokeWidth="2.5" strokeLinecap="round" />;
+              })}
+            </g>
+          ))}
+
+          {/* evidence data-points along real seams, restrained not tiled */}
+          {!reduce &&
+            [
+              { x: 32, y: 150 },
+              { x: 250, y: 95 },
+              { x: 114, y: 79 },
+              { x: 357, y: 47 },
+            ].map((p, i) => (
+              <circle
+                key={i}
+                cx={p.x}
+                cy={p.y}
+                r="2.3"
+                fill="var(--color-accent-rust-soft)"
+                className="animate-pulse-dot"
+                style={{ animationDelay: `${i * 260}ms` }}
+              />
+            ))}
+        </g>
+      </svg>
+      <p className="mt-3 text-center font-mono text-[11px] uppercase tracking-[0.14em] text-ink-faint">
+        Built from {approxFloor(claims).toLocaleString("en-IN")}+ real review claims
+      </p>
+    </motion.div>
   );
 }
 
-function Hero({ onStart }: { onStart: (location: string) => void }) {
+/** A soft amber glow that follows the pointer, purely decorative (absolute,
+ * pointer-events-none, so it never steals hit-testing from the real content
+ * stacked above it) and cheap -- one motion-value-driven background
+ * template, so it repaints without triggering a React re-render per pointer
+ * move. The actual pointer listener lives on the section wrapping this, via
+ * the x/y motion values passed in. */
+function CursorHeadlight({ x, y }: { x: ReturnType<typeof useMotionValue<number>>; y: ReturnType<typeof useMotionValue<number>> }) {
+  const background = useTransform(
+    [x, y],
+    ([xv, yv]) => `radial-gradient(320px circle at ${xv}px ${yv}px, rgba(226,152,74,0.12), transparent 70%)`,
+  );
+  return <motion.div className="pointer-events-none absolute inset-0 z-0 hidden sm:block" style={{ background }} />;
+}
+
+function Hero({ onStart, claims }: { onStart: (location: string) => void; claims: number }) {
+  const reduce = useReducedMotion();
+  const heroRef = useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
+  const fade = useTransform(scrollYProgress, [0, 1], [1, 0]);
+  const rise = useTransform(scrollYProgress, [0, 1], [0, -50]);
+  const glowX = useMotionValue(-9999);
+  const glowY = useMotionValue(-9999);
+
   return (
-    <section id="top" className="flex flex-1 flex-col bg-paper">
-      {/* One clean photo (no baked-in text), so headline placement/size is
-          fully our own CSS -- fluid (clamp-based), not just breakpoint jumps,
-          so it holds up while a window is being resized, not only at fixed
-          device presets. Fills whatever room is left after the CTA band
-          below; object-position leans toward the people/car (the photo's
-          real subject) since cropping is purely aesthetic now -- nothing in
-          the photo itself needs protecting from a crop anymore.
-          Headline copy below is deliberately preserved verbatim (not
-          rewritten for the redesign) -- it's the live Instagram fake-door
-          ad creative's exact hook, and campaign continuity outweighs a
-          generic hero-line-count guideline here. */}
-      <div className="relative min-h-[max(280px,33vw)] flex-1 overflow-hidden">
-        <Image src="/hero-banner.jpg" alt={HERO_ALT} fill priority sizes="100vw" className="object-cover object-[64%_83%]" />
-
-        {/* legibility scrim -- a fixed dark zone independent of the photo's
-            own crop, so headline text stays readable no matter which part
-            of the photo ends up behind it at a given width */}
-        <div className="absolute inset-0 bg-gradient-to-b from-stage/90 via-stage/72 to-stage/30 sm:bg-gradient-to-r sm:from-stage/95 sm:via-stage/78 sm:to-stage/20" />
-
-        <OpinionCloud />
-
-        <div className="relative flex h-full flex-col justify-center px-6 py-[clamp(1.5rem,5vw,3.5rem)] sm:px-10 lg:px-16">
-          <div className="max-w-[clamp(16rem,42vw,34rem)]">
-            <h1 className="font-display font-bold leading-[1.1] tracking-tight text-stage-ink text-balance text-[clamp(1.5rem,4.4vw,3.25rem)]">
-              <span className="block">Asked chacha.</span>
-              <span className="block">Asked colleagues.</span>
-              <span className="block text-accent-gold-soft">Watched 15 YouTube videos.</span>
-            </h1>
-            <p className="mt-[clamp(0.5rem,1.2vw,0.9rem)] font-display font-medium text-stage-ink text-[clamp(1rem,2vw,1.5rem)]">
-              Still confused which car to buy?
-            </p>
+    <section
+      id="top"
+      ref={heroRef}
+      onPointerMove={(e) => {
+        const rect = e.currentTarget.getBoundingClientRect();
+        glowX.set(e.clientX - rect.left);
+        glowY.set(e.clientY - rect.top);
+      }}
+      onPointerLeave={() => {
+        glowX.set(-9999);
+        glowY.set(-9999);
+      }}
+      className="relative overflow-hidden pt-10 pb-20 sm:pt-16 sm:pb-28"
+    >
+      {!reduce && <CursorHeadlight x={glowX} y={glowY} />}
+      <motion.div
+        style={reduce ? undefined : { opacity: fade, y: rise }}
+        className="relative mx-auto grid max-w-6xl grid-cols-1 items-center gap-14 px-6 lg:grid-cols-[1.05fr_0.95fr] lg:gap-10"
+      >
+        <div>
+          {/* The doubt-clearing beat: every conflicting opinion appears sharp,
+              holds a moment so it actually registers, then recedes into the
+              background right as the car (the answer) sharpens into focus
+              below -- the animation acting out "your confusion gets replaced
+              by one evidence-backed recommendation," not just a generic
+              stagger-in. */}
+          <div className="flex flex-wrap gap-2">
+            {COMPLAINTS.map((text, i) => (
+              <motion.span
+                key={text}
+                initial={reduce ? undefined : { opacity: 0, y: -8 }}
+                animate={reduce ? { opacity: 1 } : { opacity: [0, 1, 1, 0.4], y: [-8, 0, 0, 0] }}
+                transition={reduce ? undefined : { duration: 2.4, delay: i * 0.12, times: [0, 0.16, 0.5, 1], ease: "easeInOut" }}
+                className="rounded-full border border-border bg-paper-raised/80 px-3.5 py-1.5 font-mono text-[11px] text-ink-soft backdrop-blur-sm"
+              >
+                {text}
+              </motion.span>
+            ))}
           </div>
-        </div>
-      </div>
 
-      {/* the decision moment -- kept compact so it doesn't eat into the
-          image's share of the screen. This is the page's one deliberate
-          dark chapter (a direct continuation of the hero photo's own
-          scrim, not a separate stylistic flip), so everything below it
-          stays on a single light canvas per the Airbnb reference's own
-          "no dark mode on the public web" discipline. */}
-      <div className="shrink-0 bg-stage stage-glow">
-        <div className="mx-auto flex max-w-6xl flex-col items-center gap-2 px-6 py-4 text-center sm:flex-row sm:justify-between sm:gap-4 sm:py-5 sm:text-left">
-          <p className="font-display text-base font-semibold text-stage-ink sm:text-xl lg:text-2xl">
-            CarDhoondo is the one clear answer to all of that.
-          </p>
-          <div className="flex flex-col items-center gap-1 sm:items-end">
-            <MagneticButton
-              onClick={() => onStart("hero")}
-              className="group flex items-center gap-2 rounded-full bg-accent-gold px-6 py-2.5 text-sm font-semibold text-stage shadow-lg shadow-black/30 transition hover:brightness-105 sm:px-8 sm:py-3.5 sm:text-base"
-            >
-              {PRIMARY_CTA}
-              <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" strokeWidth={2.25} />
-            </MagneticButton>
-            <p className="text-xs text-stage-ink-soft sm:text-sm">11 questions · ~3 minutes · No signup required</p>
-          </div>
+          <StaggerHeading
+            as="h1"
+            text="Still confused which car to buy?"
+            className="mt-6 max-w-xl text-balance font-display text-[clamp(2.1rem,4.8vw,3.5rem)] font-semibold leading-[1.12] text-ink"
+          />
+          <motion.p
+            initial={reduce ? undefined : { opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.35 }}
+            className="mt-4 max-w-md text-base leading-relaxed text-ink-soft sm:text-lg"
+          >
+            One evidence-backed answer, not fifty conflicting opinions. Matched to how you actually drive.
+          </motion.p>
+
+          <motion.div
+            initial={reduce ? undefined : { opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.5 }}
+            className="mt-8 flex flex-wrap items-center gap-4"
+          >
+            <GlowButton onClick={() => onStart("hero")}>{PRIMARY_CTA}</GlowButton>
+            <p className="font-mono text-xs text-ink-faint">11 questions &middot; about 3 minutes</p>
+          </motion.div>
         </div>
-      </div>
+
+        <EvidenceCar claims={claims} />
+      </motion.div>
+
+      {!reduce && (
+        <motion.div
+          animate={{ y: [0, 8, 0] }}
+          transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
+          className="pointer-events-none absolute inset-x-0 bottom-6 hidden justify-center sm:flex"
+          aria-hidden
+        >
+          <ArrowDown className="h-5 w-5 text-ink-faint" strokeWidth={1.5} />
+        </motion.div>
+      )}
     </section>
   );
 }
 
 /* ---------------------------------------------------------------------- */
-/* Trust + real numbers (asymmetric -- one loud stat beside a divided list,  */
-/* not three equal cards)                                                  */
+/* Trust + real numbers (asymmetric -- one loud stat beside a divided list) */
 /* ---------------------------------------------------------------------- */
 
 const TRUST_POINTS = [
@@ -402,28 +635,37 @@ const TRUST_POINTS = [
   },
 ];
 
-function TrustAndStats() {
+function IconBadge({ icon: Icon, className = "" }: { icon: React.ElementType; className?: string }) {
   return (
-    <section className="border-b border-border bg-paper">
-      <div className="mx-auto grid max-w-6xl grid-cols-1 gap-10 px-6 py-16 sm:py-20 lg:grid-cols-[0.85fr_1.15fr] lg:items-center lg:gap-16">
-        <RevealOnScroll className="rounded-[20px] border border-border bg-paper-raised p-8 shadow-card">
+    <div
+      className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border bg-charcoal-800/70 ${className}`}
+    >
+      <Icon className="h-5 w-5 text-accent-rust-soft" strokeWidth={1.75} />
+    </div>
+  );
+}
+
+function TrustAndStats({ stats }: { stats: SiteStats }) {
+  return (
+    <section className="border-b border-border py-16 sm:py-20">
+      <div className="mx-auto grid max-w-6xl grid-cols-1 gap-10 px-6 lg:grid-cols-[0.85fr_1.15fr] lg:items-center lg:gap-16">
+        <RevealOnScroll className="rounded-2xl border border-border bg-paper-raised p-8 shadow-card">
+          <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-ink-faint">Case file no. 001</p>
           <CountUpNumber
-            value={4036}
-            className="font-mono text-[clamp(2.75rem,6vw,4.5rem)] font-semibold leading-none tracking-tight text-navy-900"
+            value={stats.claims}
+            className="mt-2 font-mono text-[clamp(2.75rem,6vw,4.5rem)] font-semibold leading-none tracking-tight text-accent-rust-soft"
           />
           <p className="mt-3 font-display text-lg font-semibold text-ink">Real review claims, weighed line by line</p>
           <p className="mt-2 text-sm leading-relaxed text-ink-soft">
-            Pulled from real ownership and expert reviews across 57 cars so far, not marketing copy. This is the
-            evidence base a recommendation actually draws from.
+            Pulled from real ownership and expert reviews across {stats.cars} cars so far, not marketing copy. This
+            is the evidence base a recommendation actually draws from.
           </p>
         </RevealOnScroll>
 
         <div className="divide-y divide-border">
           {TRUST_POINTS.map((point, i) => (
             <RevealOnScroll key={point.title} delay={i * 0.08} className="flex gap-4 py-5 first:pt-0 last:pb-0">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-navy-50">
-                <point.icon className="h-5 w-5 text-navy-700" strokeWidth={1.75} />
-              </div>
+              <IconBadge icon={point.icon} />
               <div>
                 <p className="font-display font-semibold text-ink">{point.title}</p>
                 <p className="mt-1 text-sm leading-relaxed text-ink-soft">{point.body}</p>
@@ -437,10 +679,13 @@ function TrustAndStats() {
 }
 
 /* ---------------------------------------------------------------------- */
-/* Real-cars marquee (one per page, per the taste-skill's own marquee cap) */
+/* Case index -- an auto-scrolling, self-looping strip of file tabs naming */
+/* real cars already in the database. Pauses on hover/focus so it's still  */
+/* readable, and falls back to a plain static (manually scrollable) row    */
+/* under prefers-reduced-motion instead of an endless auto-scroll.        */
 /* ---------------------------------------------------------------------- */
 
-const MARQUEE_CARS = [
+const INDEX_CARS = [
   "Hyundai Creta",
   "Kia Seltos",
   "Maruti Grand Vitara",
@@ -459,38 +704,41 @@ const MARQUEE_CARS = [
   "Kia Syros",
 ];
 
-function CarMarquee() {
-  const items = [...MARQUEE_CARS, ...MARQUEE_CARS];
+function CaseIndex({ carsCount }: { carsCount: number }) {
+  const reduce = useReducedMotion();
+  const track = reduce ? INDEX_CARS : [...INDEX_CARS, ...INDEX_CARS];
+
   return (
-    <section className="overflow-hidden border-b border-border bg-paper-raised py-10">
-      <p className="mx-auto mb-6 max-w-6xl px-6 text-sm text-ink-faint">
-        A sample of the 59 cars already in our database
-      </p>
-      <div className="flex w-max animate-marquee gap-3">
-        {items.map((name, i) => (
-          <span
-            key={`${name}-${i}`}
-            className="whitespace-nowrap rounded-full border border-border bg-paper px-5 py-2.5 font-mono text-sm text-ink-soft"
-          >
-            {name}
-          </span>
-        ))}
+    <section className="border-b border-border py-10">
+      <div className="mx-auto max-w-6xl px-6">
+        <p className="mb-5 text-sm text-ink-faint">A sample of the {carsCount} cars already in our database</p>
+      </div>
+      <div className={reduce ? "overflow-x-auto px-6" : "overflow-hidden"} style={reduce ? { scrollbarWidth: "thin" } : undefined}>
+        <div className={`flex w-max gap-2 ${reduce ? "" : "marquee-track"}`}>
+          {track.map((name, i) => (
+            <span
+              key={`${name}-${i}`}
+              className="shrink-0 whitespace-nowrap rounded-full border border-border bg-paper-raised/70 px-4 py-2.5 font-mono text-xs text-ink-soft"
+            >
+              {name}
+            </span>
+          ))}
+        </div>
       </div>
     </section>
   );
 }
 
 /* ---------------------------------------------------------------------- */
-/* How it works (a real GSAP sticky-stack -- each step pins and the        */
-/* previous shrinks/fades as the next arrives, literally dramatising       */
-/* "one step replaces the last")                                          */
+/* How it works -- a vertical case-file timeline, not a scroll-hijacked    */
+/* pinned stack. Each row reveals once, in order, as it enters view.      */
 /* ---------------------------------------------------------------------- */
 
 const STEPS = [
   {
     icon: ListChecks,
     title: "Tell us how you actually drive",
-    body: "11 quick questions grouped into core requirements, your everyday driving, and what matters to you (no jargon, about 3 minutes).",
+    body: "11 quick questions grouped into core requirements, your everyday driving, and what matters to you. No jargon, about 3 minutes.",
   },
   {
     icon: ScanSearch,
@@ -510,92 +758,43 @@ const STEPS = [
 ];
 
 function HowItWorks({ onStart }: { onStart: (location: string) => void }) {
-  const reduce = useReducedMotion();
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (reduce || !containerRef.current) return;
-    const ctx = gsap.context(() => {
-      const cards = gsap.utils.toArray<HTMLElement>(".stack-card", containerRef.current!);
-      const segments = cards.length - 1;
-
-      // All cards sit absolutely stacked on the exact same rect (see the
-      // JSX below), so there is nothing underneath to show through -- only
-      // opacity/scale, driven directly off one master ScrollTrigger's
-      // progress, decide what's visible. This replaces an earlier attempt
-      // that chained each card's un-pin point to a sibling that was also
-      // being dynamically pinned; that dependency chain never actually
-      // activated any pin at all (verified live: computed `position` on
-      // every card stayed "relative" through the whole scroll range).
-      // Driving every card from one onUpdate callback has no such chain.
-      cards.forEach((c, i) => gsap.set(c, { opacity: i === 0 ? 1 : 0, scale: 1 }));
-
-      ScrollTrigger.create({
-        trigger: containerRef.current,
-        start: "top top+=64",
-        end: () => `+=${segments * window.innerHeight}`,
-        pin: true,
-        scrub: 0.5,
-        onUpdate: (self) => {
-          const progress = self.progress * segments; // 0..segments
-          cards.forEach((card, i) => {
-            // A "tent" function: opacity peaks at 1 exactly when progress
-            // reaches this card's own index, and falls off linearly toward
-            // its neighbors on either side -- a clean crossfade with no
-            // special-casing needed for the first or last card.
-            const opacity = Math.max(0, 1 - Math.abs(progress - i));
-            const overtaken = Math.min(Math.max(progress - i, 0), 1); // 0 until superseded, ramps to 1 after
-            gsap.set(card, { opacity, scale: 1 - overtaken * 0.06 });
-          });
-        },
-      });
-    }, containerRef);
-    return () => ctx.revert();
-  }, [reduce]);
-
   return (
-    <section id="how-it-works" className="bg-paper">
-      <div className="mx-auto max-w-6xl px-6 pt-20 sm:pt-24">
-        <RevealOnScroll className="max-w-2xl">
-          <h2 className="font-display text-3xl font-bold text-balance text-ink sm:text-4xl">
-            From confused to confident, in four steps
-          </h2>
-          <p className="mt-4 leading-relaxed text-ink-soft">
-            No dealer visits, no 20-tab browser research marathon. Just your actual driving life, matched against
-            real evidence.
-          </p>
-        </RevealOnScroll>
-      </div>
+    <section id="how-it-works" className="py-20 sm:py-28">
+      <div className="mx-auto max-w-6xl px-6">
+        <div className="max-w-2xl">
+          <StaggerHeading
+            text="From confused to confident, in four steps"
+            className="text-balance font-display text-3xl font-bold text-ink sm:text-4xl"
+          />
+          <RevealOnScroll delay={0.15}>
+            <p className="mt-4 leading-relaxed text-ink-soft">
+              No dealer visits, no 20-tab browser research marathon. Just your actual driving life, matched against
+              real evidence.
+            </p>
+          </RevealOnScroll>
+        </div>
 
-      <div ref={containerRef} className="relative mt-8 min-h-[62vh] sm:min-h-[68vh]">
-        {STEPS.map((step, i) => (
-          <div
-            key={step.title}
-            className="stack-card absolute inset-0 flex items-center bg-paper"
-            style={{ zIndex: i + 1 }}
-          >
-            <div className="mx-auto grid max-w-6xl grid-cols-1 items-center gap-10 px-6 lg:grid-cols-[auto_1fr]">
-              <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-full bg-navy-900 font-mono text-2xl font-medium text-stage-ink sm:h-28 sm:w-28">
-                {String(i + 1).padStart(2, "0")}
-              </div>
-              <div className="max-w-xl">
-                <step.icon className="mb-4 h-7 w-7 text-accent-gold" strokeWidth={1.75} />
-                <p className="font-display text-2xl font-semibold text-ink sm:text-3xl">{step.title}</p>
-                <p className="mt-3 text-base leading-relaxed text-ink-soft">{step.body}</p>
-              </div>
-            </div>
+        <div className="relative mt-14 max-w-2xl">
+          <div className="absolute left-[27px] top-2 bottom-2 w-px bg-gradient-to-b from-accent-rust/60 via-border to-transparent" aria-hidden />
+          <div className="flex flex-col gap-10">
+            {STEPS.map((step, i) => (
+              <RevealOnScroll key={step.title} delay={i * 0.08} className="relative flex gap-6 pl-0">
+                <div className="relative z-10 flex h-14 w-14 shrink-0 items-center justify-center rounded-full border-2 border-accent-rust/70 bg-paper font-mono text-lg font-medium text-accent-rust-soft shadow-glow-sm">
+                  {String(i + 1).padStart(2, "0")}
+                </div>
+                <div className="pt-1.5">
+                  <step.icon className="mb-2 h-5 w-5 text-accent-rust" strokeWidth={1.75} />
+                  <p className="font-display text-xl font-semibold text-ink sm:text-2xl">{step.title}</p>
+                  <p className="mt-2 max-w-md text-base leading-relaxed text-ink-soft">{step.body}</p>
+                </div>
+              </RevealOnScroll>
+            ))}
           </div>
-        ))}
-      </div>
+        </div>
 
-      <div className="mx-auto max-w-6xl px-6 pb-20 sm:pb-24 pt-10">
-        <button
-          onClick={() => onStart("how_it_works")}
-          className="flex items-center gap-2 rounded-full bg-navy-900 px-7 py-3.5 text-sm font-semibold text-white shadow-sm transition hover:bg-navy-950 active:scale-[0.98]"
-        >
-          {PRIMARY_CTA}
-          <ArrowRight className="h-4 w-4" strokeWidth={2.25} />
-        </button>
+        <div className="mt-12">
+          <GlowButton onClick={() => onStart("how_it_works")}>{PRIMARY_CTA}</GlowButton>
+        </div>
       </div>
     </section>
   );
@@ -608,29 +807,46 @@ function HowItWorks({ onStart }: { onStart: (location: string) => void }) {
 /* ---------------------------------------------------------------------- */
 
 function EvidencePreview() {
+  const reduce = useReducedMotion();
   return (
-    <section className="bg-paper py-20 sm:py-24">
+    <section className="border-y border-border py-20 sm:py-28">
       <div className="mx-auto grid max-w-6xl grid-cols-1 items-center gap-12 px-6 lg:grid-cols-[1fr_1fr] lg:gap-20">
-        <RevealOnScroll className="max-w-lg">
-          <h2 className="font-display text-3xl font-bold text-balance text-ink sm:text-4xl">
-            This is what &ldquo;evidence-backed&rdquo; actually looks like
-          </h2>
-          <p className="mt-4 leading-relaxed text-ink-soft">
-            Every reason on a CarDhoondo result links back to a real claim like this one, with a plain-language
-            verdict, an honest confidence level, and the actual quote it came from. Not a mystery score.
-          </p>
-        </RevealOnScroll>
+        <div className="max-w-lg">
+          <StaggerHeading
+            text="This is what evidence-backed actually looks like"
+            className="text-balance font-display text-3xl font-bold text-ink sm:text-4xl"
+          />
+          <RevealOnScroll delay={0.15}>
+            <p className="mt-4 leading-relaxed text-ink-soft">
+              Every reason on a CarDhoondo result links back to a real claim like this one, with a plain-language
+              verdict, an honest confidence level, and the actual quote it came from. Not a mystery score.
+            </p>
+          </RevealOnScroll>
+        </div>
 
-        <TiltCard className="rounded-[20px] border border-border bg-paper-raised p-7 shadow-card sm:p-8">
-          <p className="font-mono text-xs uppercase tracking-wide text-ink-faint">Kia Seltos · Ride quality over rough roads</p>
+        <motion.div
+          initial={reduce ? false : { opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          whileHover={reduce ? undefined : { y: -4 }}
+          className="relative rounded-2xl border border-border bg-paper-raised p-7 shadow-card sm:p-8"
+        >
+          <StampReveal className="absolute -right-4 -top-4 h-16 w-16 text-accent-rust sm:-right-6 sm:-top-6 sm:h-20 sm:w-20">
+            <VerdictStamp className="h-full w-full drop-shadow-[0_0_16px_rgba(226,152,74,0.4)]" />
+          </StampReveal>
+
+          <p className="font-mono text-xs uppercase tracking-wide text-ink-faint">
+            Kia Seltos &middot; Ride quality over rough roads
+          </p>
 
           <div className="mt-4 flex items-center gap-2.5">
-            <span className="h-2.5 w-2.5 rounded-full bg-positive" aria-hidden />
+            <span className="h-2.5 w-2.5 rounded-full bg-positive shadow-[0_0_8px_rgba(124,201,154,0.7)]" aria-hidden />
             <p className="font-display text-lg font-semibold text-ink">Strongly positive</p>
           </div>
           <p className="mt-1.5 text-sm text-ink-soft">High confidence, based on 11 independent reviews.</p>
 
-          <div className="mt-6 flex gap-3 rounded-[14px] bg-positive-bg p-5">
+          <div className="mt-6 flex gap-3 rounded-xl bg-positive-bg p-5">
             <Quote className="mt-0.5 h-5 w-5 shrink-0 text-positive" strokeWidth={1.75} />
             <p className="text-sm leading-relaxed text-ink">
               &ldquo;Ride quality is very impressive. It gobbles up the worst bumps in its stride without hesitation;
@@ -640,7 +856,7 @@ function EvidencePreview() {
               </span>
             </p>
           </div>
-        </TiltCard>
+        </motion.div>
       </div>
     </section>
   );
@@ -667,19 +883,22 @@ const NEW_WAY = [
 function WhyCarDhoondo() {
   const reduce = useReducedMotion();
   return (
-    <section id="why-cardhoondo" className="bg-paper-raised py-20 sm:py-24">
+    <section id="why-cardhoondo" className="py-20 sm:py-28">
       <div className="mx-auto max-w-6xl px-6">
-        <RevealOnScroll className="max-w-2xl">
-          <h2 className="font-display text-3xl font-bold text-balance text-ink sm:text-4xl">
-            Car buying in India is broken by too many opinions
-          </h2>
-          <p className="mt-4 leading-relaxed text-ink-soft">
-            Here&apos;s the honest comparison: what researching a car normally feels like, and what we built instead.
-          </p>
-        </RevealOnScroll>
+        <div className="max-w-2xl">
+          <StaggerHeading
+            text="Car buying in India is broken by too many opinions"
+            className="text-balance font-display text-3xl font-bold text-ink sm:text-4xl"
+          />
+          <RevealOnScroll delay={0.15}>
+            <p className="mt-4 leading-relaxed text-ink-soft">
+              Here&apos;s the honest comparison: what researching a car normally feels like, and what we built instead.
+            </p>
+          </RevealOnScroll>
+        </div>
 
         <div className="mt-14 flex flex-col items-stretch gap-6 lg:flex-row lg:items-center">
-          <div className="flex-1 rounded-[20px] border border-border bg-negative-bg p-8">
+          <div className="flex-1 rounded-2xl border border-negative/25 bg-negative-bg p-8">
             <p className="mb-6 font-display text-sm font-semibold uppercase tracking-wide text-ink-soft">
               The usual way
             </p>
@@ -701,19 +920,13 @@ function WhyCarDhoondo() {
           </div>
 
           <div className="flex items-center justify-center self-center">
-            <motion.div
-              initial={reduce ? false : { rotate: -20, scale: 0.7, opacity: 0 }}
-              whileInView={{ rotate: 0, scale: 1, opacity: 1 }}
-              viewport={{ once: true, amount: 0.8 }}
-              transition={{ type: "spring", stiffness: 200, damping: 14, delay: 0.3 }}
-              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-accent-gold shadow-card"
-            >
-              <ArrowRight className="h-5 w-5 rotate-90 text-stage lg:rotate-0" strokeWidth={2.5} />
-            </motion.div>
+            <StampReveal>
+              <VerdictStamp className="h-14 w-14 text-accent-rust drop-shadow-[0_0_18px_rgba(226,152,74,0.45)]" />
+            </StampReveal>
           </div>
 
-          <div className="flex-1 rounded-[20px] border border-accent-gold/40 bg-paper-raised p-8 shadow-card">
-            <p className="mb-6 font-display text-sm font-semibold uppercase tracking-wide text-navy-700">
+          <div className="flex-1 rounded-2xl border border-accent-rust/35 bg-paper-raised p-8 shadow-glow">
+            <p className="mb-6 font-display text-sm font-semibold uppercase tracking-wide text-accent-rust-soft">
               The CarDhoondo way
             </p>
             <ul className="space-y-5">
@@ -726,7 +939,7 @@ function WhyCarDhoondo() {
                   transition={{ duration: 0.45, delay: 0.3 + i * 0.08 }}
                   className="flex gap-3 text-sm leading-relaxed text-ink"
                 >
-                  <Check className="mt-0.5 h-4 w-4 shrink-0 text-accent-gold" strokeWidth={2.5} />
+                  <Check className="mt-0.5 h-4 w-4 shrink-0 text-accent-rust" strokeWidth={2.5} />
                   {point}
                 </motion.li>
               ))}
@@ -757,13 +970,12 @@ function Faq() {
   };
 
   return (
-    <section id="faq" className="bg-paper py-20 sm:py-24">
+    <section id="faq" className="border-t border-border py-20 sm:py-28">
       <div className="mx-auto max-w-3xl px-6">
-        <RevealOnScroll>
-          <h2 className="text-center font-display text-3xl font-bold text-balance text-ink sm:text-4xl">
-            Common questions about how CarDhoondo works
-          </h2>
-        </RevealOnScroll>
+        <StaggerHeading
+          text="Common questions about how CarDhoondo works"
+          className="text-center text-balance font-display text-3xl font-bold text-ink sm:text-4xl"
+        />
 
         {/* SEO note: the FAQPage JSON-LD below already carries every question's
             full answer text for search engines regardless of open/closed UI
@@ -822,33 +1034,28 @@ function Faq() {
 
 function Contact({ onStart }: { onStart: (location: string) => void }) {
   return (
-    <section id="contact" className="border-t border-border bg-navy-50 py-20 sm:py-24">
+    <section id="contact" className="border-t border-border py-20 sm:py-28">
       <div className="mx-auto max-w-3xl px-6 text-center">
-        <RevealOnScroll>
-          <h2 className="font-display text-3xl font-bold text-ink text-balance sm:text-4xl">
-            Questions, feedback, or found a bug? We read everything.
-          </h2>
+        <StaggerHeading
+          text="Questions, feedback, or found a bug? We read everything."
+          className="font-display text-3xl font-bold text-ink text-balance sm:text-4xl"
+        />
+        <RevealOnScroll delay={0.15}>
           <p className="mt-4 text-ink-soft">
-            CarDhoondo is early and actively being built. If something felt off, you&apos;re
-            interested in collaborating or partnering with us, or you just want to say hi, reach out
-            directly.
+            CarDhoondo is early and actively being built. If something felt off, you&apos;re interested in
+            collaborating or partnering with us, or you just want to say hi, reach out directly.
           </p>
         </RevealOnScroll>
 
         <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
           <a
             href="mailto:mycardhoondo@gmail.com"
-            className="flex items-center gap-2 rounded-full border border-navy-800 px-6 py-3 text-sm font-medium text-navy-800 transition hover:bg-navy-100"
+            className="flex items-center gap-2 rounded-full border border-border px-6 py-3 text-sm font-medium text-ink-soft transition hover:border-accent-rust/50 hover:text-ink"
           >
             <Mail className="h-4 w-4" strokeWidth={1.75} />
             mycardhoondo@gmail.com
           </a>
-          <MagneticButton
-            onClick={() => onStart("contact")}
-            className="rounded-full bg-accent-gold px-6 py-3 text-sm font-semibold text-stage shadow-sm transition hover:brightness-105"
-          >
-            {PRIMARY_CTA}
-          </MagneticButton>
+          <GlowButton onClick={() => onStart("contact")}>{PRIMARY_CTA}</GlowButton>
         </div>
       </div>
     </section>
@@ -856,19 +1063,15 @@ function Contact({ onStart }: { onStart: (location: string) => void }) {
 }
 
 /* ---------------------------------------------------------------------- */
-/* Footer (light -- matches the page canvas, no contrast inversion, per    */
-/* the Airbnb reference's own footer-light treatment)                     */
+/* Footer                                                                   */
 /* ---------------------------------------------------------------------- */
 
 function Footer() {
   return (
-    <footer className="border-t border-border bg-paper-raised py-12">
+    <footer className="border-t border-border py-12">
       <div className="mx-auto flex max-w-6xl flex-col items-center gap-8 px-6 text-center sm:flex-row sm:items-start sm:justify-between sm:text-left">
         <div>
-          <div className="flex items-center justify-center gap-2.5 sm:justify-start">
-            <Image src="/cardhoondo-icon.png" alt="" width={237} height={237} className="h-7 w-7" />
-            <p className="font-display text-base font-bold text-ink">CarDhoondo</p>
-          </div>
+          <Brandmark />
           <p className="mt-2 max-w-xs text-sm text-ink-soft">
             No dealer commissions. No sponsored results. Just the car that fits your life.
           </p>
@@ -889,7 +1092,7 @@ function Footer() {
         </nav>
 
         <p className="text-xs text-ink-faint">
-          &copy; {new Date().getFullYear()} CarDhoondo · Made for car buyers across India
+          &copy; {new Date().getFullYear()} CarDhoondo. Made for car buyers across India.
         </p>
       </div>
     </footer>

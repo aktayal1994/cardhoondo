@@ -72,10 +72,10 @@ export default function QuestionCard({ question, value, answers, onChange, onCon
   }
 
   return (
-    <div className={compact ? "" : "animate-fade-up"}>
+    <div className={compact ? "" : "animate-fade-up-blur"}>
       <div className="flex items-start gap-3">
-        <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-navy-50">
-          <Icon className="h-4.5 w-4.5 text-navy-700" strokeWidth={1.75} />
+        <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-border bg-charcoal-800/70">
+          <Icon className="h-4.5 w-4.5 text-accent-rust-soft" strokeWidth={1.75} />
         </div>
         <div>
           <h2 className={compact ? "font-display text-base font-semibold text-ink" : "font-display text-xl font-semibold text-ink"}>
@@ -102,14 +102,14 @@ export default function QuestionCard({ question, value, answers, onChange, onCon
               aria-pressed={isSelected}
               className={`flex items-center gap-2 rounded-full border px-4 py-2.5 text-sm font-medium transition active:scale-95 ${
                 isSelected
-                  ? "border-navy-900 bg-navy-900 text-white shadow-sm"
-                  : "border-border bg-paper-raised text-ink hover:border-navy-500 hover:bg-navy-50"
+                  ? "border-accent-rust bg-accent-rust text-charcoal-950 shadow-glow-sm"
+                  : "border-border bg-paper-raised text-ink hover:border-accent-rust/50 hover:bg-charcoal-800/60"
               }`}
             >
               {logoSrc ? (
                 <span
                   className={`flex h-5 w-5 shrink-0 items-center justify-center overflow-hidden rounded-full ${
-                    isSelected ? "bg-white" : "bg-paper"
+                    isSelected ? "bg-charcoal-950" : "bg-paper"
                   }`}
                 >
                   <Image src={logoSrc} alt="" width={20} height={20} className="h-full w-full object-contain p-0.5" />
@@ -117,7 +117,7 @@ export default function QuestionCard({ question, value, answers, onChange, onCon
               ) : (
                 OptionIcon && (
                   <OptionIcon
-                    className={`h-4 w-4 shrink-0 ${isSelected ? "text-white" : "text-navy-600"}`}
+                    className={`h-4 w-4 shrink-0 ${isSelected ? "text-charcoal-950" : "text-ink-soft"}`}
                     strokeWidth={1.75}
                   />
                 )
@@ -129,8 +129,8 @@ export default function QuestionCard({ question, value, answers, onChange, onCon
       </div>
 
       {reaction && (
-        <p key={reaction} className="animate-fade-up mt-3 ml-12 flex items-center gap-1.5 text-sm text-navy-700">
-          <span className="h-1 w-1 rounded-full bg-accent-gold" />
+        <p key={reaction} className="animate-fade-up mt-3 ml-12 flex items-center gap-1.5 text-sm text-ink-soft">
+          <span className="h-1 w-1 rounded-full bg-accent-rust" />
           {reaction}
         </p>
       )}
@@ -140,9 +140,9 @@ export default function QuestionCard({ question, value, answers, onChange, onCon
           type="button"
           onClick={onConfirm}
           disabled={!isAnswerComplete(question, value)}
-          className="ml-12 mt-4 rounded-full bg-navy-900 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-navy-950 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40"
+          className="ml-12 mt-4 rounded-full bg-accent-rust px-6 py-2.5 text-sm font-semibold text-charcoal-950 shadow-glow-sm transition hover:brightness-110 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 disabled:shadow-none"
         >
-          {selected.length > 0 ? "Continue" : "Continue — no preference"}
+          {selected.length > 0 ? "Continue" : "Continue, no preference"}
         </button>
       )}
     </div>

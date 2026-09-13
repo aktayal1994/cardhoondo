@@ -43,20 +43,15 @@ const GUIDES = [
 export default function GuidesIndexPage() {
   return (
     <main className="min-h-screen bg-paper">
-      <header className="sticky top-0 z-40 border-b border-border/80 bg-paper/90 backdrop-blur">
+      <header className="sticky top-0 z-40 border-b border-border bg-paper/90 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
-          <Link href="/" className="flex items-center" aria-label="CarDhoondo home">
-            <Image
-              src="/cardhoondo-logo.png"
-              alt="CarDhoondo — Your Perfect Car Found"
-              width={489}
-              height={105}
-              className="h-8 w-auto sm:h-9"
-            />
+          <Link href="/" className="flex items-center gap-2.5" aria-label="CarDhoondo home">
+            <Image src="/cardhoondo-icon.png" alt="" width={237} height={237} className="h-8 w-8" />
+            <span className="font-display text-base font-bold text-ink">CarDhoondo</span>
           </Link>
           <Link
             href="/questionnaire/intro"
-            className="rounded-full bg-accent-gold px-5 py-2.5 text-sm font-semibold text-stage shadow-sm transition hover:brightness-105 active:scale-[0.98]"
+            className="rounded-full bg-accent-rust px-5 py-2.5 text-sm font-semibold text-stage shadow-glow-sm transition hover:brightness-110 active:scale-[0.98]"
           >
             Find my car
           </Link>
@@ -64,7 +59,7 @@ export default function GuidesIndexPage() {
       </header>
 
       <div className="mx-auto max-w-3xl px-6 py-14">
-        <p className="font-display text-sm font-semibold uppercase tracking-wide text-navy-600">Guides</p>
+        <p className="font-display text-sm font-semibold uppercase tracking-wide text-accent-rust-soft">Guides</p>
         <h1 className="mt-3 font-display text-3xl font-bold text-balance text-ink sm:text-4xl">{TITLE}</h1>
         <p className="mt-4 max-w-xl text-lg leading-relaxed text-ink-soft">{DESCRIPTION}</p>
 
@@ -73,14 +68,14 @@ export default function GuidesIndexPage() {
             <Link
               key={g.href}
               href={g.href}
-              className="group rounded-2xl border border-border bg-paper-raised p-6 transition hover:border-accent-gold/50 hover:shadow-sm"
+              className="group rounded-2xl border border-border bg-paper-raised p-6 shadow-card transition hover:border-accent-rust/50"
             >
-              <p className="font-display text-xs font-semibold uppercase tracking-wide text-navy-600">
+              <p className="font-display text-xs font-semibold uppercase tracking-wide text-accent-rust-soft">
                 {g.eyebrow}
               </p>
               <h2 className="mt-2 font-display text-xl font-bold text-ink">{g.title}</h2>
               <p className="mt-2 text-sm leading-relaxed text-ink-soft">{g.dek}</p>
-              <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-accent-gold">
+              <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-accent-rust">
                 Read guide{" "}
                 <ArrowRight className="h-3.5 w-3.5 transition group-hover:translate-x-0.5" />
               </span>

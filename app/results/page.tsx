@@ -117,7 +117,7 @@ export default function ResultsPage() {
         <p className="mt-2 text-ink-soft">This is on us, not your answers — worth trying again.</p>
         <button
           onClick={restart}
-          className="mt-6 rounded-full border border-navy-800 px-6 py-3 text-sm font-medium text-navy-800 hover:bg-navy-50"
+          className="mt-6 rounded-full border border-border px-6 py-3 text-sm font-medium text-ink-soft transition hover:border-accent-rust/50 hover:text-ink"
         >
           Start over
         </button>

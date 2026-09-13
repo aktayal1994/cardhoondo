@@ -85,7 +85,7 @@ export default function CompareView({ recommendationResultId, recommendOutput, o
                     {c.brand} {c.car_model}
                   </p>
                   <p className="mt-0.5 text-xs font-normal text-ink-faint">{formatINR(c.price_on_road)}</p>
-                  <p className="mt-1 inline-block rounded-full bg-navy-50 px-2 py-0.5 text-xs font-medium text-navy-800">
+                  <p className="mt-1 inline-block rounded-full border border-border bg-charcoal-800/60 px-2 py-0.5 text-xs font-medium text-ink-soft">
                     {confidenceLabel(c.coverage_ratio)}
                   </p>
                 </th>

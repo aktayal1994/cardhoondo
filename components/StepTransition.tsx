@@ -28,14 +28,20 @@ export default function StepTransition({ message, onDone }: StepTransitionProps)
   }, []);
 
   return (
-    <main className="stage-glow flex min-h-screen flex-col items-center justify-center bg-stage px-6 text-center">
-      <Image src="/cardhoondo-icon.png" alt="" width={237} height={237} className="mb-2 h-10 w-10" />
+    <main className="starfield stage-glow flex min-h-screen flex-col items-center justify-center bg-stage px-6 text-center">
+      <Image
+        src="/cardhoondo-icon.png"
+        alt=""
+        width={237}
+        height={237}
+        className="mb-2 h-10 w-10 drop-shadow-[0_0_20px_rgba(226,152,74,0.35)]"
+      />
       <div className="flex gap-1.5" aria-hidden>
-        <span className="animate-pulse-dot h-2 w-2 rounded-full bg-accent-gold" style={{ animationDelay: "0ms" }} />
-        <span className="animate-pulse-dot h-2 w-2 rounded-full bg-accent-gold" style={{ animationDelay: "180ms" }} />
-        <span className="animate-pulse-dot h-2 w-2 rounded-full bg-accent-gold" style={{ animationDelay: "360ms" }} />
+        <span className="animate-pulse-dot h-2 w-2 rounded-full bg-accent-rust" style={{ animationDelay: "0ms" }} />
+        <span className="animate-pulse-dot h-2 w-2 rounded-full bg-accent-rust" style={{ animationDelay: "180ms" }} />
+        <span className="animate-pulse-dot h-2 w-2 rounded-full bg-accent-rust" style={{ animationDelay: "360ms" }} />
       </div>
-      <p className="animate-fade-up mt-6 max-w-sm font-display text-lg font-medium text-stage-ink">{message}</p>
+      <p className="animate-fade-up-blur mt-6 max-w-sm font-display text-lg font-medium text-stage-ink">{message}</p>
     </main>
   );
 }
