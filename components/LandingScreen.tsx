@@ -72,17 +72,18 @@ const PRIMARY_CTA = "Find my car";
 interface SiteStats {
   claims: number;
   cars: number;
+  videos: number;
 }
 
 // Last-known-good numbers, shown instantly while the real fetch resolves
 // (and kept if it fails) -- this is exactly the kind of value that drifted
 // stale once already (hardcoded 4,036 written Aug 22, real count well past
 // it by September), so it's now a floor/fallback, never the source of truth.
-const FALLBACK_STATS: SiteStats = { claims: 4036, cars: 59 };
+const FALLBACK_STATS: SiteStats = { claims: 4036, cars: 59, videos: 558 };
 
-/** Fetches live claim/car counts from /api/stats once on mount. Marketing
- * copy that cites these numbers should never go stale again the way the
- * old hardcoded 4,036 did. */
+/** Fetches live claim/car/video counts from /api/stats once on mount.
+ * Marketing copy that cites these numbers should never go stale again the
+ * way the old hardcoded 4,036 did. */
 function useLiveStats(): SiteStats {
   const [stats, setStats] = useState<SiteStats>(FALLBACK_STATS);
   useEffect(() => {
@@ -90,8 +91,13 @@ function useLiveStats(): SiteStats {
     fetch("/api/stats", { cache: "no-store" })
       .then((res) => (res.ok ? res.json() : Promise.reject(new Error("stats fetch failed"))))
       .then((data: Partial<SiteStats>) => {
-        if (!cancelled && typeof data.claims === "number" && typeof data.cars === "number") {
-          setStats({ claims: data.claims, cars: data.cars });
+        if (
+          !cancelled &&
+          typeof data.claims === "number" &&
+          typeof data.cars === "number" &&
+          typeof data.videos === "number"
+        ) {
+          setStats({ claims: data.claims, cars: data.cars, videos: data.videos });
         }
       })
       .catch(() => {
@@ -645,22 +651,48 @@ function IconBadge({ icon: Icon, className = "" }: { icon: React.ElementType; cl
   );
 }
 
+function StatCard({
+  caseNo,
+  value,
+  title,
+  body,
+}: {
+  caseNo: string;
+  value: number;
+  title: string;
+  body: React.ReactNode;
+}) {
+  return (
+    <RevealOnScroll className="rounded-2xl border border-border bg-paper-raised p-6 shadow-card sm:p-8">
+      <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-ink-faint">Case file no. {caseNo}</p>
+      <CountUpNumber
+        value={value}
+        className="mt-2 font-mono text-[clamp(2.25rem,4.2vw,3.5rem)] font-semibold leading-none tracking-tight text-accent-rust-soft"
+      />
+      <p className="mt-3 font-display text-base font-semibold text-ink sm:text-lg">{title}</p>
+      <p className="mt-2 text-sm leading-relaxed text-ink-soft">{body}</p>
+    </RevealOnScroll>
+  );
+}
+
 function TrustAndStats({ stats }: { stats: SiteStats }) {
   return (
     <section className="border-b border-border py-16 sm:py-20">
-      <div className="mx-auto grid max-w-6xl grid-cols-1 gap-10 px-6 lg:grid-cols-[0.85fr_1.15fr] lg:items-center lg:gap-16">
-        <RevealOnScroll className="rounded-2xl border border-border bg-paper-raised p-8 shadow-card">
-          <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-ink-faint">Case file no. 001</p>
-          <CountUpNumber
+      <div className="mx-auto grid max-w-6xl grid-cols-1 gap-10 px-6 lg:grid-cols-[1.15fr_0.95fr] lg:items-center lg:gap-16">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+          <StatCard
+            caseNo="001"
             value={stats.claims}
-            className="mt-2 font-mono text-[clamp(2.75rem,6vw,4.5rem)] font-semibold leading-none tracking-tight text-accent-rust-soft"
+            title="Real review claims, weighed line by line"
+            body={<>Pulled from real ownership and expert reviews across {stats.cars} cars so far, not marketing copy.</>}
           />
-          <p className="mt-3 font-display text-lg font-semibold text-ink">Real review claims, weighed line by line</p>
-          <p className="mt-2 text-sm leading-relaxed text-ink-soft">
-            Pulled from real ownership and expert reviews across {stats.cars} cars so far, not marketing copy. This
-            is the evidence base a recommendation actually draws from.
-          </p>
-        </RevealOnScroll>
+          <StatCard
+            caseNo="002"
+            value={stats.videos}
+            title="Review videos watched, start to finish"
+            body="Every claim above traces back to a real ownership or expert video, timestamp and all -- not a spec sheet skim."
+          />
+        </div>
 
         <div className="divide-y divide-border">
           {TRUST_POINTS.map((point, i) => (
