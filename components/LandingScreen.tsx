@@ -838,11 +838,83 @@ function HowItWorks({ onStart }: { onStart: (location: string) => void }) {
 /* Seltos review-claims database)                                         */
 /* ---------------------------------------------------------------------- */
 
-function EvidencePreview() {
+/** One real evidence card -- a verdict, confidence, and a real quote. Used
+ * twice below (one positive, one negative) so the landing page shows the
+ * evidence system as it actually behaves: it surfaces a car's real flaws
+ * exactly as plainly as its strengths, not just the flattering half. */
+function EvidenceCardExample({
+  car,
+  facetLabel,
+  verdict,
+  sentiment,
+  confidence,
+  quote,
+  delay = 0,
+}: {
+  car: string;
+  facetLabel: string;
+  verdict: string;
+  sentiment: "positive" | "negative";
+  confidence: string;
+  quote: string;
+  delay?: number;
+}) {
   const reduce = useReducedMotion();
+  const isPositive = sentiment === "positive";
+  return (
+    <motion.div
+      initial={reduce ? false : { opacity: 0, y: 24 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.3 }}
+      transition={{ duration: 0.6, delay, ease: [0.16, 1, 0.3, 1] }}
+      whileHover={reduce ? undefined : { y: -4 }}
+      className="relative rounded-2xl border border-border bg-paper-raised p-7 shadow-card sm:p-8"
+    >
+      {isPositive ? (
+        <StampReveal className="absolute -right-4 -top-4 h-16 w-16 text-accent-rust sm:-right-6 sm:-top-6 sm:h-20 sm:w-20">
+          <VerdictStamp className="h-full w-full drop-shadow-[0_0_16px_rgba(226,152,74,0.4)]" />
+        </StampReveal>
+      ) : (
+        <StampReveal className="absolute -right-3 -top-3 flex h-12 w-12 items-center justify-center rounded-full border-2 border-negative bg-paper-raised text-negative shadow-[0_0_16px_rgba(226,131,124,0.35)] sm:-right-4 sm:-top-4 sm:h-14 sm:w-14">
+          <X className="h-6 w-6 sm:h-7 sm:w-7" strokeWidth={2.5} aria-hidden />
+        </StampReveal>
+      )}
+
+      <p className="font-mono text-xs uppercase tracking-wide text-ink-faint">
+        {car} &middot; {facetLabel}
+      </p>
+
+      <div className="mt-4 flex items-center gap-2.5">
+        <span
+          className={`h-2.5 w-2.5 rounded-full ${
+            isPositive ? "bg-positive shadow-[0_0_8px_rgba(124,201,154,0.7)]" : "bg-negative shadow-[0_0_8px_rgba(226,131,124,0.7)]"
+          }`}
+          aria-hidden
+        />
+        <p className="font-display text-lg font-semibold text-ink">{verdict}</p>
+      </div>
+      <p className="mt-1.5 text-sm text-ink-soft">{confidence}</p>
+
+      <div className={`mt-6 flex gap-3 rounded-xl p-5 ${isPositive ? "bg-positive-bg" : "bg-negative-bg"}`}>
+        <Quote
+          className={`mt-0.5 h-5 w-5 shrink-0 ${isPositive ? "text-positive" : "text-negative"}`}
+          strokeWidth={1.75}
+        />
+        <p className="text-sm leading-relaxed text-ink">
+          &ldquo;{quote}&rdquo;
+          <span className="mt-1.5 block text-xs font-medium text-ink-soft">
+            From an independent expert review in our database
+          </span>
+        </p>
+      </div>
+    </motion.div>
+  );
+}
+
+function EvidencePreview() {
   return (
     <section className="border-y border-border py-20 sm:py-28">
-      <div className="mx-auto grid max-w-6xl grid-cols-1 items-center gap-12 px-6 lg:grid-cols-[1fr_1fr] lg:gap-20">
+      <div className="mx-auto grid max-w-6xl grid-cols-1 items-start gap-12 px-6 lg:grid-cols-[0.85fr_1.15fr] lg:gap-16">
         <div className="max-w-lg">
           <StaggerHeading
             text="This is what evidence-backed actually looks like"
@@ -850,45 +922,32 @@ function EvidencePreview() {
           />
           <RevealOnScroll delay={0.15}>
             <p className="mt-4 leading-relaxed text-ink-soft">
-              Every reason on a CarDhoondo result links back to a real claim like this one, with a plain-language
-              verdict, an honest confidence level, and the actual quote it came from. Not a mystery score.
+              Every reason on a CarDhoondo result links back to a real claim like these, with a plain-language
+              verdict, an honest confidence level, and the actual quote it came from. That includes a car&apos;s real
+              flaws, stated as plainly as its strengths -- not a mystery score, and not just the flattering half.
             </p>
           </RevealOnScroll>
         </div>
 
-        <motion.div
-          initial={reduce ? false : { opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-          whileHover={reduce ? undefined : { y: -4 }}
-          className="relative rounded-2xl border border-border bg-paper-raised p-7 shadow-card sm:p-8"
-        >
-          <StampReveal className="absolute -right-4 -top-4 h-16 w-16 text-accent-rust sm:-right-6 sm:-top-6 sm:h-20 sm:w-20">
-            <VerdictStamp className="h-full w-full drop-shadow-[0_0_16px_rgba(226,152,74,0.4)]" />
-          </StampReveal>
-
-          <p className="font-mono text-xs uppercase tracking-wide text-ink-faint">
-            Kia Seltos &middot; Ride quality over rough roads
-          </p>
-
-          <div className="mt-4 flex items-center gap-2.5">
-            <span className="h-2.5 w-2.5 rounded-full bg-positive shadow-[0_0_8px_rgba(124,201,154,0.7)]" aria-hidden />
-            <p className="font-display text-lg font-semibold text-ink">Strongly positive</p>
-          </div>
-          <p className="mt-1.5 text-sm text-ink-soft">High confidence, based on 11 independent reviews.</p>
-
-          <div className="mt-6 flex gap-3 rounded-xl bg-positive-bg p-5">
-            <Quote className="mt-0.5 h-5 w-5 shrink-0 text-positive" strokeWidth={1.75} />
-            <p className="text-sm leading-relaxed text-ink">
-              &ldquo;Ride quality is very impressive. It gobbles up the worst bumps in its stride without hesitation;
-              the earlier Seltos was on the stiffer side, this one is really smooth and nice.&rdquo;
-              <span className="mt-1.5 block text-xs font-medium text-ink-soft">
-                From an independent expert review in our database
-              </span>
-            </p>
-          </div>
-        </motion.div>
+        <div className="flex flex-col gap-6">
+          <EvidenceCardExample
+            car="Kia Seltos"
+            facetLabel="Ride quality over rough roads"
+            verdict="Strongly positive"
+            sentiment="positive"
+            confidence="High confidence, based on 11 independent reviews."
+            quote="Ride quality is very impressive. It gobbles up the worst bumps in its stride without hesitation; the earlier Seltos was on the stiffer side, this one is really smooth and nice."
+          />
+          <EvidenceCardExample
+            car="Tata Sierra"
+            facetLabel="Fit and finish"
+            verdict="Strongly negative"
+            sentiment="negative"
+            confidence="High confidence, based on 17 independent reviews."
+            quote="The steering wheel is not screwed on straight at the straight-ahead position... the moment you point it straight it starts pulling to the left. And this is another example of that fit and finish issue that Tata Motors just can't seem to get right."
+            delay={0.1}
+          />
+        </div>
       </div>
     </section>
   );
