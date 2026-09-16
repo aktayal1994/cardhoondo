@@ -87,7 +87,7 @@ function useLiveStats(): SiteStats {
   const [stats, setStats] = useState<SiteStats>(FALLBACK_STATS);
   useEffect(() => {
     let cancelled = false;
-    fetch("/api/stats")
+    fetch("/api/stats", { cache: "no-store" })
       .then((res) => (res.ok ? res.json() : Promise.reject(new Error("stats fetch failed"))))
       .then((data: Partial<SiteStats>) => {
         if (!cancelled && typeof data.claims === "number" && typeof data.cars === "number") {
