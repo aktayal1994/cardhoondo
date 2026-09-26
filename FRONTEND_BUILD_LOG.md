@@ -248,3 +248,10 @@ Searched every car's aggregated claims (`data/claims/*_aggregated.json`, not par
 - **Landing FAQ** reworded: name, pincode and phone are required, with the reasons.
 - **On-road price tool released** (`/quotation`, `/api/quotation`, `/api/city-lookup`, `lib/pricing/*`) -- it was already built but not yet live. Both APIs now rate-limited in `middleware.ts` (60 / 40 per 10 min per IP).
 - Deployed via `vercel --prod` from the working copy; verified live: pages 200, `/api/recommend` without consent returns 400, intro notice renders.
+
+## Cookie consent banner + one-line consent notice (Sep 26, 2026)
+
+- **Cookie banner** (`components/CookieBanner.tsx`, `lib/cookieConsent.ts`): Google Analytics is no longer loaded from `app/layout.tsx`. It loads only after "Accept analytics"; "Reject" (or no choice) means nothing loads and any existing `_ga*` cookies are deleted. `lib/analytics.ts` `trackEvent` is a no-op without consent so events are never queued and replayed later. "Cookie settings" link in the landing footer and the legal pages reopens the banner. Choice stored in localStorage (`cardhoondo_cookie_choice_v1`).
+- **Consent notice collapsed** to one line with a "Details" expander (`components/ConsentNotice.tsx`); notice version bumped to `2026-09-26.v2` (v1 still accepted for sessions in flight).
+- Privacy policy bumped to v1.1 (section 8 describes the banner); legal pages get heading anchors for deep links.
+- Verified live: no analytics in server HTML, banner shows before a choice, Accept loads gtag, Reject clears cookies and persists across pages.

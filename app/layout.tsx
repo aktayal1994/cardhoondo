@@ -1,10 +1,8 @@
 import "./globals.css";
 import type { Metadata, Viewport } from "next";
-import Script from "next/script";
 import { Source_Serif_4, Be_Vietnam_Pro, JetBrains_Mono } from "next/font/google";
 import GAPageTracker from "../components/GAPageTracker";
-
-const GA_MEASUREMENT_ID = "G-YQ93EFYPEZ";
+import CookieBanner from "../components/CookieBanner";
 
 const displayFont = Source_Serif_4({
   subsets: ["latin"],
@@ -128,18 +126,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         {children}
         <GAPageTracker />
-        <Script
-          src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
-          strategy="afterInteractive"
-        />
-        <Script id="ga4-init" strategy="afterInteractive">
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', '${GA_MEASUREMENT_ID}', { send_page_view: false });
-          `}
-        </Script>
+        {/* Google Analytics is loaded by CookieBanner only after the visitor accepts
+            (lib/cookieConsent.ts). Nothing analytics-related loads before that. */}
+        <CookieBanner />
       </body>
     </html>
   );

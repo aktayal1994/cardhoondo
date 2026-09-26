@@ -29,6 +29,7 @@ import {
   ChevronDown,
   Quote,
 } from "lucide-react";
+import { CookieSettingsButton } from "./CookieBanner";
 
 /**
  * "Nightdrive" -- a dark, cinematic scroll-driven redesign of the earlier
@@ -1192,6 +1193,7 @@ function Footer() {
           <Link href="/terms" className="transition hover:text-ink">
             Terms
           </Link>
+          <CookieSettingsButton className="transition hover:text-ink" />
         </nav>
 
         <p className="text-xs text-ink-faint">

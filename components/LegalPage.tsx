@@ -3,6 +3,7 @@ import path from "node:path";
 import Image from "next/image";
 import Link from "next/link";
 import { marked } from "marked";
+import { CookieSettingsButton } from "./CookieBanner";
 
 /**
  * Shared shell for /privacy and /terms. The document text lives in
@@ -23,7 +24,17 @@ export default function LegalPage({
   other: { href: string; label: string };
 }) {
   const markdown = fs.readFileSync(path.join(process.cwd(), "content", "legal", file), "utf8");
-  const html = marked.parse(markdown, { async: false }) as string;
+  const rawHtml = marked.parse(markdown, { async: false }) as string;
+  // Give every section heading an anchor id ("8. Cookies ..." -> #8-cookies-...)
+  // so other pages (e.g. the cookie banner) can deep-link to a section.
+  const html = rawHtml.replace(/<h2>(.*?)<\/h2>/g, (_m, inner: string) => {
+    const id = inner
+      .replace(/<[^>]+>/g, "")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+    return `<h2 id="${id}">${inner}</h2>`;
+  });
 
   return (
     <main className="min-h-screen bg-paper">
@@ -59,7 +70,8 @@ export default function LegalPage({
           <Link href={other.href} className="text-accent-rust-soft underline underline-offset-2">
             {other.label}
           </Link>
-          .
+          .{" "}
+          <CookieSettingsButton className="text-accent-rust-soft underline underline-offset-2" />
         </p>
       </article>
     </main>

@@ -1,4 +1,4 @@
-**Version 1.0 · Effective from 26 September 2026**
+**Version 1.1 · Effective from 26 September 2026**
 
 ## 1. The short version
 
@@ -26,7 +26,7 @@ Contact for anything about your data: **Aakash Tayal, Grievance Officer**, mycar
 | **Your results** (the shortlist and write-up shown to you) and **your feedback** (a thumbs up or down and an optional comment of up to 500 characters) | When you view results or give feedback | To show your results again and to improve the product. **Please don't put personal details in the comment box.** |
 | **On-road price requests** (car, variant, city or pincode, and the price shown) | When you use the price tool | To work out your price and understand demand. |
 | **Campaign source** (the ad or link you came from, for example UTM tags) | Automatically, if present in the link | To learn which channels bring useful visitors. |
-| **Technical and usage data**: pages viewed, clicks, approximate location from IP address, device and browser type, cookie identifiers | Automatically, through Google Analytics (Section 8) | To measure and improve the site. |
+| **Technical and usage data**: pages viewed, clicks, approximate location from IP address, device and browser type, cookie identifiers | Automatically, through Google Analytics, **only if you accept analytics cookies** (Section 8) | To measure and improve the site. |
 | **Security logs** (request time, IP address, error logs) | Automatically | To keep the service safe, block abuse and investigate problems. |
 
 Name, pincode and mobile number are **required** to use the recommendation, because they are what we use to tailor it to your city and to follow up with you. If you would rather not give them, you can't use the recommendation, but you can still read our guides.
@@ -57,7 +57,7 @@ You don't need an account. Your answers and the contact details you give are sto
 |---|---|---|
 | **Supabase** | Stores our database | Everything in Section 3 |
 | **Vercel** | Hosts our website and servers | Requests to our site, including IP address, and the data you submit while it passes through |
-| **Google Analytics (GA4)** | Usage statistics | Cookie identifiers, pages viewed, device data, approximate location |
+| **Google Analytics (GA4)** | Usage statistics | Cookie identifiers, pages viewed, device data, approximate location. **Only after you accept analytics cookies.** |
 | **Google Gemini API** | Writes the plain-language headline, summary and closing note on your results page | Your **questionnaire answers** (for example budget band, fuel, seating, who rides, priorities) and the shortlisted cars' facts (model, variant, on-road price, computed scores, factor names, verdict words, review counts). **Not sent: your name, mobile number, pincode, IP address, or any record ID.** We use Google's paid Gemini service, under which Google states it does not use prompts and responses to improve its products. |
 | **India Post pincode lookup (api.postalpincode.in)** | Turns a pincode into a district or city for pricing | Only the pincode, sent from our server (not your device) |
 | **Authorities** | Where a law, court order or lawful request requires, or to protect rights and safety | Only what is legally required |
@@ -105,12 +105,13 @@ This is a possible idea, not a promise that it will launch.
 
 ## 8. Cookies and similar technologies
 
-| Name | Type | Purpose | Duration |
-|---|---|---|---|
-| `_ga`, `_ga_G-YQ93EFYPEZ` (Google Analytics) | Cookie | Counts visits and pages, and measures which channels work | Up to 2 years (Google default) |
-| `cardhoondo_questionnaire_v1` | Browser session storage | Remembers your answers, and the details you typed at the start, while you move between questionnaire pages so you don't lose progress. It stays on your device. | Until you close the tab or press "Start over" |
+| Name | Type | Purpose | Duration | Needs your consent? |
+|---|---|---|---|---|
+| `_ga`, `_ga_G-YQ93EFYPEZ` (Google Analytics) | Cookie | Counts visits and pages, and measures which channels work | Up to 2 years (Google default) | **Yes.** Loaded only after you press "Accept analytics" |
+| `cardhoondo_cookie_choice_v1` | Browser local storage | Remembers whether you accepted or rejected analytics | Until you clear your browser data | No. It only stores your choice, on your device |
+| `cardhoondo_questionnaire_v1` | Browser session storage | Remembers your answers, and the details you typed at the start, while you move between questionnaire pages so you don't lose progress. It stays on your device. | Until you close the tab or press "Start over" | No. It is strictly needed for the questionnaire |
 
-You can block or delete cookies in your browser settings, or use Google's opt-out browser add-on for Analytics. We do not use advertising cookies or session-recording tools. If we add any, we will list them here and ask for your consent first.
+**Your choice.** The first time you visit we ask whether to allow analytics cookies, with "Accept analytics" and "Reject" given equal weight. Until you accept, Google Analytics is not loaded and nothing is sent to it. If you reject, or later change your mind, we delete any analytics cookies already set. You can change your choice at any time from **"Cookie settings"** in the footer of any page, or block cookies in your browser settings. We do not use advertising cookies or session-recording tools. If we add any, we will list them here and ask for your consent first.
 
 ## 9. How long we keep it
 
