@@ -265,3 +265,10 @@ Searched every car's aggregated claims (`data/claims/*_aggregated.json`, not par
 - **Rate limits**: middleware groups for the new routes. `robots.ts` disallows `/account`, `/saved/`, `/auth/`.
 - Tested: 25-check backend suite (`scripts/auth_backend_smoke.mjs`) incl. attack cases; UI verified in browser (save, reopen with diff banner, rename, delete, account delete, sheet on phone); sheet is portaled to `<body>` because the nav's backdrop-blur traps `position: fixed`.
 - Switch-on steps: `docs/login_enable_checklist.md` in the main project.
+
+## Google sign-in switched ON (Sep 26, 2026)
+
+- Google Cloud OAuth client + consent screen created (production, basic scopes only), Supabase Google provider enabled, redirect URLs allow-listed.
+- Vercel production env: added `NEXT_PUBLIC_AUTH_ENABLED=1` and `SITE_URL=https://cardhoondo.com`; redeployed.
+- Legal login wording effective date set to 26 September 2026 (privacy v1.2, terms v1.1).
+- Verified live: `/api/me` -> enabled:true; `/auth/google` -> Supabase -> accounts.google.com with our client id and correct redirect_uri; PKCE cookies are Secure/HttpOnly/10-minute; policy pages show the login versions.

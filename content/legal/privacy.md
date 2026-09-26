@@ -1,5 +1,5 @@
 {{nologin}}**Version 1.1 · Effective from 26 September 2026**
-{{login}}**Version 1.2 · Effective from 27 September 2026**
+{{login}}**Version 1.2 · Effective from 26 September 2026**
 
 ## 1. The short version
 
