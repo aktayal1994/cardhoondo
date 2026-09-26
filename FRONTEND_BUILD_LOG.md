@@ -294,3 +294,9 @@ Searched every car's aggregated claims (`data/claims/*_aggregated.json`, not par
 - **Fix:** permanent (308) redirect from `www.cardhoondo.com/*` to `https://cardhoondo.com/*` in `next.config.mjs` (also removes the duplicate-content copy of the site). `/auth/callback` now maps the verifier error to a clearer `browser` message on `/auth/error`.
 - Verified live: `www` home, `/auth/google` and `/privacy` all return 308 to the apex.
 - Debugging tip: `vercel logs --environment production --since 3h --query "auth"` shows the real server-side reason for auth failures.
+
+## Recommendations only saw ~29 of 81 cars; fetch now paginated (Sep 26, 2026)
+
+- **Bug:** Supabase caps every response at 1,000 rows. `fetchRecommendationData` read `variants` (1,367 rows) and `facet_scores` (3,102 rows) with one plain select each, so the engine silently saw only the first 1,000 of each by insertion order: 29 cars with review data and none of the alphabetical tail (Skoda Slavia, VW Virtus, most Maruti/Kia/Mahindra/Tata/Toyota). Found when asked why Slavia and Virtus never appear.
+- **Fix:** `fetchAllRows` pages 1,000 at a time ordered by `id`. Engine now sees 81 cars / 1,367 variants; a 10-20L petrol test search ranks 41 cars (was ~12) and includes both Slavia and Virtus.
+- Verified on cardhoondo.com with one anonymous test search (its two rows deleted afterwards). Only this file was synced to git; other drift in `web/` (auth config, consent, quote, pricing) belongs to another session.
