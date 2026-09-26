@@ -89,6 +89,9 @@ function GuideNav() {
           <Link href="/guides" className="transition hover:text-ink">
             Guides
           </Link>
+          <Link href="/quotation" className="transition hover:text-ink">
+            On-road price
+          </Link>
           <Link href="/#why-cardhoondo" className="transition hover:text-ink">
             Why CarDhoondo
           </Link>

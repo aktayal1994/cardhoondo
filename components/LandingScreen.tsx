@@ -58,8 +58,8 @@ const FAQS = [
     a: "CarDekho and CarWale are catalogs: great for browsing specs, but they show you hundreds of cars and leave the choosing to you. CarDhoondo asks about your life first and narrows it down to 2-3 cars, with the actual review evidence for why each one fits, not just a spec sheet.",
   },
   {
-    q: "Do I need to sign up or share my number to get a recommendation?",
-    a: "No. Getting your recommendation takes about 3 minutes and doesn't require creating an account.",
+    q: "Do I need to create an account or share my details to get a recommendation?",
+    a: "You don't need an account. You do give us your name, pincode and mobile number at the start: the pincode tailors the recommendation to your city, and your name and number let us get in touch about your recommendations and ask for feedback so we can improve. We don't share them with car dealers, and you can ask us to delete them any time. It takes about 3 minutes.",
   },
   {
     q: "What if a recommended car doesn't have enough review data?",
@@ -347,6 +347,9 @@ function Nav({ onStart }: { onStart: (location: string) => void }) {
           </a>
           <Link href="/guides" className="transition hover:text-ink">
             Guides
+          </Link>
+          <Link href="/quotation" className="transition hover:text-ink">
+            On-road price
           </Link>
           <a href="#contact" className="transition hover:text-ink">
             Contact
@@ -1170,16 +1173,25 @@ function Footer() {
 
         {/* Same links as the top nav -- the top nav is hidden below `sm`, so
             this is the only way to reach FAQ/Contact/Guides on mobile. */}
-        <nav className="flex items-center gap-6 text-sm font-medium text-ink-soft">
+        <nav className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm font-medium text-ink-soft sm:justify-start">
           <a href="#faq" className="transition hover:text-ink">
             FAQ
           </a>
           <Link href="/guides" className="transition hover:text-ink">
             Guides
           </Link>
+          <Link href="/quotation" className="transition hover:text-ink">
+            On-road price
+          </Link>
           <a href="#contact" className="transition hover:text-ink">
             Contact
           </a>
+          <Link href="/privacy" className="transition hover:text-ink">
+            Privacy
+          </Link>
+          <Link href="/terms" className="transition hover:text-ink">
+            Terms
+          </Link>
         </nav>
 
         <p className="text-xs text-ink-faint">

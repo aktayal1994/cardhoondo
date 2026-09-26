@@ -363,3 +363,55 @@ body {
   color: var(--color-ink);
   font-style: italic;
 }
+
+/* Legal pages (/privacy, /terms) -- used together with .prose-guide, which
+   handles headings, paragraphs, lists and bold. This adds what long-form
+   legal text needs on top: tables (scrollable on phones), links inside lists
+   and tables, and inline code for cookie/storage key names. */
+
+.prose-legal > table {
+  display: block;
+  width: 100%;
+  overflow-x: auto;
+  border-collapse: collapse;
+  margin: 0 0 1.5rem;
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+.prose-legal > table th,
+.prose-legal > table td {
+  border: 1px solid var(--color-border);
+  padding: 0.625rem 0.75rem;
+  text-align: left;
+  vertical-align: top;
+  min-width: 8rem;
+  color: var(--color-ink-soft);
+}
+
+.prose-legal > table th {
+  background: var(--color-paper-raised);
+  color: var(--color-ink);
+  font-weight: 600;
+}
+
+.prose-legal strong {
+  color: var(--color-ink);
+  font-weight: 600;
+}
+
+.prose-legal a {
+  color: var(--color-accent-rust-soft);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.prose-legal code {
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  color: var(--color-ink);
+  background: var(--color-paper-raised);
+  border: 1px solid var(--color-border);
+  border-radius: 0.375rem;
+  padding: 0.1rem 0.35rem;
+}

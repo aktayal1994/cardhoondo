@@ -25,6 +25,10 @@ const LIMITS: Record<string, number> = {
   "/api/writeup": 8,
   "/api/car-detail": 40,
   "/api/feedback": 20,
+  // On-road price tool: /api/quotation serves the dropdown GETs and the POST
+  // that writes a lead; /api/city-lookup fans out to India Post's public API.
+  "/api/quotation": 60,
+  "/api/city-lookup": 40,
 };
 
 const buckets = new Map<string, Bucket>();
@@ -79,5 +83,5 @@ export function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/api/recommend", "/api/writeup", "/api/car-detail", "/api/feedback"],
+  matcher: ["/api/recommend", "/api/writeup", "/api/car-detail", "/api/feedback", "/api/quotation", "/api/city-lookup"],
 };

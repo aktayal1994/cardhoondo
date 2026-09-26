@@ -44,7 +44,9 @@ export default function ResultsPage() {
 
   const submit = useCallback(async () => {
     const stored = loadQuestionnaireState();
-    if (!stored.intro || !isSectionComplete("what_matters", stored.answers)) {
+    // A session saved before the consent notice existed has no consent
+    // version: send it back to the intro so the person can read and agree.
+    if (!stored.intro || !stored.intro.consent_notice_version || !isSectionComplete("what_matters", stored.answers)) {
       router.replace("/questionnaire/intro");
       return;
     }
@@ -60,6 +62,7 @@ export default function ResultsPage() {
           name: stored.intro.name,
           pincode: stored.intro.pincode,
           phone_number: stored.intro.phone_number,
+          consent_notice_version: stored.intro.consent_notice_version,
         }),
       });
       if (!res.ok) throw new Error("recommend failed");

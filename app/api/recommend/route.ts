@@ -3,6 +3,8 @@ import { deriveWeightVector, type QuestionnaireAnswers } from "../../../lib/scor
 import { recommend } from "../../../lib/scoring/recommend";
 import { fetchRecommendationData } from "../../../lib/data/fetchRecommendationData";
 import { getSupabaseServerClient } from "../../../lib/supabaseClient";
+import { isValidPhoneNumber } from "../../../lib/validation";
+import { isAcceptedNoticeVersion } from "../../../lib/consent";
 
 interface RecommendRequestBody {
   answers: QuestionnaireAnswers;
@@ -13,33 +15,9 @@ interface RecommendRequestBody {
   name?: string;
   pincode?: string;
   phone_number?: string;
-}
-
-/** No OTP verification exists, so this is the real backstop against
- * garbage numbers, not just a UX nicety -- the client-side copy in
- * components/IntroStep.tsx can be bypassed by anyone hitting this endpoint
- * directly. Exactly 10 digits, starts with 6-9 (real Indian mobile
- * numbering), rejects all-same-digit ("9999999999") and a full
- * ascending/descending run ("9876543210", "6789012345" with wraparound).
- * Still only a cheap filter, not a guarantee -- it cannot catch a
- * real-looking but simply wrong or disconnected number. */
-function isValidPhoneNumber(phone: string): boolean {
-  if (!/^[6-9]\d{9}$/.test(phone)) return false;
-  if (/^(\d)\1{9}$/.test(phone)) return false;
-  if (isSequentialRun(phone)) return false;
-  return true;
-}
-
-function isSequentialRun(digits: string): boolean {
-  let ascending = true;
-  let descending = true;
-  for (let i = 1; i < digits.length; i++) {
-    const prev = Number(digits[i - 1]);
-    const curr = Number(digits[i]);
-    if (((curr - prev + 10) % 10) !== 1) ascending = false;
-    if (((prev - curr + 10) % 10) !== 1) descending = false;
-  }
-  return ascending || descending;
+  /** Version of the consent notice the person agreed to (lib/consent.ts).
+   * Required whenever contact details are sent. */
+  consent_notice_version?: string;
 }
 
 /**
@@ -70,6 +48,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid phone number" }, { status: 400 });
   }
 
+  // Contact details are only accepted together with a recognised consent
+  // notice version -- no consent, no personal data stored.
+  if (body.phone_number && !isAcceptedNoticeVersion(body.consent_notice_version)) {
+    return NextResponse.json({ error: "Consent required" }, { status: 400 });
+  }
+
   const supabase = getSupabaseServerClient();
 
   // Respondent identity (name/pincode/phone_number) -- see
@@ -96,6 +80,19 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Failed to save respondent", detail: respondentErr.message }, { status: 500 });
     }
     respondentId = respondent.id;
+
+    // Record the consent (server clock, recognised version). Unique per
+    // (respondent, version, source), so a results-page refresh is a no-op.
+    // Fail closed: if the record can't be written we don't proceed.
+    const { error: consentErr } = await supabase
+      .from("consent_records")
+      .upsert(
+        { respondent_id: respondentId, notice_version: body.consent_notice_version, source: "questionnaire" },
+        { onConflict: "respondent_id,notice_version,source", ignoreDuplicates: true },
+      );
+    if (consentErr) {
+      return NextResponse.json({ error: "Failed to record consent" }, { status: 500 });
+    }
   }
 
   const { data: responseRow, error: insertErr } = await supabase

@@ -1,7 +1,8 @@
 "use client";
 
 import { motion } from "motion/react";
-import { CheckCircle2, MinusCircle, Scale as ScaleIcon } from "lucide-react";
+import Link from "next/link";
+import { CheckCircle2, MinusCircle, Scale as ScaleIcon, IndianRupee } from "lucide-react";
 import { ALL_FACETS } from "../lib/scoring/questionnaireWeights";
 import type { RecommendOutput, RecommendCandidate } from "../lib/scoring/recommend";
 import type { WriteupOutput, WriteupCarOutput, WriteupFacetEntry } from "../lib/llm/writeup";
@@ -206,12 +207,20 @@ function ResultCard({
       <FacetList label="Reasons to like" tone="positive" entries={writeupCar?.reasons_to_like ?? positive} />
       <FacetList label="Watch-outs" tone="negative" entries={writeupCar?.watch_outs ?? negative} />
 
-      <button
-        onClick={onSelect}
-        className="mt-5 text-sm font-medium text-accent-rust-soft underline decoration-dotted underline-offset-4 hover:text-accent-rust"
-      >
-        See full evidence for this car →
-      </button>
+      <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2">
+        <button
+          onClick={onSelect}
+          className="text-sm font-medium text-accent-rust-soft underline decoration-dotted underline-offset-4 hover:text-accent-rust"
+        >
+          See full evidence for this car →
+        </button>
+        <Link
+          href={`/quotation?car=${encodeURIComponent(candidate.car_id)}&variant=${encodeURIComponent(candidate.variant_id)}`}
+          className="flex items-center gap-1 text-sm font-medium text-ink-soft underline decoration-dotted underline-offset-4 hover:text-ink"
+        >
+          <IndianRupee className="h-3.5 w-3.5" strokeWidth={1.75} /> Check on-road price in your city
+        </Link>
+      </div>
     </motion.article>
   );
 }
