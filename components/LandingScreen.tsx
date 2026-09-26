@@ -351,7 +351,7 @@ function Nav({ onStart }: { onStart: (location: string) => void }) {
             Guides
           </Link>
           <Link href="/quotation" className="transition hover:text-ink">
-            On-road price
+            Check my quote
           </Link>
           <a href="#about" className="transition hover:text-ink">
             About
@@ -1293,7 +1293,7 @@ function Footer() {
             Guides
           </Link>
           <Link href="/quotation" className="transition hover:text-ink">
-            On-road price
+            Check my quote
           </Link>
           <a href="#contact" className="transition hover:text-ink">
             Contact

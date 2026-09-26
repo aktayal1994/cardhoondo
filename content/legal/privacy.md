@@ -1,13 +1,13 @@
-{{nologin}}**Version 1.1 · Effective from 26 September 2026**
-{{login}}**Version 1.2 · Effective from 26 September 2026**
+{{nologin}}**Version 1.2 · Effective from 26 September 2026**
+{{login}}**Version 1.3 · Effective from 26 September 2026**
 
 ## 1. The short version
 
 {{nologin}}- We use your answers to recommend cars. You don't need an account.
 {{login}}- We use your answers to recommend cars. You don't need an account. If you choose to sign in with Google, we also save your searches so you can come back to them.
-- To get a recommendation you give us your **name, pincode and mobile number**. We use your **pincode** to tailor the recommendation and prices to your city, and your **name and mobile number** to get in touch with you about your recommendations and to ask for your feedback so we can improve CarDhoondo. We use them for nothing else.
+- To get a recommendation you give us your **name, pincode and mobile number**. We use your **pincode** to tailor the recommendation and prices to your city, and your **name and mobile number** to get in touch with you about your recommendations or your dealer-quote check and to ask for your feedback so we can improve CarDhoondo. We use them for nothing else.
 - **We do not sell or rent your personal data to advertisers or data brokers.** Today we do not share your personal details with car dealers, car makers, lenders or insurers. If that ever changes we will ask you first, separately, and you can say no without losing your recommendation (Section 6).
-- The AI (Google Gemini) that writes your summary sees your answers and the cars' facts. **It never sees your name, mobile number or pincode.**
+- The AI (Google Gemini) that writes your summary sees your answers and the cars' facts. **It never sees your name, mobile number or pincode.** The dealer quotes you enter are checked by our own rules on our own servers and are not sent to any AI.
 - You can see, correct or delete your data and withdraw consent at any time: **mycardhoondo@gmail.com**.
 - CarDhoondo is for people **18 and over**.
 
@@ -22,18 +22,19 @@ Contact for anything about your data: **Aakash Tayal, Grievance Officer**, mycar
 | What | When | What we use it for |
 |---|---|---|
 | **Your answers** to the 11 questions (budget, fuel, seating, transmission, how you drive, who rides with you, priorities, brands to avoid, and so on) | When you answer | To work out your shortlist and the explanation on your results page. Once no longer linked to your name or phone, to improve our recommendation quality (Section 9). |
-| **Pincode** | At the start, and on the on-road price tool | To tailor your recommendation and prices to your city, and to understand demand by area. |
-| **Name** | At the start, and on the on-road price tool | To get in touch with you about your recommendations, and to ask for your feedback so we can improve CarDhoondo. |
-| **Mobile number** | At the start, and on the on-road price tool | To get in touch with you (call, WhatsApp or SMS) about your recommendations, and to ask for your feedback so we can improve CarDhoondo. Not used for marketing. |
+| **Pincode** | At the start, and on the dealer-quote check | To tailor your recommendation and prices to your city, and to understand demand by area. |
+| **Name** | At the start, and on the dealer-quote check | To get in touch with you about your recommendations or quote check, and to ask for your feedback so we can improve CarDhoondo. |
+| **Mobile number** | At the start, and on the dealer-quote check | To get in touch with you (call, WhatsApp or SMS) about your recommendations or quote check, and to ask for your feedback so we can improve CarDhoondo. Not used for marketing. |
 | **Your results** (the shortlist and write-up shown to you) and **your feedback** (a thumbs up or down and an optional comment of up to 500 characters) | When you view results or give feedback | To show your results again and to improve the product. **Please don't put personal details in the comment box.** |
-| **On-road price requests** (car, variant, city or pincode, and the price shown) | When you use the price tool | To work out your price and understand demand. |
+| **Dealer quote checks** (the car, variant and city or pincode, and the lines and amounts of the quote you type or paste, such as insurance, accessories and fees) | When you use the quote check | To compare your quote with our price data and show you where you can save, and to understand demand. **Please enter only the lines and amounts, not your name, phone number or address.** We can't read photos or PDF files. |
+| **On-road price requests** (car, variant, city or pincode, and the price shown) | Made on an earlier version of the price tool, which no longer collects them | Kept only as described in Section 9. |
 | **Campaign source** (the ad or link you came from, for example UTM tags) | Automatically, if present in the link | To learn which channels bring useful visitors. |
 | **Technical and usage data**: pages viewed, clicks, approximate location from IP address, device and browser type, cookie identifiers | Automatically, through Google Analytics, **only if you accept analytics cookies** (Section 8) | To measure and improve the site. |
 | **Security logs** (request time, IP address, error logs) | Automatically | To keep the service safe, block abuse and investigate problems. |
 {{login}}| **Google account details**: your name, email address, profile photo (if you have one) and a Google account identifier | Only if you choose to sign in with Google | To create your account, sign you in, greet you by name and keep your saved searches. We never receive your Google password or contacts and ask for no other Google data. |
 {{login}}| **Saved searches**: your answers and results, the short title we generate from them (for example “The Safety-first City Family”), a name you may give the search, and the top cars shown | Only if you save a search | So you can come back to it later. **Saving links the search you ran, including the name, pincode and phone number you entered on it, to your account.** |
 
-Name, pincode and mobile number are **required** to use the recommendation, because they are what we use to tailor it to your city and to follow up with you. If you would rather not give them, you can't use the recommendation, but you can still read our guides.
+Name, pincode and mobile number are **required** to use the recommendation or the quote check, because they are what we use to tailor it to your city and to follow up with you. If you would rather not give them, you can't use the recommendation, but you can still read our guides.
 
 We do **not** collect your Aadhaar or PAN, bank or card details, precise GPS location, contacts, photos or credit history. (Section 7 describes a possible future feature; it does not exist today.)
 
@@ -41,7 +42,7 @@ Our recommendation is an automated calculation. It gives information; it does no
 
 ## 4. Consent and our legal basis
 
-We process your personal data on the basis of your **consent**. You give it by pressing the **"Agree"** button (on the first screen of the questionnaire, or on the on-road price tool), after reading a short notice that lists the data and the purposes. We keep a record of the notice version you agreed to and when.
+We process your personal data on the basis of your **consent**. You give it by pressing the **"Agree"** button (on the first screen of the questionnaire, or on the dealer-quote check), after reading a short notice that lists the data and the purposes. We keep a record of the notice version you agreed to and when.
 
 - **You can withdraw consent at any time**, as easily as you gave it: email **mycardhoondo@gmail.com**. If you withdraw, we delete your details, and you will need to give them again to use the recommendation. Withdrawing does not affect what we lawfully did before you withdrew.
 {{login}}- **Signing in is optional.** If you sign in with Google you consent by pressing “Continue with Google” after reading the short notice on the sign-in screen, which links to these documents. We record which versions of the Terms and this Policy you accepted, and when.
@@ -66,7 +67,7 @@ If we contact you, it is only about your recommendations or to ask for feedback.
 | **Supabase** | Stores our database | Everything in Section 3 |
 | **Vercel** | Hosts our website and servers | Requests to our site, including IP address, and the data you submit while it passes through |
 | **Google Analytics (GA4)** | Usage statistics | Cookie identifiers, pages viewed, device data, approximate location. **Only after you accept analytics cookies.** |
-| **Google Gemini API** | Writes the plain-language headline, summary and closing note on your results page | Your **questionnaire answers** (for example budget band, fuel, seating, who rides, priorities) and the shortlisted cars' facts (model, variant, on-road price, computed scores, factor names, verdict words, review counts). **Not sent: your name, mobile number, pincode, IP address, or any record ID.** We use Google's paid Gemini service, under which Google states it does not use prompts and responses to improve its products. |
+| **Google Gemini API** | Writes the plain-language headline, summary and closing note on your results page | Your **questionnaire answers** (for example budget band, fuel, seating, who rides, priorities) and the shortlisted cars' facts (model, variant, on-road price, computed scores, factor names, verdict words, review counts). **Not sent: your name, mobile number, pincode, IP address, any dealer quote you enter, or any record ID.** We use Google's paid Gemini service, under which Google states it does not use prompts and responses to improve its products. |
 | **India Post pincode lookup (api.postalpincode.in)** | Turns a pincode into a district or city for pricing | Only the pincode, sent from our server (not your device) |
 {{login}}| **Google (sign-in)** | Lets you sign in with your Google account | Your Google name, email address, profile photo and account identifier, under Google's own privacy policy |
 | **Authorities** | Where a law, court order or lawful request requires, or to protect rights and safety | Only what is legally required |
@@ -134,7 +135,7 @@ This is a possible idea, not a promise that it will launch.
 | Your answers and results (once no longer linked to your name or phone) | Up to **24 months** | Kept only in a form that can't be linked to you, for aggregate research, or deleted |
 | Feedback comments | **24 months** | Deleted |
 {{login}}| Your account and saved searches | Until you delete your account | Deleted, together with the answers, results and feedback behind them |
-| On-road price requests | **12 months** with contact details, then anonymised (pincode cut to 3 digits) | |
+| Dealer quote checks (and earlier on-road price requests) | **12 months** with contact details, then anonymised (pincode cut to 3 digits) | |
 | Records of which notice version you agreed to, and when | For as long as we hold your other data | Deleted with it |
 | Analytics data | **14 months** (Google Analytics setting) | Deleted automatically |
 | Security logs | **12 months** (the DPDP Rules require certain processing logs to be kept for at least one year) | Deleted |

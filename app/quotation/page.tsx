@@ -4,15 +4,13 @@ import { Suspense } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import QuotationFlow from "../../components/QuotationFlow";
+import QuoteCheckFlow from "../../components/QuoteCheckFlow";
 
 /**
- * Standalone "check my on-road price" route -- reachable directly (nav link
- * in LandingScreen.tsx / GuideLayout.tsx) and, with ?car=&variant=, as a
- * pre-filled deep link from a shortlisted car on the results/evidence
- * screens. Not part of the questionnaire SPA state machine in app/page.tsx
- * -- same "real route, not a client callback" pattern /guides/* already
- * uses (see GuideLayout.tsx).
+ * Standalone dealer-quote check -- reachable directly (nav links) and, with
+ * ?car=&variant=, as a pre-filled deep link from a shortlisted car on the
+ * results/evidence screens. Not part of the questionnaire SPA state machine
+ * in app/page.tsx: a real route, same pattern /guides/* uses.
  */
 export default function QuotationPage() {
   return (
@@ -29,7 +27,7 @@ function QuotationFlowWithParams() {
   const searchParams = useSearchParams();
   const car = searchParams.get("car") ?? undefined;
   const variant = searchParams.get("variant") ?? undefined;
-  return <QuotationFlow initialCarId={car} initialVariantId={variant} />;
+  return <QuoteCheckFlow initialCarId={car} initialVariantId={variant} />;
 }
 
 function QuotationNav() {

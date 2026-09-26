@@ -23,6 +23,13 @@ export async function fetchCarModels(): Promise<CarModelOption[]> {
   return (data ?? []) as CarModelOption[];
 }
 
+export async function fetchCarById(carId: string): Promise<CarModelOption | null> {
+  const supabase = getSupabaseServerClient();
+  const { data, error } = await supabase.from("cars").select("car_id, brand, model").eq("car_id", carId).maybeSingle();
+  if (error) throw error;
+  return (data as CarModelOption | null) ?? null;
+}
+
 export async function fetchVariantsForCar(carId: string): Promise<QuotationVariant[]> {
   const supabase = getSupabaseServerClient();
   const { data, error } = await supabase

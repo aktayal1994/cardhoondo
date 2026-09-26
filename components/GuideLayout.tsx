@@ -90,7 +90,7 @@ function GuideNav() {
             Guides
           </Link>
           <Link href="/quotation" className="transition hover:text-ink">
-            On-road price
+            Check my quote
           </Link>
           <Link href="/#why-cardhoondo" className="transition hover:text-ink">
             Why CarDhoondo

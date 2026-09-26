@@ -85,7 +85,7 @@ export default function CarDetail({ recommendationResultId, carId, fallbackLabel
           href={`/quotation?car=${encodeURIComponent(data.car_id)}&variant=${encodeURIComponent(data.variant_id)}`}
           className="mt-2 flex w-fit items-center gap-1 text-sm font-medium text-accent-rust-soft underline decoration-dotted underline-offset-4 hover:text-accent-rust"
         >
-          <IndianRupee className="h-3.5 w-3.5" strokeWidth={1.75} /> Check on-road price in your city
+          <IndianRupee className="h-3.5 w-3.5" strokeWidth={1.75} /> Got a dealer quote? See where you can save
         </Link>
       )}
 

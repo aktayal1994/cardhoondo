@@ -223,7 +223,7 @@ function ResultCard({
           href={`/quotation?car=${encodeURIComponent(candidate.car_id)}&variant=${encodeURIComponent(candidate.variant_id)}`}
           className="flex items-center gap-1 text-sm font-medium text-ink-soft underline decoration-dotted underline-offset-4 hover:text-ink"
         >
-          <IndianRupee className="h-3.5 w-3.5" strokeWidth={1.75} /> Check on-road price in your city
+          <IndianRupee className="h-3.5 w-3.5" strokeWidth={1.75} /> Got a dealer quote? See where you can save
         </Link>
       </div>
     </motion.article>

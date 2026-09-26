@@ -12,7 +12,7 @@ export const SAVED_SEARCH_LIMIT = 20;
 
 /** Versions of the legal documents a user accepts by signing in
  *  (web/content/legal/*.md). Bump when those documents change materially. */
-export const LEGAL_VERSIONS = { terms: "1.1", privacy: "1.2" } as const;
+export const LEGAL_VERSIONS = { terms: "1.2", privacy: "1.3" } as const;
 
 /** Non-httpOnly cookie that only says "this browser recently had a session",
  *  so the landing page can reserve space without an extra request. It carries

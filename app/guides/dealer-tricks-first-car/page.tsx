@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import GuideLayout from "../../../components/GuideLayout";
 import {
   VariantLadderVisual,
@@ -170,6 +171,13 @@ export default function Page() {
       <p>
         Bookmark this list — it&rsquo;s meant to be reopened the day you actually walk into a
         showroom, not just read once.
+      </p>
+
+      <h2>Already have a quote in hand?</h2>
+      <p>
+        Enter it into our <Link href="/quotation">dealer quote check</Link> and we&rsquo;ll flag
+        the insurance, accessories, warranty and service add-ons, and dealer charges you can
+        question, with the exact words to ask.
       </p>
 
       <h2>How CarDhoondo fits in</h2>

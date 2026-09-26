@@ -14,12 +14,15 @@
  */
 // v2: notice collapsed to a one-line summary with expandable full text (same
 // substance as v1). v1 stays accepted for sessions already in flight.
-export const CURRENT_NOTICE_VERSION = "2026-09-26.v2";
+// v3: the purposes now also cover the dealer-quote check (name and phone are
+// used to get in touch about a quote analysis too). v1/v2 stay accepted for
+// sessions already in flight.
+export const CURRENT_NOTICE_VERSION = "2026-09-26.v3";
 
-export const ACCEPTED_NOTICE_VERSIONS: readonly string[] = [CURRENT_NOTICE_VERSION, "2026-09-26.v1"];
+export const ACCEPTED_NOTICE_VERSIONS: readonly string[] = [CURRENT_NOTICE_VERSION, "2026-09-26.v2", "2026-09-26.v1"];
 
 export function isAcceptedNoticeVersion(v: unknown): v is string {
   return typeof v === "string" && ACCEPTED_NOTICE_VERSIONS.includes(v);
 }
 
-export type ConsentSource = "questionnaire" | "quotation";
+export type ConsentSource = "questionnaire" | "quotation" | "quote_analysis";

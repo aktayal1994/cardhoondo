@@ -35,9 +35,11 @@ const GROUPS: Group[] = [
   { key: "writeup", limit: 8, match: (p) => p === "/api/writeup" },
   { key: "car-detail", limit: 40, match: (p) => p === "/api/car-detail" },
   { key: "feedback", limit: 20, match: (p) => p === "/api/feedback" },
-  // On-road price tool: /api/quotation serves the dropdown GETs and the POST
-  // that writes a lead; /api/city-lookup fans out to India Post's public API.
+  // Dealer-quote check: /api/quotation serves the car/variant dropdowns,
+  // /api/quote-analysis runs the analysis and writes a row; /api/city-lookup
+  // fans out to India Post's public API.
   { key: "quotation", limit: 60, match: (p) => p === "/api/quotation" },
+  { key: "quote-analysis", limit: 15, match: (p) => p === "/api/quote-analysis" },
   { key: "city-lookup", limit: 40, match: (p) => p === "/api/city-lookup" },
   // Google sign-in and saved searches.
   { key: "auth-oauth", limit: 15, match: (p) => p === "/auth/google" || p === "/auth/callback" },
@@ -107,6 +109,7 @@ export const config = {
     "/api/car-detail",
     "/api/feedback",
     "/api/quotation",
+    "/api/quote-analysis",
     "/api/city-lookup",
     "/api/me",
     "/api/auth/:path*",

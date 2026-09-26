@@ -1,5 +1,5 @@
-{{nologin}}**Version 1.0 · Effective from 26 September 2026**
-{{login}}**Version 1.1 · Effective from 26 September 2026**
+{{nologin}}**Version 1.1 · Effective from 26 September 2026**
+{{login}}**Version 1.2 · Effective from 26 September 2026**
 
 ## 1. Who we are and what these Terms cover
 
@@ -16,7 +16,7 @@ You must be **18 or older** and able to enter a binding contract under Indian la
 
 ## 3. What the Service does
 
-You answer questions about how you drive and what matters to you. We compute a shortlist of cars, show the review evidence behind it, and optionally estimate on-road prices for your city.
+You answer questions about how you drive and what matters to you. We compute a shortlist of cars, show the review evidence behind it, and, if you have a quote from a dealer, check the lines you enter against typical prices for your city and point out where you may be able to save.
 
 **It is informational and automated.** Results come from a computation over third-party sources: published owner and expert reviews (which are opinions), and car specification and price data compiled from publicly available listings. A short written summary may be produced with the help of an AI model from those computed results. Reviews are opinions; specifications and prices change and vary by city, dealer, variant and date.
 
@@ -26,7 +26,7 @@ You answer questions about how you drive and what matters to you. We compute a s
 
 - Recommendations, summaries and price estimates are **not** professional, financial, insurance, legal or safety advice and are **not an offer to sell** anything.
 - We do not guarantee that they are complete, current or error-free, or that a recommended car suits you. **Check price, specifications, features, warranty, availability and finance or insurance terms with the seller, and test-drive before you buy.**
-- **On-road price tool:** figures are estimates compiled from public listings or state-level rates, labelled as scraped or estimated. They are **not a quotation** from any dealer or manufacturer and may differ from what you are actually charged.
+- **Dealer quote check:** it uses only the lines and amounts you enter and our own price data, compiled from public listings or state-level rates and labelled as scraped or estimated. What it suggests you skip, defer or negotiate is general information, **not** professional, financial, insurance or legal advice, and not a promise that any dealer will agree. Whether an item is worth buying is your decision. It is **not a quotation** from any dealer or manufacturer, and the prices it compares against may differ from what you are actually charged.
 - Where we lack enough review data for a car, we say so. A car's absence from your shortlist does not mean it is a bad car.
 - AI-assisted text is checked against the computed results but may still contain mistakes. The computed facts and quotes are what count.
 

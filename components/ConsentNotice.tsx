@@ -5,8 +5,8 @@ import { ChevronDown } from "lucide-react";
 
 /**
  * The short consent notice shown right above the button on every form that
- * collects name / pincode / phone (the questionnaire intro and the on-road
- * price tool). Collapsed by default to a single line; "Details" expands the
+ * collects name / pincode / phone (the questionnaire intro and the dealer-quote
+ * check). Collapsed by default to a single line; "Details" expands the
  * full itemised text. The two versions must say the same thing -- the
  * collapsed line is a summary, the expanded text is the itemised notice.
  *
@@ -53,7 +53,7 @@ export default function ConsentNotice({ className = "" }: { className?: string }
             You confirm you are 18 or older, and you consent to us using your{" "}
             <span className="font-medium text-ink">pincode</span> to tailor results to your city, and your{" "}
             <span className="font-medium text-ink">name and phone number</span> to get in touch about your
-            recommendations and to ask for your feedback so we can improve CarDhoondo.
+            recommendations or dealer-quote check and to ask for your feedback so we can improve CarDhoondo.
           </p>
           <p>
             We don&apos;t share your details with car dealers. You can withdraw consent or ask us to delete your data
