@@ -282,3 +282,8 @@ Searched every car's aggregated claims (`data/claims/*_aggregated.json`, not par
 
 - Google approved and published the app branding; Google's sign-in page heading now reads "to continue to CarDhoondo" (verified by fetching Google's page).
 - `NEXT_PUBLIC_AUTH_ENABLED=1` re-added to Vercel production and redeployed; `/api/me` -> `enabled:true`, `/auth/google` redirects, privacy v1.2 / terms v1.1 shown, consent still enforced.
+
+## Sign-in completed analytics event + login report script (Sep 26, 2026)
+
+- New GA4 event `auth_success` fires once after a Google round trip (flag `cardhoondo_auth_pending` in sessionStorage, set by `AuthSheet`, consumed in `lib/auth/useMe.ts`); listed in the privacy policy's storage table. Consent-gated like all analytics.
+- `scripts/login_stats.mjs` (run from `web/`): accounts, saved searches, and the save rate, read from the real database so it includes visitors who declined analytics cookies.

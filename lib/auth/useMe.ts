@@ -3,6 +3,7 @@
 import { useSyncExternalStore } from "react";
 import { AUTH_ENABLED, HINT_COOKIE } from "./config";
 import type { SavedSearchItem } from "../saved/items";
+import { trackEvent } from "../analytics";
 
 /**
  * Client-side view of "who am I". One module-level store shared by every
@@ -69,6 +70,16 @@ async function load(): Promise<void> {
         searches: json.saved_searches ?? [],
         archivedCount: json.archived_count ?? 0,
       });
+      // First time we see a session after the person started a Google sign-in in this tab:
+      // count it once as a completed sign-in.
+      try {
+        if (window.sessionStorage.getItem("cardhoondo_auth_pending") === "1") {
+          window.sessionStorage.removeItem("cardhoondo_auth_pending");
+          trackEvent("auth_success", { method: "google" });
+        }
+      } catch {
+        /* ignore */
+      }
     } else {
       set(ANONYMOUS);
     }

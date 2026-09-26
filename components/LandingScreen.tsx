@@ -138,6 +138,7 @@ export default function LandingScreen({ onStart }: { onStart: (location: string)
         <HowItWorks onStart={onStart} />
         <EvidencePreview />
         <WhyCarDhoondo />
+        <AboutUs stats={stats} />
         <Faq />
         <Contact onStart={onStart} />
         <Footer />
@@ -348,6 +349,9 @@ function Nav({ onStart }: { onStart: (location: string) => void }) {
           </a>
           <a href="#why-cardhoondo" className="transition hover:text-ink">
             Why CarDhoondo
+          </a>
+          <a href="#about" className="transition hover:text-ink">
+            About
           </a>
           <a href="#faq" className="transition hover:text-ink">
             FAQ
@@ -1056,6 +1060,81 @@ function WhyCarDhoondo() {
 }
 
 /* ---------------------------------------------------------------------- */
+/* About us                                                                 */
+/* ---------------------------------------------------------------------- */
+
+const ABOUT_PRINCIPLES = [
+  {
+    icon: Ban,
+    title: "No dealer money, no sponsored picks",
+    body: "Nobody pays to be on your shortlist. We don't take commissions from dealers or manufacturers for recommending a car, so the only thing that decides a recommendation is the evidence.",
+  },
+  {
+    icon: ScanSearch,
+    title: "Evidence, not opinions",
+    body: "Every recommendation is built from claims extracted from real ownership and expert reviews, and each one links back to what reviewers actually said, good and bad.",
+  },
+  {
+    icon: ShieldCheck,
+    title: "Honest about what we don't know",
+    body: "If a car doesn't have enough review data yet, we say so instead of guessing. We'd rather show a gap than fake confidence.",
+  },
+];
+
+function AboutUs({ stats }: { stats: SiteStats }) {
+  return (
+    <section id="about" className="border-t border-border py-20 sm:py-28">
+      <div className="mx-auto max-w-6xl px-6">
+        <div className="grid gap-12 lg:grid-cols-[1fr_1.1fr] lg:gap-16">
+          <div>
+            <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-ink-faint">About us</p>
+            <StaggerHeading
+              text="We built the advisor we wished we had"
+              className="mt-3 text-balance font-display text-3xl font-bold text-ink sm:text-4xl"
+            />
+            <RevealOnScroll delay={0.15}>
+              <div className="mt-5 space-y-4 leading-relaxed text-ink-soft">
+                <p>
+                  Buying a car in India means hearing from everyone: family, colleagues, the dealer, fifteen
+                  YouTube videos. Most of it contradicts the rest, and much of it comes from someone who earns
+                  when you pick a particular car.
+                </p>
+                <p>
+                  CarDhoondo is an independent, India-first car recommender. You tell us how you actually
+                  drive, and we match that against what real owners and expert reviewers have said, then
+                  narrow it to 2-3 cars with the evidence for each. We&apos;re built for first and
+                  second-time buyers who are tired of the noise, not for car enthusiasts.
+                </p>
+                <p>
+                  We&apos;re early, and we say so. Right now we&apos;re working through{" "}
+                  <span className="font-mono text-ink">{stats.claims.toLocaleString("en-IN")}</span> review
+                  claims across <span className="font-mono text-ink">{stats.cars}</span> cars, and we keep
+                  adding more.
+                </p>
+              </div>
+            </RevealOnScroll>
+          </div>
+
+          <div className="space-y-4">
+            {ABOUT_PRINCIPLES.map((p, i) => (
+              <RevealOnScroll key={p.title} delay={0.1 + i * 0.08}>
+                <div className="flex gap-4 rounded-2xl border border-border bg-paper-raised p-6 shadow-card">
+                  <IconBadge icon={p.icon} />
+                  <div>
+                    <p className="font-display text-base font-semibold text-ink">{p.title}</p>
+                    <p className="mt-1.5 text-sm leading-relaxed text-ink-soft">{p.body}</p>
+                  </div>
+                </div>
+              </RevealOnScroll>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ---------------------------------------------------------------------- */
 /* FAQ                                                                      */
 /* ---------------------------------------------------------------------- */
 
@@ -1184,6 +1263,9 @@ function Footer() {
         {/* Same links as the top nav -- the top nav is hidden below `sm`, so
             this is the only way to reach FAQ/Contact/Guides on mobile. */}
         <nav className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm font-medium text-ink-soft sm:justify-start">
+          <a href="#about" className="transition hover:text-ink">
+            About
+          </a>
           <a href="#faq" className="transition hover:text-ink">
             FAQ
           </a>

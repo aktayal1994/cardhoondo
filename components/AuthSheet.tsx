@@ -76,6 +76,12 @@ export default function AuthSheet({
     setGoing(true);
     trackEvent("auth_start", { method: "google" });
     if (saveIntent) setSaveIntent();
+    // Lets us count a *completed* sign-in after the round trip to Google (see lib/auth/useMe.ts).
+    try {
+      window.sessionStorage.setItem("cardhoondo_auth_pending", "1");
+    } catch {
+      /* storage unavailable: the sign-in still works, it just isn't counted in analytics */
+    }
     window.location.href = `/auth/google?next=${encodeURIComponent(next)}`;
   }
 
