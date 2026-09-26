@@ -19,6 +19,8 @@ interface ResultsScreenProps {
   onSelectCar: (carId: string) => void;
   onCompare: () => void;
   onRestart: () => void;
+  /** Optional block shown right under the intro line (save prompt / saved-search banner). */
+  topSlot?: React.ReactNode;
 }
 
 const TOTAL_FACETS = ALL_FACETS.length;
@@ -46,6 +48,7 @@ export default function ResultsScreen({
   onSelectCar,
   onCompare,
   onRestart,
+  topSlot,
 }: ResultsScreenProps) {
   const { shortlist, cars_skipped_no_review_data } = recommendOutput;
   const writeupByCarId = new Map((writeup?.recommendations ?? []).map((w) => [w.car_id, w]));
@@ -94,6 +97,8 @@ export default function ResultsScreen({
           how the recommendation actually landed. Right after the intro
           line means every visitor sees it before deciding whether to read
           on, not just the ones who make it through all 3 cards. */}
+      {topSlot}
+
       <FeedbackPrompt recommendationResultId={recommendationResultId} />
 
       <div className="mt-8 space-y-6">

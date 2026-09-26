@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { deriveWeightVector, type QuestionnaireAnswers } from "../../../lib/scoring/questionnaireWeights";
-import { recommend } from "../../../lib/scoring/recommend";
-import { fetchRecommendationData } from "../../../lib/data/fetchRecommendationData";
+import { type QuestionnaireAnswers } from "../../../lib/scoring/questionnaireWeights";
+import { runRecommendation } from "../../../lib/scoring/runRecommendation";
+import { newClaimToken, hashClaimToken } from "../../../lib/auth/claimToken";
+import { derivePersona } from "../../../lib/persona/derivePersona";
 import { getSupabaseServerClient } from "../../../lib/supabaseClient";
 import { isValidPhoneNumber } from "../../../lib/validation";
 import { isAcceptedNoticeVersion } from "../../../lib/consent";
@@ -95,24 +96,24 @@ export async function POST(req: NextRequest) {
     }
   }
 
+  const claimToken = newClaimToken();
   const { data: responseRow, error: insertErr } = await supabase
     .from("questionnaire_responses")
-    .insert({ answers: body.answers, respondent_id: respondentId, utm: body.utm ?? null })
+    .insert({
+      answers: body.answers,
+      respondent_id: respondentId,
+      utm: body.utm ?? null,
+      // Only the hash is stored; the token itself goes back to the submitter once
+      // (in the response below) and is what lets them later save this search.
+      claim_token_hash: hashClaimToken(claimToken),
+    })
     .select("id")
     .single();
   if (insertErr) {
     return NextResponse.json({ error: "Failed to save questionnaire response", detail: insertErr.message }, { status: 500 });
   }
 
-  const weights = deriveWeightVector(body.answers);
-  const recommendationData = await fetchRecommendationData();
-
-  const output = recommend({
-    answers: body.answers,
-    weights,
-    topN: body.top_n ?? 3,
-    ...recommendationData,
-  });
+  const output = await runRecommendation(body.answers, body.top_n ?? 3);
 
   const { data: resultRow, error: resultErr } = await supabase
     .from("recommendation_results")
@@ -126,6 +127,9 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({
     questionnaire_response_id: responseRow.id,
     recommendation_result_id: resultRow.id,
+    // Shown once; kept by the browser so a signed-in user can save this search.
+    claim_token: claimToken,
+    persona: derivePersona(body.answers),
     ...output,
   });
 }

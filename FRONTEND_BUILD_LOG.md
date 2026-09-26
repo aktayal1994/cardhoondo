@@ -255,3 +255,13 @@ Searched every car's aggregated claims (`data/claims/*_aggregated.json`, not par
 - **Consent notice collapsed** to one line with a "Details" expander (`components/ConsentNotice.tsx`); notice version bumped to `2026-09-26.v2` (v1 still accepted for sessions in flight).
 - Privacy policy bumped to v1.1 (section 8 describes the banner); legal pages get heading anchors for deep links.
 - Verified live: no analytics in server HTML, banner shows before a choice, Accept loads gtag, Reject clears cookies and persists across pages.
+
+## Google sign-in + saved searches built, shipped switched OFF (Sep 27, 2026)
+
+- **Feature switch**: `NEXT_PUBLIC_AUTH_ENABLED=1` (unset/0 = off). Off: every new route 404s, no sign-in UI renders, legal pages keep no-login wording. Verified live on cardhoondo.com: `/api/me` -> `{"authenticated":false,"enabled":false}`.
+- **Backend**: server-only `@supabase/ssr` (httpOnly cookies), `/auth/google` + `/auth/callback` (PKCE), `/api/me`, `/api/auth/signout`, `/api/saved-searches` (+`/claim`, `/[id]`, `/[id]/open`), `/api/account/delete`. Claim proof is a hashed `claim_token` returned once by `/api/recommend`; atomic `claim_saved_search()` and `purge_user_data()` DB functions; RLS on `saved_searches` with column-level grants.
+- **UI**: `AuthSheet` (Google), `AccountMenu` in the nav, `WelcomeBackStrip` + `SavedSearchCard` on the landing page, `SaveSearchPrompt` and `SavedSearchBanner` on results (shared `ResultsFlow`), `/saved/[id]`, `/account` (sign out, delete account).
+- **Persona**: deterministic `lib/persona/derivePersona.ts` (e.g. "The Safety-first City Family"), tested against the design spec's worked examples.
+- **Rate limits**: middleware groups for the new routes. `robots.ts` disallows `/account`, `/saved/`, `/auth/`.
+- Tested: 25-check backend suite (`scripts/auth_backend_smoke.mjs`) incl. attack cases; UI verified in browser (save, reopen with diff banner, rename, delete, account delete, sheet on phone); sheet is portaled to `<body>` because the nav's backdrop-blur traps `position: fixed`.
+- Switch-on steps: `docs/login_enable_checklist.md` in the main project.

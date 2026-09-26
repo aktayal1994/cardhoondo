@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { marked } from "marked";
 import { CookieSettingsButton } from "./CookieBanner";
+import { AUTH_ENABLED } from "../lib/auth/config";
 
 /**
  * Shared shell for /privacy and /terms. The document text lives in
@@ -23,7 +24,17 @@ export default function LegalPage({
   file: "privacy.md" | "terms.md";
   other: { href: string; label: string };
 }) {
-  const markdown = fs.readFileSync(path.join(process.cwd(), "content", "legal", file), "utf8");
+  const source = fs.readFileSync(path.join(process.cwd(), "content", "legal", file), "utf8");
+  // Lines starting "{{login}}" apply only when sign-in is switched on; lines starting
+  // "{{nologin}}" only when it is off. Table rows work too (one row per line).
+  const markdown = source
+    .split("\n")
+    .flatMap((line) => {
+      if (line.startsWith("{{login}}")) return AUTH_ENABLED ? [line.slice("{{login}}".length)] : [];
+      if (line.startsWith("{{nologin}}")) return AUTH_ENABLED ? [] : [line.slice("{{nologin}}".length)];
+      return [line];
+    })
+    .join("\n");
   const rawHtml = marked.parse(markdown, { async: false }) as string;
   // Give every section heading an anchor id ("8. Cookies ..." -> #8-cookies-...)
   // so other pages (e.g. the cookie banner) can deep-link to a section.

@@ -415,3 +415,14 @@ body {
   border-radius: 0.375rem;
   padding: 0.1rem 0.35rem;
 }
+
+/* "Welcome back" strip: hidden for everyone, and given room up front (before
+   hydration) only when a recent-session hint is set on <html> -- so returning
+   users see no layout jump and anonymous visitors see nothing at all. */
+.welcome-slot {
+  display: none;
+}
+html[data-auth="1"] .welcome-slot {
+  display: block;
+  min-height: 15rem;
+}

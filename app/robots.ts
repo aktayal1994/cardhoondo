@@ -11,7 +11,7 @@ export default function robots(): MetadataRoute.Robots {
       // sequentially from /questionnaire/intro -- there's nothing meaningful to
       // index if a crawler lands on them directly, so keep crawl budget on the
       // real content (home + guides) instead.
-      disallow: ["/questionnaire/", "/results", "/api/"],
+      disallow: ["/questionnaire/", "/results", "/api/", "/account", "/saved/", "/auth/"],
     },
     sitemap: `${SITE_URL}/sitemap.xml`,
   };

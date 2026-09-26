@@ -1,10 +1,12 @@
-**Version 1.0 · Effective from 26 September 2026**
+{{nologin}}**Version 1.0 · Effective from 26 September 2026**
+{{login}}**Version 1.1 · Effective from 27 September 2026**
 
 ## 1. Who we are and what these Terms cover
 
 These Terms govern your use of **cardhoondo.com** and related pages and tools (the "Service"), run by **Aakash Tayal, an individual operating under the name CarDhoondo (not yet a registered company), Gurugram, Haryana, India** ("CarDhoondo", "we", "us"). Our contact details are in Section 17.
 
-**How you agree.** You agree to these Terms by pressing **"Agree and continue"** on the first screen of the questionnaire, or by continuing to use the Service after being able to read them (there is a link in the footer). If you do not agree, please do not use the Service.
+{{nologin}}**How you agree.** You agree to these Terms by pressing **"Agree and continue"** on the first screen of the questionnaire, or by continuing to use the Service after being able to read them (there is a link in the footer). If you do not agree, please do not use the Service.
+{{login}}**How you agree.** You agree to these Terms by pressing **"Agree and continue"** on the first screen of the questionnaire, by signing in with Google after reading the sign-in notice, or by continuing to use the Service after being able to read them (there is a link in the footer). If you do not agree, please do not use the Service.
 
 These Terms are separate from our [Privacy Policy](/privacy), which explains what personal data we handle and why. Agreeing to these Terms is not, by itself, consent to how we use your personal data; that consent is given separately, as the Privacy Policy explains.
 
@@ -17,6 +19,8 @@ You must be **18 or older** and able to enter a binding contract under Indian la
 You answer questions about how you drive and what matters to you. We compute a shortlist of cars, show the review evidence behind it, and optionally estimate on-road prices for your city.
 
 **It is informational and automated.** Results come from a computation over third-party sources: published owner and expert reviews (which are opinions), and car specification and price data compiled from publicly available listings. A short written summary may be produced with the help of an AI model from those computed results. Reviews are opinions; specifications and prices change and vary by city, dealer, variant and date.
+
+{{login}}**Accounts (optional).** You can sign in with Google to save your searches. Keep access to your Google account secure; you are responsible for activity under your account. Give accurate information and do not use someone else's account. You can delete your account and its data at any time from your Account page. We may suspend or close accounts that breach these Terms or put the Service or other users at risk.
 
 ## 4. No advice, no guarantee
 

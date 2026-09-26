@@ -30,6 +30,8 @@ import {
   Quote,
 } from "lucide-react";
 import { CookieSettingsButton } from "./CookieBanner";
+import AccountMenu from "./AccountMenu";
+import WelcomeBackStrip from "./WelcomeBackStrip";
 
 /**
  * "Nightdrive" -- a dark, cinematic scroll-driven redesign of the earlier
@@ -126,6 +128,10 @@ export default function LandingScreen({ onStart }: { onStart: (location: string)
       <NightCanvas />
       <div className="relative z-10">
         <Nav onStart={onStart} />
+        {/* Space is reserved by CSS (.welcome-slot) only for browsers that recently had a session. */}
+        <div className="welcome-slot">
+          <WelcomeBackStrip onStart={onStart} />
+        </div>
         <Hero onStart={onStart} claims={stats.claims} />
         <TrustAndStats stats={stats} />
         <CaseIndex carsCount={stats.cars} />
@@ -171,7 +177,7 @@ function GlowButton({
   size?: "md" | "sm";
 }) {
   const padding = size === "sm" ? "px-5 py-2.5 text-sm" : "px-7 py-3.5 text-[15px]";
-  const classes = `group inline-flex items-center gap-2 rounded-full bg-accent-rust font-semibold text-charcoal-950 shadow-glow-sm transition hover:brightness-110 ${padding} ${className}`;
+  const classes = `group inline-flex items-center gap-2 whitespace-nowrap rounded-full bg-accent-rust font-semibold text-charcoal-950 shadow-glow-sm transition hover:brightness-110 ${padding} ${className}`;
   const content = (
     <>
       {children}
@@ -356,9 +362,12 @@ function Nav({ onStart }: { onStart: (location: string) => void }) {
             Contact
           </a>
         </nav>
-        <GlowButton onClick={() => onStart("nav")} size="sm">
-          {PRIMARY_CTA}
-        </GlowButton>
+        <div className="flex items-center gap-1 sm:gap-3">
+          <AccountMenu />
+          <GlowButton onClick={() => onStart("nav")} size="sm">
+            {PRIMARY_CTA}
+          </GlowButton>
+        </div>
       </div>
     </header>
   );

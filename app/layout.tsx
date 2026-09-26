@@ -115,8 +115,17 @@ const jsonLd = [
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en-IN" className={`${displayFont.variable} ${bodyFont.variable} ${dataFont.variable}`}>
+    <html lang="en-IN" suppressHydrationWarning className={`${displayFont.variable} ${bodyFont.variable} ${dataFont.variable}`}>
       <head>
+        {/* Marks <html> when this browser recently had a session, so the "welcome back"
+            space is reserved before the page hydrates (no layout jump, no request for
+            everyone else). The cookie carries no identity. */}
+        <script
+          // eslint-disable-next-line react/no-danger
+          dangerouslySetInnerHTML={{
+            __html: "try{if(document.cookie.indexOf('ch_hint=1')>-1)document.documentElement.setAttribute('data-auth','1')}catch(e){}",
+          }}
+        />
         <script
           type="application/ld+json"
           // eslint-disable-next-line react/no-danger
