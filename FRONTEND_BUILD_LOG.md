@@ -277,3 +277,8 @@ Searched every car's aggregated claims (`data/claims/*_aggregated.json`, not par
 
 - Google's sign-in page showed Supabase's raw address (`...supabase.co`) instead of "CarDhoondo", which would hurt trust, so `NEXT_PUBLIC_AUTH_ENABLED` was removed from Vercel production and redeployed (`/api/me` -> `enabled:false`, new routes 404). Code unchanged.
 - Fix in progress: Google brand verification. Added the Search Console `google-site-verification` meta tag via `metadata.verification.google` in `app/layout.tsx`; next: verify in Search Console, upload logo + submit in Google Auth Platform > Branding, then re-enable.
+
+## Google sign-in switched back ON after branding verification (Sep 26, 2026)
+
+- Google approved and published the app branding; Google's sign-in page heading now reads "to continue to CarDhoondo" (verified by fetching Google's page).
+- `NEXT_PUBLIC_AUTH_ENABLED=1` re-added to Vercel production and redeployed; `/api/me` -> `enabled:true`, `/auth/google` redirects, privacy v1.2 / terms v1.1 shown, consent still enforced.
