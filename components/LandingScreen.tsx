@@ -347,23 +347,14 @@ function Nav({ onStart }: { onStart: (location: string) => void }) {
           <a href="#how-it-works" className="transition hover:text-ink">
             How it works
           </a>
-          <a href="#why-cardhoondo" className="transition hover:text-ink">
-            Why CarDhoondo
-          </a>
-          <a href="#about" className="transition hover:text-ink">
-            About
-          </a>
-          <a href="#faq" className="transition hover:text-ink">
-            FAQ
-          </a>
           <Link href="/guides" className="transition hover:text-ink">
             Guides
           </Link>
           <Link href="/quotation" className="transition hover:text-ink">
             On-road price
           </Link>
-          <a href="#contact" className="transition hover:text-ink">
-            Contact
+          <a href="#about" className="transition hover:text-ink">
+            About
           </a>
         </nav>
         <div className="flex items-center gap-1 sm:gap-3">
