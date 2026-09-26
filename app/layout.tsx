@@ -34,6 +34,8 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
+  // Google Search Console ownership proof for cardhoondo.com (also needed for Google sign-in brand verification).
+  verification: { google: "7jFmUAnTrIx8Lmzyk9pjStao0eoRcBWBiu-8FqOfvG8" },
   title: {
     default: "Which Car to Buy in India? Unbiased Advice | CarDhoondo",
     template: "%s | CarDhoondo",

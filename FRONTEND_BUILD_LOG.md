@@ -272,3 +272,8 @@ Searched every car's aggregated claims (`data/claims/*_aggregated.json`, not par
 - Vercel production env: added `NEXT_PUBLIC_AUTH_ENABLED=1` and `SITE_URL=https://cardhoondo.com`; redeployed.
 - Legal login wording effective date set to 26 September 2026 (privacy v1.2, terms v1.1).
 - Verified live: `/api/me` -> enabled:true; `/auth/google` -> Supabase -> accounts.google.com with our client id and correct redirect_uri; PKCE cookies are Secure/HttpOnly/10-minute; policy pages show the login versions.
+
+## Google sign-in switched back OFF; Search Console verification tag added (Sep 26, 2026)
+
+- Google's sign-in page showed Supabase's raw address (`...supabase.co`) instead of "CarDhoondo", which would hurt trust, so `NEXT_PUBLIC_AUTH_ENABLED` was removed from Vercel production and redeployed (`/api/me` -> `enabled:false`, new routes 404). Code unchanged.
+- Fix in progress: Google brand verification. Added the Search Console `google-site-verification` meta tag via `metadata.verification.google` in `app/layout.tsx`; next: verify in Search Console, upload logo + submit in Google Auth Platform > Branding, then re-enable.
