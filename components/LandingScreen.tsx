@@ -1081,6 +1081,19 @@ const ABOUT_PRINCIPLES = [
   },
 ];
 
+const ABOUT_VISION_MISSION = [
+  {
+    label: "Our vision",
+    headline: "Every car buyer in India knows which car is right for them, and why.",
+    body: "A first-time buyer should be able to walk into a showroom confident, not confused, and not at the mercy of whoever is talking loudest.",
+  },
+  {
+    label: "Our mission",
+    headline: "Support you through your car-buying journey.",
+    body: "We help you choose the car that genuinely fits your life, and avoid unnecessary spends along the way, like a variant, add-on or accessory you never needed.",
+  },
+];
+
 function AboutUs({ stats }: { stats: SiteStats }) {
   return (
     <section id="about" className="border-t border-border py-20 sm:py-28">
@@ -1129,13 +1142,29 @@ function AboutUs({ stats }: { stats: SiteStats }) {
             ))}
           </div>
         </div>
+
+        <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:mt-16">
+          {ABOUT_VISION_MISSION.map((item, i) => (
+            <RevealOnScroll key={item.label} delay={0.1 + i * 0.08}>
+              <div className="h-full rounded-2xl border border-accent-rust/35 bg-paper-raised p-6 shadow-glow sm:p-8">
+                <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-accent-rust-soft">
+                  {item.label}
+                </p>
+                <p className="mt-3 text-balance font-display text-xl font-semibold leading-snug text-ink sm:text-2xl">
+                  {item.headline}
+                </p>
+                <p className="mt-3 text-sm leading-relaxed text-ink-soft">{item.body}</p>
+              </div>
+            </RevealOnScroll>
+          ))}
+        </div>
       </div>
     </section>
   );
 }
 
 /* ---------------------------------------------------------------------- */
-/* FAQ                                                                      */
+/* FAQ                                                                     */
 /* ---------------------------------------------------------------------- */
 
 function Faq() {

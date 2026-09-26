@@ -26,7 +26,10 @@ export async function GET(req: NextRequest) {
   const { data, error } = await ctx.supabase.auth.exchangeCodeForSession(code);
   if (error || !data?.user) {
     console.error("google sign-in exchange failed:", error?.message);
-    return ctx.applyCookies(fail("expired"));
+    // "PKCE code verifier not found": the sign-in was started on a different address/browser than it
+    // finished on, or the browser cleared its cookies in between. Say so plainly.
+    const wrongBrowser = /code verifier/i.test(error?.message ?? "");
+    return ctx.applyCookies(fail(wrongBrowser ? "browser" : "expired"));
   }
 
   // Signing in is the moment the user accepts the Terms and Privacy Policy

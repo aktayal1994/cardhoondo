@@ -287,3 +287,10 @@ Searched every car's aggregated claims (`data/claims/*_aggregated.json`, not par
 
 - New GA4 event `auth_success` fires once after a Google round trip (flag `cardhoondo_auth_pending` in sessionStorage, set by `AuthSheet`, consumed in `lib/auth/useMe.ts`); listed in the privacy policy's storage table. Consent-gated like all analytics.
 - `scripts/login_stats.mjs` (run from `web/`): accounts, saved searches, and the save rate, read from the real database so it includes visitors who declined analytics cookies.
+
+## Sign-in failed when started on www.cardhoondo.com; www now redirects to the apex (Sep 26, 2026)
+
+- **Bug (from a real user):** starting Google sign-in on `www.cardhoondo.com` set the short-lived PKCE cookie on the `www` host, but Google returned to `https://cardhoondo.com` (Site URL), a different host, so the cookie was missing: Vercel logs showed `google sign-in exchange failed: PKCE code verifier not found`, and the user saw the "link expired or already used" page. Attempts started on the apex worked.
+- **Fix:** permanent (308) redirect from `www.cardhoondo.com/*` to `https://cardhoondo.com/*` in `next.config.mjs` (also removes the duplicate-content copy of the site). `/auth/callback` now maps the verifier error to a clearer `browser` message on `/auth/error`.
+- Verified live: `www` home, `/auth/google` and `/privacy` all return 308 to the apex.
+- Debugging tip: `vercel logs --environment production --since 3h --query "auth"` shows the real server-side reason for auth failures.

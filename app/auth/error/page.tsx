@@ -9,6 +9,10 @@ export const metadata: Metadata = {
 const MESSAGES: Record<string, { title: string; body: string }> = {
   cancelled: { title: "Sign-in cancelled", body: "You didn't finish signing in with Google. Nothing was changed." },
   expired: { title: "That sign-in didn't complete", body: "The sign-in link expired or was already used. Please try again." },
+  browser: {
+    title: "Please start the sign-in again",
+    body: "The sign-in started in a different browser or address than it finished in, or your browser cleared its data partway through. Open cardhoondo.com and tap Sign in again; it should work the second time.",
+  },
   provider: {
     title: "Google sign-in isn't available right now",
     body: "We couldn't reach Google to start the sign-in. Please try again in a few minutes.",
