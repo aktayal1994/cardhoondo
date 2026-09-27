@@ -44,7 +44,7 @@ const GROUPS: Group[] = [
   // Google sign-in and saved searches.
   { key: "auth-oauth", limit: 15, match: (p) => p === "/auth/google" || p === "/auth/callback" },
   { key: "auth-signout", limit: 20, match: (p) => p === "/api/auth/signout" },
-  { key: "me", limit: 60, match: (p) => p === "/api/me" },
+  { key: "me", limit: 60, match: (p) => p === "/api/me" || p === "/api/me/contact" },
   // Opening a saved search re-runs the recommender, so it is limited harder than plain CRUD.
   { key: "saved-open", limit: 15, match: (p) => p.startsWith("/api/saved-searches/") && p.endsWith("/open") },
   { key: "saved", limit: 60, match: (p) => p.startsWith("/api/saved-searches") },
@@ -112,6 +112,7 @@ export const config = {
     "/api/quote-analysis",
     "/api/city-lookup",
     "/api/me",
+    "/api/me/contact",
     "/api/auth/:path*",
     "/api/saved-searches/:path*",
     "/api/saved-searches",

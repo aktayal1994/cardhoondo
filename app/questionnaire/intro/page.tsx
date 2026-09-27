@@ -7,6 +7,7 @@ import StepProgress from "../../../components/StepProgress";
 import StepTransition from "../../../components/StepTransition";
 import { loadQuestionnaireState, saveIntro } from "../../../lib/questionnaireStore";
 import { trackEvent } from "../../../lib/analytics";
+import { useMe } from "../../../lib/auth/useMe";
 
 export default function IntroPage() {
   const router = useRouter();
@@ -18,12 +19,40 @@ export default function IntroPage() {
   const [initialValues, setInitialValues] = useState<IntroValues | undefined>(undefined);
   const [hydrated, setHydrated] = useState(false);
   const [transitioning, setTransitioning] = useState<string | null>(null);
+  // Signed-in people: the details from their last saved search, so they confirm
+  // instead of retyping. `contactChecked` holds the first render until we know.
+  const me = useMe();
+  const [savedContact, setSavedContact] = useState<IntroValues | undefined>(undefined);
+  const [contactChecked, setContactChecked] = useState(false);
 
   useEffect(() => {
     const state = loadQuestionnaireState();
     if (state.intro) setInitialValues(state.intro);
     setHydrated(true);
   }, []);
+
+  useEffect(() => {
+    if (me.status === "unknown") return;
+    if (me.status !== "authed") {
+      setContactChecked(true);
+      return;
+    }
+    let cancelled = false;
+    fetch("/api/me/contact", { cache: "no-store", credentials: "same-origin" })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((json) => {
+        if (!cancelled && json?.contact) setSavedContact(json.contact);
+      })
+      .catch(() => {
+        /* no saved details: the normal form is the fallback */
+      })
+      .finally(() => {
+        if (!cancelled) setContactChecked(true);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [me.status]);
 
   function handleContinue(values: IntroValues) {
     saveIntro(values);
@@ -35,12 +64,12 @@ export default function IntroPage() {
     return <StepTransition message={transitioning} onDone={() => router.push("/questionnaire/core-requirements")} />;
   }
 
-  if (!hydrated) return null;
+  if (!hydrated || !contactChecked) return null;
 
   return (
     <div className="min-h-screen bg-paper">
       <StepProgress current={1} />
-      <IntroStep initialValues={initialValues} onContinue={handleContinue} />
+      <IntroStep initialValues={initialValues} savedContact={savedContact} onContinue={handleContinue} />
     </div>
   );
 }

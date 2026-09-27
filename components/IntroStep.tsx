@@ -15,9 +15,18 @@ export interface IntroValues {
   consent_notice_version: string;
 }
 
+type Contact = Pick<IntroValues, "name" | "pincode" | "phone_number">;
+
 interface IntroStepProps {
   initialValues?: IntroValues;
+  /** Details a signed-in person gave on an earlier saved search. Shown as a
+   * one-tap confirmation instead of the empty form (they can still change them). */
+  savedContact?: Contact;
   onContinue: (values: IntroValues) => void;
+}
+
+function maskPhone(phone: string): string {
+  return phone.length >= 4 ? `${"•".repeat(phone.length - 4)}${phone.slice(-4)}` : phone;
 }
 
 /**
@@ -27,11 +36,13 @@ interface IntroStepProps {
  * pincode on every submission is worth more than a slightly lower completion
  * rate, since the human-handoff step (WhatsApp/call outreach) depends on it.
  */
-export default function IntroStep({ initialValues, onContinue }: IntroStepProps) {
-  const [name, setName] = useState(initialValues?.name ?? "");
-  const [pincode, setPincode] = useState(initialValues?.pincode ?? "");
-  const [phone, setPhone] = useState(initialValues?.phone_number ?? "");
+export default function IntroStep({ initialValues, savedContact, onContinue }: IntroStepProps) {
+  const [name, setName] = useState(initialValues?.name ?? savedContact?.name ?? "");
+  const [pincode, setPincode] = useState(initialValues?.pincode ?? savedContact?.pincode ?? "");
+  const [phone, setPhone] = useState(initialValues?.phone_number ?? savedContact?.phone_number ?? "");
   const [touched, setTouched] = useState(false);
+  const [changing, setChanging] = useState(false);
+  const confirmOnly = Boolean(savedContact) && !changing;
 
   const nameError = touched && name.trim().length === 0;
   const pincodeError = touched && !isValidPincode(pincode);
@@ -51,14 +62,32 @@ export default function IntroStep({ initialValues, onContinue }: IntroStepProps)
           <UserRound className="h-4.5 w-4.5 text-accent-rust-soft" strokeWidth={1.75} />
         </div>
         <div>
-          <h2 className="font-display text-xl font-semibold text-ink">Let's start with a few details</h2>
+          <h2 className="font-display text-xl font-semibold text-ink">
+            {confirmOnly ? "Welcome back — same details?" : "Let's start with a few details"}
+          </h2>
           <p className="mt-1 text-sm text-ink-soft">
             We use these to tailor your shortlist to your city and to get back to you about it.
           </p>
         </div>
       </div>
 
-      <div className="mt-6 ml-12 space-y-4">
+      {confirmOnly && (
+        <div className="mt-6 ml-12 rounded-xl border border-border bg-paper-raised px-4 py-3 text-sm">
+          <p className="font-medium text-ink">{name}</p>
+          <p className="mt-0.5 text-ink-soft">
+            Pincode {pincode} · Phone {maskPhone(phone)}
+          </p>
+          <button
+            type="button"
+            onClick={() => setChanging(true)}
+            className="mt-2 text-xs font-semibold text-accent-rust-soft underline underline-offset-2 hover:text-ink"
+          >
+            Change details
+          </button>
+        </div>
+      )}
+
+      <div className={`mt-6 ml-12 space-y-4 ${confirmOnly ? "hidden" : ""}`}>
         <div>
           <label htmlFor="intro-name" className="mb-1.5 block text-sm font-medium text-ink">
             What should we call you?

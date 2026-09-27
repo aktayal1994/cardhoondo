@@ -310,3 +310,11 @@ Searched every car's aggregated claims (`data/claims/*_aggregated.json`, not par
 - **Legal:** consent notice v3 (`2026-09-26.v3`, v1/v2 still accepted) now covers the quote check; Privacy Policy 1.3 / 1.2 and Terms 1.2 / 1.1 updated (quote data row, AI never sees quotes, 12-month retention, "not a quotation / not advice"). `LEGAL_VERSIONS` bumped.
 - **Also:** nav label "Check my quote", results/evidence CTAs "Got a dealer quote? See where you can save", sitemap entry, cross-link from the dealer-tricks guide, `scripts/quote.test.ts`.
 - Verified live on cardhoondo.com: `/quotation` 200, validation 400s, one real analysis (Creta King Turbo DCT, Mumbai) returned findings and its test rows were deleted. Also carries the paginated `fetchRecommendationData` that another session fixed in `web/`.
+
+## Signed-in users confirm their details instead of retyping (Sep 27, 2026)
+
+- **Why:** a signed-in person starting a second search was asked for name, pincode and phone all over again, which is friction for no reason: we already hold them from their saved search.
+- **What:** new `GET /api/me/contact` (owner only; reads the latest saved search with the user's own client, then its respondent) returns `{contact}` or `{contact:null}`. The intro page fetches it when signed in and `IntroStep` shows "Welcome back — same details?" with the name, pincode and masked phone, a "Change details" link that opens the prefilled form, and the same consent notice + "Agree and continue" button (consent is still recorded each time). Anonymous visitors and signed-in people with no saved search see the normal form. Kept off `/api/me` so the landing page never receives a phone number; same rate-limit family as `/api/me`.
+- Files: `app/api/me/contact/route.ts`, `components/IntroStep.tsx`, `app/questionnaire/intro/page.tsx`, `middleware.ts`.
+- Verified: typecheck; anonymous endpoint returns `{contact:null}` on cardhoondo.com and the intro page is 200; confirm card, Agree payload (saved values + current consent version) and Change details checked locally with a throwaway page (deleted). Google sign-in can't be automated, so the full signed-in path was not exercised end to end.
+- Not synced: `lib/questions.ts` differs between `web/` and this checkout; that belongs to another session.
