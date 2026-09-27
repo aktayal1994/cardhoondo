@@ -318,3 +318,10 @@ Searched every car's aggregated claims (`data/claims/*_aggregated.json`, not par
 - Files: `app/api/me/contact/route.ts`, `components/IntroStep.tsx`, `app/questionnaire/intro/page.tsx`, `middleware.ts`.
 - Verified: typecheck; anonymous endpoint returns `{contact:null}` on cardhoondo.com and the intro page is 200; confirm card, Agree payload (saved values + current consent version) and Change details checked locally with a throwaway page (deleted). Google sign-in can't be automated, so the full signed-in path was not exercised end to end.
 - Not synced: `lib/questions.ts` differs between `web/` and this checkout; that belongs to another session.
+
+## Fuel question: hybrids are found under Petrol (Sep 27, 2026)
+
+- **Why:** the fuel question has no Hybrid option (only ~5 models have a strong hybrid, and the catalog lists every hybrid variant as fuel "Petrol"), so someone wanting a hybrid had no signal about what to tick.
+- **What:** the Petrol option now reads "Petrol (includes hybrid)", the question's explainer says "Want a hybrid? Choose Petrol", and the confirmation line says hybrids are included. Text only, in `lib/questions.ts`; no scoring or filter change.
+- Verified: typecheck; new text found in the live `/questionnaire/core-requirements` JS on cardhoondo.com. Not walked through in the UI (the intro step writes a real lead).
+- Not done: a "Hybrid" label on hybrid variants in results, and a city-commute ranking nudge for strong hybrids.
