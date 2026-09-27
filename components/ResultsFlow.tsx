@@ -1,5 +1,6 @@
 "use client";
 
+import { readUtm } from "../lib/utm";
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -93,6 +94,7 @@ export default function ResultsFlow({ source }: { source: ResultsSource }) {
           pincode: stored.intro.pincode,
           phone_number: stored.intro.phone_number,
           consent_notice_version: stored.intro.consent_notice_version,
+          utm: readUtm(),
         }),
       });
       if (!res.ok) throw new Error("recommend failed");

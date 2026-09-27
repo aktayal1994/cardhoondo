@@ -21,6 +21,17 @@ interface RecommendRequestBody {
   consent_notice_version?: string;
 }
 
+/** Keep only the five known campaign labels, as short strings. */
+function cleanUtm(raw: unknown): Record<string, string> | null {
+  if (!raw || typeof raw !== "object") return null;
+  const out: Record<string, string> = {};
+  for (const k of ["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term"]) {
+    const v = (raw as Record<string, unknown>)[k];
+    if (typeof v === "string" && v) out[k] = v.slice(0, 100);
+  }
+  return Object.keys(out).length > 0 ? out : null;
+}
+
 /**
  * POST /api/recommend -- ports scripts/recommend.py's CLI into a live
  * endpoint. Takes a questionnaire submission, persists it, runs the same
@@ -102,7 +113,7 @@ export async function POST(req: NextRequest) {
     .insert({
       answers: body.answers,
       respondent_id: respondentId,
-      utm: body.utm ?? null,
+      utm: cleanUtm(body.utm),
       // Only the hash is stored; the token itself goes back to the submitter once
       // (in the response below) and is what lets them later save this search.
       claim_token_hash: hashClaimToken(claimToken),

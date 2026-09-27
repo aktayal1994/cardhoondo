@@ -3,6 +3,7 @@
 import { Suspense, useEffect } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { trackEvent } from "../lib/analytics";
+import { captureUtm } from "../lib/utm";
 
 /**
  * The questionnaire moved from one client-state SPA page to 4 real routes
@@ -21,6 +22,7 @@ function PageTrackerInner() {
 
   useEffect(() => {
     const query = searchParams.toString();
+    captureUtm(window.location.search);
     trackEvent("page_view", {
       page_path: query ? `${pathname}?${query}` : pathname,
       page_location: window.location.href,

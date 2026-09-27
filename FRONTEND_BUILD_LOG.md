@@ -325,3 +325,6 @@ Searched every car's aggregated claims (`data/claims/*_aggregated.json`, not par
 - **What:** the Petrol option now reads "Petrol (includes hybrid)", the question's explainer says "Want a hybrid? Choose Petrol", and the confirmation line says hybrids are included. Text only, in `lib/questions.ts`; no scoring or filter change.
 - Verified: typecheck; new text found in the live `/questionnaire/core-requirements` JS on cardhoondo.com. Not walked through in the UI (the intro step writes a real lead).
 - Not done: a "Hybrid" label on hybrid variants in results, and a city-commute ranking nudge for strong hybrids.
+
+## 2026-09-27
+- Campaign attribution: utm_* params captured on landing (lib/utm.ts, GAPageTracker), sent with /api/recommend and stored (sanitised) so ad signups can be traced to their creative.
