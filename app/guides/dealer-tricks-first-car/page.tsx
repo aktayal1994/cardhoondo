@@ -36,6 +36,8 @@ export default function Page() {
       eyebrow="Before you sign"
       title={TITLE}
       slug="dealer-tricks-first-car"
+      datePublished="2026-08-23"
+      dateModified="2026-09-26"
       heroImage={{
         src: "/guides-dealer-tricks-hero.jpg",
         alt: "A first-time car buyer studies a dealership quotation with a salesperson across the desk — 5 Dealer Tricks First-Time Buyers in India Should Know",
@@ -62,7 +64,7 @@ export default function Page() {
         actually works in India, so every rupee you spend is one you meant to spend.
       </p>
 
-      <h2>1. The variant ladder</h2>
+      <h2>1. The variant ladder: pushed toward a costlier trim</h2>
       <p>
         Every model you&rsquo;re considering comes in a base, mid, and top variant — and the base
         variant is often built to feel like the compromise option, sometimes missing things that
@@ -83,7 +85,7 @@ export default function Page() {
 
       <VariantLadderVisual />
 
-      <h2>2. The quotation with line items you didn&rsquo;t ask for</h2>
+      <h2>2. Hidden charges in the car quotation</h2>
       <p>
         The final &ldquo;on-road price&rdquo; you&rsquo;re quoted is rarely just the car&rsquo;s
         ex-showroom price. It typically bundles RTO registration and insurance with — this is the
@@ -104,7 +106,7 @@ export default function Page() {
 
       <QuoteBreakdownVisual />
 
-      <h2>3. The &ldquo;only today&rdquo; discount</h2>
+      <h2>3. The &ldquo;only today&rdquo; discount and fake urgency</h2>
       <p>
         A discount that expires &ldquo;today&rdquo; is one of the oldest tools in retail, not just
         car sales — and it works by removing your ability to compare before deciding. Sometimes
@@ -123,7 +125,7 @@ export default function Page() {
 
       <UrgencyVisual />
 
-      <h2>4. &ldquo;It&rsquo;s only ₹2,000 more a month&rdquo;</h2>
+      <h2>4. EMI framing: &ldquo;It&rsquo;s only ₹2,000 more a month&rdquo;</h2>
       <p>
         This is one of the most relatable pressure points in the entire process, especially if
         you&rsquo;re financing your first car. Reframing a bigger, better-equipped variant as
@@ -180,7 +182,7 @@ export default function Page() {
         question, with the exact words to ask.
       </p>
 
-      <h2>How CarDhoondo fits in</h2>
+      <h2>How CarDhoondo helps you avoid these dealer tricks</h2>
       <p>
         Most of the pressure inside a dealership shows up in the gap between what you&rsquo;re
         fairly sure you want and what you&rsquo;re actually sure you need. CarDhoondo is built to

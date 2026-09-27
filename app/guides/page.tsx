@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
+import Breadcrumbs from "../../components/Breadcrumbs";
 
 const TITLE = "Car Buying Guides for India";
 const DESCRIPTION =
@@ -59,7 +60,8 @@ export default function GuidesIndexPage() {
       </header>
 
       <div className="mx-auto max-w-3xl px-6 py-14">
-        <p className="font-display text-sm font-semibold uppercase tracking-wide text-accent-rust-soft">Guides</p>
+        <Breadcrumbs trail={[{ name: "Guides" }]} />
+        <p className="mt-6 font-display text-sm font-semibold uppercase tracking-wide text-accent-rust-soft">Guides</p>
         <h1 className="mt-3 font-display text-3xl font-bold text-balance text-ink sm:text-4xl">{TITLE}</h1>
         <p className="mt-4 max-w-xl text-lg leading-relaxed text-ink-soft">{DESCRIPTION}</p>
 

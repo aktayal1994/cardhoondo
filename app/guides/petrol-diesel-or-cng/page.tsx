@@ -18,6 +18,8 @@ export default function Page() {
       eyebrow="Fuel type"
       title={TITLE}
       slug="petrol-diesel-or-cng"
+      datePublished="2026-08-23"
+      dateModified="2026-08-23"
       dek="Every fuel type has a genuine case behind it, and every 'best fuel' article is really answering for someone else's yearly mileage. Here's how to work out yours."
     >
       <p>
@@ -28,7 +30,7 @@ export default function Page() {
         there&rsquo;s a best fuel type for your specific annual mileage and driving pattern.
       </p>
 
-      <h2>The running-cost math, roughly</h2>
+      <h2>Petrol vs diesel vs CNG running cost in India</h2>
       <p>
         As a general pattern: CNG tends to work out cheapest per kilometre for high-mileage city
         driving, petrol sits in the middle and is the simplest to live with, and diesel only pulls
@@ -39,7 +41,7 @@ export default function Page() {
         about its engine life.
       </p>
 
-      <h2>Diesel: still real, but narrowing</h2>
+      <h2>Is a diesel car still worth buying in India?</h2>
       <p>
         Diesel engines genuinely last longer under load and still make sense for large SUVs, high
         highway mileage, or fleet-style use where torque and range matter more than city
@@ -50,7 +52,7 @@ export default function Page() {
         worth a genuinely hard look before committing.
       </p>
 
-      <h2>CNG: the quiet default for high city mileage</h2>
+      <h2>CNG cars: the cheapest option for high city mileage</h2>
       <p>
         Factory-fitted CNG has gone from a compromise to a mainstream option, and for a car that
         mostly does city kilometres, it&rsquo;s often the cheapest to run by a wide margin over a
@@ -60,7 +62,7 @@ export default function Page() {
         especially if boot space already matters to you.
       </p>
 
-      <h2>Petrol: the default for a reason</h2>
+      <h2>Petrol cars: the safe default for most buyers</h2>
       <p>
         If your annual mileage doesn&rsquo;t clearly favour CNG or diesel, petrol is usually the
         right default — lower purchase price than diesel, simpler and cheaper to service than
@@ -69,7 +71,7 @@ export default function Page() {
         future driving pattern.
       </p>
 
-      <h2>The real question to ask yourself</h2>
+      <h2>Which fuel type is right for you? Four questions to ask</h2>
       <ul>
         <li>How many kilometres do you actually drive in a typical month — not what you expect to, what you actually do today?</li>
         <li>Is that mostly city stop-start, or real highway stretches?</li>

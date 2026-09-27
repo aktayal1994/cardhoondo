@@ -18,6 +18,8 @@ export default function Page() {
       eyebrow="Transmission"
       title={TITLE}
       slug="manual-vs-automatic-india"
+      datePublished="2026-08-23"
+      dateModified="2026-08-23"
       dek="This isn't really a manual-vs-automatic question. It's a 'how much of my driving is stuck in traffic' question wearing a transmission-type costume."
     >
       <p>
@@ -28,7 +30,7 @@ export default function Page() {
         with a clutch?
       </p>
 
-      <h2>Automatic wins where traffic is the daily reality</h2>
+      <h2>Why an automatic car wins in Indian city traffic</h2>
       <p>
         In heavy, repeated stop-start traffic — the kind that defines daily commuting in Delhi
         NCR, Mumbai, Bengaluru, or Pune — not having to work a clutch pedal every 20 seconds is a
@@ -37,7 +39,7 @@ export default function Page() {
         cost on its own.
       </p>
 
-      <h2>Manual still has a real cost and mileage edge</h2>
+      <h2>Where a manual car still wins: price, mileage and control</h2>
       <p>
         Manual gearboxes remain cheaper to buy, cheaper to service, and mechanically simpler —
         fewer parts that can fail expensively. On the highway specifically, a well-driven manual
@@ -46,7 +48,7 @@ export default function Page() {
         tight enough that the automatic premium matters, manual is a defensible, unglamorous, correct choice.
       </p>
 
-      <h2>Not all &ldquo;automatic&rdquo; is the same</h2>
+      <h2>AMT vs CVT vs torque converter vs DCT: not all automatics are the same</h2>
       <p>
         This is the part general advice usually skips: AMT, CVT, torque-converter automatic, and
         DCT are four different technologies sold under one &ldquo;automatic&rdquo; label, and they
@@ -75,7 +77,7 @@ export default function Page() {
         </li>
       </ul>
 
-      <h2>What to actually test before deciding</h2>
+      <h2>Manual or automatic: what to test before you decide</h2>
       <ul>
         <li>Drive the exact variant at crawling speed in real traffic, not just open road — this is where AMT and DCT differ most from how they feel on a test track.</li>
         <li>Ask an owner (not a dealer) how the specific transmission behaves after a few thousand kilometres, not on day one.</li>

@@ -328,3 +328,11 @@ Searched every car's aggregated claims (`data/claims/*_aggregated.json`, not par
 
 ## 2026-09-27
 - Campaign attribution: utm_* params captured on landing (lib/utm.ts, GAPageTracker), sent with /api/recommend and stored (sanitised) so ad signups can be traced to their creative.
+
+## SEO: public car pages, guide author/dates, breadcrumbs, headings, favicon (Sep 27, 2026)
+
+- **Car pages:** `/cars` index and `/cars/<slug>` for 20 high-selling cars that also hold 100+ review claims (list in `lib/cars/featured.ts`; Hyundai Creta and Tata Nexon are under the claims bar). Built only from existing database rows (`cars`, `powertrains`, `facet_scores`, `review_claims`), no AI text. Verdict sections need 5+ claims per topic, ratings list 3+; quotes that name a rival car or come from another car's video are left out; each quote links to its source video. Page has BreadcrumbList, FAQPage and WebPage structured data. All in the sitemap with real last-updated dates.
+- **Guides:** byline "By Aakash Tayal", published/updated dates (from git history: 23 Aug 2026; dealer-tricks updated 26 Sep 2026), Article structured data with Person author, publisher logo and image, plus breadcrumbs on guides, guides index, quotation and car pages.
+- **Headings:** guide subheadings reworded around what people search; home H1 now "...in India?" and four home H2s reworded; `/quotation` is now a server page with crawlable H1 and explanatory sections (before, it rendered only in the browser).
+- **Sitemap:** dropped the fake "modified now" on every URL; only real dates are listed. **Favicon:** `app/favicon.ico` generated from `icon.png` (16/32/48 px).
+- Verified: typecheck; all 20 car pages, index, quotation, guides, sitemap (30 URLs), favicon and a 404 for non-featured cars checked on cardhoondo.com; mobile width has no horizontal scroll.

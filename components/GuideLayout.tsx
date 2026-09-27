@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import Breadcrumbs from "./Breadcrumbs";
 
 /**
  * Shared chrome for /guides/* content pages. Distinct from LandingScreen's
@@ -10,11 +11,26 @@ import { ArrowRight } from "lucide-react";
  */
 const SITE_URL = "https://cardhoondo.com";
 
+/** Every guide is written and maintained by the founder; the byline and the
+ * Article structured data must say the same thing. */
+const AUTHOR_NAME = "Aakash Tayal";
+
+function formatDate(isoDate: string): string {
+  return new Date(`${isoDate}T00:00:00Z`).toLocaleDateString("en-IN", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    timeZone: "UTC",
+  });
+}
+
 export default function GuideLayout({
   eyebrow,
   title,
   dek,
   slug,
+  datePublished,
+  dateModified,
   heroImage,
   children,
 }: {
@@ -22,6 +38,10 @@ export default function GuideLayout({
   title: string;
   dek: string;
   slug: string;
+  /** ISO date (YYYY-MM-DD) the guide first went live. */
+  datePublished: string;
+  /** ISO date (YYYY-MM-DD) of the last real content change. */
+  dateModified: string;
   heroImage?: { src: string; alt: string; width: number; height: number };
   children: React.ReactNode;
 }) {
@@ -30,9 +50,18 @@ export default function GuideLayout({
     "@type": "Article",
     headline: title,
     description: dek,
-    ...(heroImage ? { image: `${SITE_URL}${heroImage.src}` } : {}),
-    publisher: { "@type": "Organization", name: "CarDhoondo", url: SITE_URL },
-    mainEntityOfPage: `${SITE_URL}/guides/${slug}`,
+    image: `${SITE_URL}${heroImage ? heroImage.src : "/og-image.png"}`,
+    datePublished,
+    dateModified,
+    author: { "@type": "Person", name: AUTHOR_NAME },
+    publisher: {
+      "@type": "Organization",
+      name: "CarDhoondo",
+      url: SITE_URL,
+      logo: { "@type": "ImageObject", url: `${SITE_URL}/cardhoondo-logo.png` },
+    },
+    inLanguage: "en-IN",
+    mainEntityOfPage: { "@type": "WebPage", "@id": `${SITE_URL}/guides/${slug}` },
   };
 
   return (
@@ -56,7 +85,8 @@ export default function GuideLayout({
         </div>
       )}
       <article className="mx-auto max-w-2xl px-6 py-14">
-        <p className="font-display text-sm font-semibold uppercase tracking-wide text-accent-rust-soft">{eyebrow}</p>
+        <Breadcrumbs trail={[{ name: "Guides", href: "/guides" }, { name: title }]} />
+        <p className="mt-6 font-display text-sm font-semibold uppercase tracking-wide text-accent-rust-soft">{eyebrow}</p>
         {/* The hero image already carries the headline as baked-in text for
             readers -- this h1 stays in the DOM (visually hidden) so search
             engines and screen readers still get a real, crawlable heading,
@@ -69,6 +99,16 @@ export default function GuideLayout({
           {title}
         </h1>
         <p className="mt-4 text-lg leading-relaxed text-ink-soft">{dek}</p>
+        <p className="mt-4 text-sm text-ink-faint">
+          By <span className="font-medium text-ink-soft">{AUTHOR_NAME}</span> · Published{" "}
+          <time dateTime={datePublished}>{formatDate(datePublished)}</time>
+          {dateModified !== datePublished && (
+            <>
+              {" "}
+              · Updated <time dateTime={dateModified}>{formatDate(dateModified)}</time>
+            </>
+          )}
+        </p>
         <div className="prose-guide mt-10">{children}</div>
         <BottomCta />
       </article>
@@ -77,7 +117,7 @@ export default function GuideLayout({
   );
 }
 
-function GuideNav() {
+export function GuideNav() {
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-paper/90 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
@@ -86,6 +126,9 @@ function GuideNav() {
           <span className="font-display text-base font-bold text-ink">CarDhoondo</span>
         </Link>
         <nav className="hidden items-center gap-8 text-sm font-medium text-ink-soft sm:flex">
+          <Link href="/cars" className="transition hover:text-ink">
+            Car reviews
+          </Link>
           <Link href="/guides" className="transition hover:text-ink">
             Guides
           </Link>
@@ -130,7 +173,7 @@ function BottomCta() {
   );
 }
 
-function GuideFooter() {
+export function GuideFooter() {
   return (
     <footer className="bg-stage py-12">
       <div className="mx-auto flex max-w-6xl flex-col items-center gap-8 px-6 text-center sm:flex-row sm:items-start sm:justify-between sm:text-left">
@@ -147,6 +190,9 @@ function GuideFooter() {
         <nav className="flex items-center gap-6 text-sm font-medium text-stage-ink-soft">
           <Link href="/#faq" className="transition hover:text-stage-ink">
             FAQ
+          </Link>
+          <Link href="/cars" className="transition hover:text-stage-ink">
+            Car reviews
           </Link>
           <Link href="/guides" className="transition hover:text-stage-ink">
             Guides

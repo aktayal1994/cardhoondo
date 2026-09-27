@@ -18,6 +18,8 @@ export default function Page() {
       eyebrow="Decision paralysis"
       title={TITLE}
       slug="why-everyone-has-different-opinion"
+      datePublished="2026-08-23"
+      dateModified="2026-08-23"
       dek="You've asked around. You've watched the videos. And somehow you're more confused than when you started. That's not you being indecisive — it's how the advice is built."
     >
       <p>
@@ -30,7 +32,7 @@ export default function Page() {
         what each of them is actually answering.
       </p>
 
-      <h2>Everyone is answering a different question</h2>
+      <h2>Why everyone gives you different car buying advice</h2>
       <p>
         Your chacha bought his car in a different city, for a different family size, at a
         different stage of life, and he&rsquo;s telling you what worked <em>for him</em>. Your
@@ -63,7 +65,7 @@ export default function Page() {
         evidence says for exactly that.
       </p>
 
-      <h2>What actually helps</h2>
+      <h2>How to choose the right car when the advice conflicts</h2>
       <ul>
         <li>
           <strong>Start from your life, not the car.</strong> Road conditions, typical trip

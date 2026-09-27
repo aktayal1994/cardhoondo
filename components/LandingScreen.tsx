@@ -347,6 +347,9 @@ function Nav({ onStart }: { onStart: (location: string) => void }) {
           <a href="#how-it-works" className="transition hover:text-ink">
             How it works
           </a>
+          <Link href="/cars" className="transition hover:text-ink">
+            Car reviews
+          </Link>
           <Link href="/guides" className="transition hover:text-ink">
             Guides
           </Link>
@@ -587,7 +590,7 @@ function Hero({ onStart, claims }: { onStart: (location: string) => void; claims
 
           <StaggerHeading
             as="h1"
-            text="Still confused which car to buy?"
+            text="Still confused which car to buy in India?"
             className="mt-6 max-w-xl text-balance font-display text-[clamp(2.1rem,4.8vw,3.5rem)] font-semibold leading-[1.12] text-ink"
           />
           <motion.p
@@ -803,7 +806,7 @@ function HowItWorks({ onStart }: { onStart: (location: string) => void }) {
       <div className="mx-auto max-w-6xl px-6">
         <div className="max-w-2xl">
           <StaggerHeading
-            text="From confused to confident, in four steps"
+            text="How to pick the right car in India, in four steps"
             className="text-balance font-display text-3xl font-bold text-ink sm:text-4xl"
           />
           <RevealOnScroll delay={0.15}>
@@ -925,7 +928,7 @@ function EvidencePreview() {
       <div className="mx-auto grid max-w-6xl grid-cols-1 items-start gap-12 px-6 lg:grid-cols-[0.85fr_1.15fr] lg:gap-16">
         <div className="max-w-lg">
           <StaggerHeading
-            text="This is what evidence-backed actually looks like"
+            text="Car recommendations backed by real owner and expert reviews"
             className="text-balance font-display text-3xl font-bold text-ink sm:text-4xl"
           />
           <RevealOnScroll delay={0.15}>
@@ -1093,7 +1096,7 @@ function AboutUs({ stats }: { stats: SiteStats }) {
           <div>
             <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-ink-faint">About us</p>
             <StaggerHeading
-              text="We built the advisor we wished we had"
+              text="An unbiased car advisor with no dealer commissions"
               className="mt-3 text-balance font-display text-3xl font-bold text-ink sm:text-4xl"
             />
             <RevealOnScroll delay={0.15}>
@@ -1176,7 +1179,7 @@ function Faq() {
     <section id="faq" className="border-t border-border py-20 sm:py-28">
       <div className="mx-auto max-w-3xl px-6">
         <StaggerHeading
-          text="Common questions about how CarDhoondo works"
+          text="Car buying FAQs: how CarDhoondo works"
           className="text-center text-balance font-display text-3xl font-bold text-ink sm:text-4xl"
         />
 
@@ -1289,6 +1292,9 @@ function Footer() {
           <a href="#faq" className="transition hover:text-ink">
             FAQ
           </a>
+          <Link href="/cars" className="transition hover:text-ink">
+            Car reviews
+          </Link>
           <Link href="/guides" className="transition hover:text-ink">
             Guides
           </Link>
