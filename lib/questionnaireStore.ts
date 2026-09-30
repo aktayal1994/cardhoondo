@@ -1,7 +1,8 @@
 /**
  * Persists questionnaire progress across real page navigations. Each of the
- * 4 steps (intro / core requirements / everyday driving / what matters) is
- * now its own route (see app/questionnaire/*), so state can't just live in
+ * 4 steps (core requirements / everyday driving / what matters / intro --
+ * name+pincode+phone+consent, last in the flow) is now its own route (see
+ * app/questionnaire/*), so state can't just live in
  * a single component's React state the way the old single-page
  * QuestionnaireFlow did -- a route change unmounts the page. sessionStorage
  * is the right lifetime here: survives back/forward and refresh within the

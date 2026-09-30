@@ -12,19 +12,14 @@ export default function CoreRequirementsPage() {
   const [state, setState] = useState<QuestionnaireState | null>(null);
 
   useEffect(() => {
-    const loaded = loadQuestionnaireState();
-    if (!loaded.intro) {
-      router.replace("/questionnaire/intro");
-      return;
-    }
-    setState(loaded);
+    setState(loadQuestionnaireState());
   }, [router]);
 
   if (!state) return null;
 
   return (
     <div className="min-h-screen bg-paper">
-      <StepProgress current={2} />
+      <StepProgress current={1} />
       <StepQuestionForm
         section="core_requirements"
         sectionLabel="Core requirements"
@@ -32,7 +27,7 @@ export default function CoreRequirementsPage() {
         initialSkipped={state.skipped}
         priorProfileEntries={[]}
         transitionMessage="Budget, fuel, seating, transmission — the non-negotiables are locked in."
-        backHref="/questionnaire/intro"
+        backHref="/"
         onSectionComplete={() => {
           trackEvent("questionnaire_step_complete", { step: "core_requirements" });
           router.push("/questionnaire/everyday-driving");

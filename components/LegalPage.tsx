@@ -56,7 +56,7 @@ export default function LegalPage({
             <span className="font-display text-base font-bold text-ink">CarDhoondo</span>
           </Link>
           <Link
-            href="/questionnaire/intro"
+            href="/questionnaire/core-requirements"
             className="rounded-full bg-accent-rust px-5 py-2.5 text-sm font-semibold text-stage shadow-glow-sm transition hover:brightness-110 active:scale-[0.98]"
           >
             Find my car

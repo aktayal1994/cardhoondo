@@ -75,9 +75,16 @@ export default function ResultsFlow({ source }: { source: ResultsSource }) {
 
   const submitFresh = useCallback(async () => {
     const stored = loadQuestionnaireState();
-    // A session saved before the consent notice existed has no consent
-    // version: send it back to the intro so the person can read and agree.
-    if (!stored.intro || !stored.intro.consent_notice_version || !isSectionComplete("what_matters", stored.answers)) {
+    // Contact details + consent are the last questionnaire step (see
+    // CLAUDE.md), collected right before this submit -- if the questions
+    // themselves aren't done, send back to the start of the flow. A session
+    // saved before the consent notice existed has no consent version: send
+    // it to the intro/contact step so the person can read and agree.
+    if (!isSectionComplete("what_matters", stored.answers)) {
+      router.replace("/questionnaire/core-requirements");
+      return;
+    }
+    if (!stored.intro || !stored.intro.consent_notice_version) {
       router.replace("/questionnaire/intro");
       return;
     }

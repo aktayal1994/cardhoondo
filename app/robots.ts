@@ -8,9 +8,9 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: "*",
       allow: "/",
       // Mid-flow questionnaire/results/api routes depend on client state built up
-      // sequentially from /questionnaire/intro -- there's nothing meaningful to
-      // index if a crawler lands on them directly, so keep crawl budget on the
-      // real content (home + guides) instead.
+      // sequentially from /questionnaire/core-requirements -- there's nothing
+      // meaningful to index if a crawler lands on them directly, so keep crawl
+      // budget on the real content (home + guides) instead.
       disallow: ["/questionnaire/", "/results", "/api/", "/account", "/saved/", "/auth/"],
     },
     sitemap: `${SITE_URL}/sitemap.xml`,

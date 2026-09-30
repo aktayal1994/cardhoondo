@@ -6,8 +6,9 @@ import Breadcrumbs from "./Breadcrumbs";
 /**
  * Shared chrome for /guides/* content pages. Distinct from LandingScreen's
  * Nav/Footer because guide pages are real routes (not the homepage SPA) --
- * "Find my car" is a plain link to /questionnaire/intro here, not a client
- * callback, and nav links point back to homepage anchors via "/".
+ * "Find my car" is a plain link to /questionnaire/core-requirements (the
+ * flow's first question step) here, not a client callback, and nav links
+ * point back to homepage anchors via "/".
  */
 const SITE_URL = "https://cardhoondo.com";
 
@@ -143,7 +144,7 @@ export function GuideNav() {
           </Link>
         </nav>
         <Link
-          href="/questionnaire/intro"
+          href="/questionnaire/core-requirements"
           className="rounded-full bg-accent-rust px-5 py-2.5 text-sm font-semibold text-stage shadow-sm transition hover:brightness-105 active:scale-[0.98]"
         >
           Find my car
@@ -164,7 +165,7 @@ function BottomCta() {
         review evidence and hand you 2–3 cars that genuinely fit, not a list of fifty.
       </p>
       <Link
-        href="/questionnaire/intro"
+        href="/questionnaire/core-requirements"
         className="mt-5 inline-flex items-center gap-2 rounded-full bg-accent-rust px-6 py-3 text-sm font-semibold text-stage shadow-sm transition hover:brightness-105 active:scale-[0.98]"
       >
         Find my car <ArrowRight className="h-4 w-4" />

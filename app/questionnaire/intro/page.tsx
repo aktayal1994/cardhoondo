@@ -6,6 +6,7 @@ import IntroStep, { type IntroValues } from "../../../components/IntroStep";
 import StepProgress from "../../../components/StepProgress";
 import StepTransition from "../../../components/StepTransition";
 import { loadQuestionnaireState, saveIntro } from "../../../lib/questionnaireStore";
+import { isSectionComplete } from "../../../lib/questions";
 import { trackEvent } from "../../../lib/analytics";
 import { useMe } from "../../../lib/auth/useMe";
 
@@ -27,9 +28,18 @@ export default function IntroPage() {
 
   useEffect(() => {
     const state = loadQuestionnaireState();
+    // This is now the last step (see CLAUDE.md: contact details moved to the
+    // end to cut first-touch friction) -- if the questions aren't done yet,
+    // send them back into the flow rather than asking for contact details
+    // first. what-matters redirects further back itself if an earlier
+    // section is incomplete, so this cascades to the right step.
+    if (!isSectionComplete("what_matters", state.answers)) {
+      router.replace("/questionnaire/what-matters");
+      return;
+    }
     if (state.intro) setInitialValues(state.intro);
     setHydrated(true);
-  }, []);
+  }, [router]);
 
   useEffect(() => {
     if (me.status === "unknown") return;
@@ -61,14 +71,14 @@ export default function IntroPage() {
   }
 
   if (transitioning) {
-    return <StepTransition message={transitioning} onDone={() => router.push("/questionnaire/core-requirements")} />;
+    return <StepTransition message={transitioning} onDone={() => router.push("/results")} />;
   }
 
   if (!hydrated || !contactChecked) return null;
 
   return (
     <div className="min-h-screen bg-paper">
-      <StepProgress current={1} />
+      <StepProgress current={4} />
       <IntroStep initialValues={initialValues} savedContact={savedContact} onContinue={handleContinue} />
     </div>
   );

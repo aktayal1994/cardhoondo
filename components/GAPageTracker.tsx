@@ -7,8 +7,9 @@ import { captureUtm } from "../lib/utm";
 
 /**
  * The questionnaire moved from one client-state SPA page to 4 real routes
- * (/questionnaire/intro -> core-requirements -> everyday-driving ->
- * what-matters -> /results), but gtag's base install only ever fires an
+ * (/questionnaire/core-requirements -> everyday-driving -> what-matters ->
+ * intro (name/pincode/phone + consent, now last) -> /results), but gtag's
+ * base install only ever fires an
  * automatic page_view on the very first full page load -- Next.js
  * client-side navigation between those routes never triggers another one.
  * Every step past the landing page was invisible to GA4 until this

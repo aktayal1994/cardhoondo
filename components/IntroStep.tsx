@@ -30,11 +30,15 @@ function maskPhone(phone: string): string {
 }
 
 /**
- * Step 1 of 4 (see app/questionnaire/intro/page.tsx and docs/questionnaire.md's
- * "Intro" section) -- not counted as one of the 11 scored questions, but now
- * mandatory rather than optional per explicit direction: a real name/phone/
- * pincode on every submission is worth more than a slightly lower completion
- * rate, since the human-handoff step (WhatsApp/call outreach) depends on it.
+ * Step 4 of 4, the LAST step before /results (see
+ * app/questionnaire/intro/page.tsx and docs/questionnaire.md's "Intro"
+ * section) -- moved from first to last so the higher-friction ask (contact
+ * details) comes after someone has already invested in the 11 questions,
+ * not before they've seen any value. Not counted as one of the 11 scored
+ * questions, but still mandatory rather than optional per explicit
+ * direction: a real name/phone/pincode on every submission is worth more
+ * than a slightly lower completion rate, since the human-handoff step
+ * (WhatsApp/call outreach) depends on it.
  */
 export default function IntroStep({ initialValues, savedContact, onContinue }: IntroStepProps) {
   const [name, setName] = useState(initialValues?.name ?? savedContact?.name ?? "");
@@ -63,7 +67,7 @@ export default function IntroStep({ initialValues, savedContact, onContinue }: I
         </div>
         <div>
           <h2 className="font-display text-xl font-semibold text-ink">
-            {confirmOnly ? "Welcome back — same details?" : "Let's start with a few details"}
+            {confirmOnly ? "Welcome back — same details?" : "Almost there — a few details"}
           </h2>
           <p className="mt-1 text-sm text-ink-soft">
             We use these to tailor your shortlist to your city and to get back to you about it.

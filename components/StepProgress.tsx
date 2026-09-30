@@ -3,7 +3,7 @@
 import { motion } from "motion/react";
 import { Check } from "lucide-react";
 
-const STEP_LABELS = ["Your info", "Core requirements", "Everyday driving", "What matters"];
+const STEP_LABELS = ["Core requirements", "Everyday driving", "What matters", "Your info"];
 
 interface StepProgressProps {
   /** 1-indexed current step, 1-4. */

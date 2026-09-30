@@ -64,7 +64,7 @@ export default async function CarsIndexPage() {
             review evidence.
           </p>
           <Link
-            href="/questionnaire/intro"
+            href="/questionnaire/core-requirements"
             className="mt-5 inline-flex rounded-full bg-accent-rust px-6 py-3 text-sm font-semibold text-stage shadow-sm transition hover:brightness-105 active:scale-[0.98]"
           >
             Find my car

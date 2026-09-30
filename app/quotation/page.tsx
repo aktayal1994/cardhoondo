@@ -138,7 +138,7 @@ function QuotationNav() {
           </Link>
         </nav>
         <Link
-          href="/questionnaire/intro"
+          href="/questionnaire/core-requirements"
           className="rounded-full bg-accent-rust px-5 py-2.5 text-sm font-semibold text-stage shadow-sm transition hover:brightness-105 active:scale-[0.98]"
         >
           Find my car

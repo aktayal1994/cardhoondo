@@ -14,10 +14,6 @@ export default function EverydayDrivingPage() {
 
   useEffect(() => {
     const loaded = loadQuestionnaireState();
-    if (!loaded.intro) {
-      router.replace("/questionnaire/intro");
-      return;
-    }
     if (!isSectionComplete("core_requirements", loaded.answers)) {
       router.replace("/questionnaire/core-requirements");
       return;
@@ -29,7 +25,7 @@ export default function EverydayDrivingPage() {
 
   return (
     <div className="min-h-screen bg-paper">
-      <StepProgress current={3} />
+      <StepProgress current={2} />
       <StepQuestionForm
         section="everyday_driving"
         sectionLabel="Your everyday driving"

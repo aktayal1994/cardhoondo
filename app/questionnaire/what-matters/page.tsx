@@ -14,10 +14,6 @@ export default function WhatMattersPage() {
 
   useEffect(() => {
     const loaded = loadQuestionnaireState();
-    if (!loaded.intro) {
-      router.replace("/questionnaire/intro");
-      return;
-    }
     if (!isSectionComplete("everyday_driving", loaded.answers)) {
       router.replace("/questionnaire/everyday-driving");
       return;
@@ -29,7 +25,7 @@ export default function WhatMattersPage() {
 
   return (
     <div className="min-h-screen bg-paper">
-      <StepProgress current={4} />
+      <StepProgress current={3} />
       <StepQuestionForm
         section="what_matters"
         sectionLabel="What matters to you"
@@ -39,13 +35,11 @@ export default function WhatMattersPage() {
           ...profileEntriesForSection("core_requirements", state.answers, state.skipped),
           ...profileEntriesForSection("everyday_driving", state.answers, state.skipped),
         ]}
-        // No transitionMessage -- ThinkingBridge on /results is itself the
-        // acknowledgment/wait screen for this final handoff, so a second
-        // beat here would just be a redundant pause before it.
+        transitionMessage="Just one more step — your name and number so we can show and follow up on your matches."
         backHref="/questionnaire/everyday-driving"
         onSectionComplete={() => {
           trackEvent("questionnaire_step_complete", { step: "what_matters" });
-          router.push("/results");
+          router.push("/questionnaire/intro");
         }}
       />
     </div>
