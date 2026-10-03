@@ -367,3 +367,9 @@ Searched every car's aggregated claims (`data/claims/*_aggregated.json`, not par
 - Candidates carry `price_city` / `price_basis`; results, compare and car detail show "₹X on-road in <City>" (+ "(estimated)"). Older saved results show the bare price.
 - Verified on production: Indore pincode 452001 -> Indore prices (Syros EV HTK ₹14.77L vs ₹14.27L Delhi); no pincode -> "in New Delhi". Test rows deleted.
 - Note: the separate Vercel project `cardhoondo-deploy` (auto-builds from this repo's pushes) has failed every build since ~27 Sep because it has no Supabase env vars; it serves nothing. cardhoondo.com is the `cardhoondo` project, deployed by CLI.
+
+## 2026-10-03 — Intro form drop-off signals (GA)
+
+- Why: the Instagram boost sent ~197 visitors and got 2 searches; need to tell whether people quit at the name/pincode/phone screen and whether they quit without trying or after the form rejected them.
+- `components/IntroStep.tsx`: `intro_field_start` (once per field per visit: name/pincode/phone) on focus, and `intro_blocked` with the invalid field names when "Agree and continue" is pressed on an invalid form. Field names only, never values.
+- Deployed from this checkout with only this file changed (another session had unshipped work in `Claude/web`). Verified on cardhoondo.com: page JS contains the events; in the browser, `intro_blocked` (name,pincode,phone) and `intro_field_start` (phone, pincode; no repeat) land in dataLayer and `/g/collect` fires.
