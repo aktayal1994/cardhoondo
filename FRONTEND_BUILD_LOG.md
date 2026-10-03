@@ -353,3 +353,10 @@ Searched every car's aggregated claims (`data/claims/*_aggregated.json`, not par
 - Visitors can turn analytics off from "Cookie settings" in the footer ("Turn off"); a "denied" choice, including old Rejects, is still honoured and clears `_ga*` cookies.
 - Privacy policy bumped to v1.4 (sign-in) / v1.3 (no sign-in), effective 3 Oct 2026; sections 3, 6 and 8 reworded to match.
 - Verified on cardhoondo.com: fresh visitor -> no banner, gtag loads, page_view reaches /g/collect; after "Turn off" nothing loads.
+
+## 2026-10-03 — Deliberate variant choice on the shortlist
+
+- Bug seen in a real ad user's results: "Features and tech" priority got the base Brezza LXi. Cause: review claims are per model/powertrain, so all trims of one powertrain tie on score and dedupe kept whichever variant was listed first (usually the base trim).
+- `lib/scoring/recommend.ts`: tied variants (within 1e-6) are now chosen by `pickVariantAmongTies()` using spec-sheet feature counts: Features priority -> best-equipped in budget; Safety priority -> most Safety+ADAS features; otherwise -> cheapest variant with >= 80% of the best tied variant's features ("sweet spot", avoids both base trim and top-trim upsell). Python twin `scripts/recommend.py` not changed yet.
+- Replayed both real 2 Oct searches: search 2 now Brezza VXi Turbo / Baleno Zeta / Exter HX4 CNG (was LXi / Delta / HX2 CNG). Verified on production with an anonymous request (test rows deleted).
+- Checked the "same price" suspicion: Baleno Delta and Exter HX2 CNG both have ex-showroom Rs 6,99,900 in Delhi, so identical on-road Rs 7,92,206 is genuine, not a bug.

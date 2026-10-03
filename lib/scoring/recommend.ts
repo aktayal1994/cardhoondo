@@ -221,6 +221,76 @@ export function passesStructuralFilters(
   return { ok: true, reason: "" };
 }
 
+// Variants whose scores differ by less than this are treated as tied.
+const SCORE_TIE_EPSILON = 1e-6;
+
+// Spec sections whose `true` entries count as equipment. Values are booleans
+// in the catalog (e.g. "Wireless Phone Charging": false).
+const FEATURE_SECTIONS = [
+  "Comfort & Convenience",
+  "Interior",
+  "Exterior",
+  "Safety",
+  "Entertainment & Communication",
+  "ADAS Feature",
+  "Advance Internet Feature",
+];
+const SAFETY_SECTIONS = ["Safety", "ADAS Feature"];
+
+// Default pick: the cheapest variant with at least this share of the
+// best-equipped tied variant's features -- not the bare base trim, and not
+// the top-trim upsell the "variant-ladder trap" warns about.
+const SWEET_SPOT_FEATURE_SHARE = 0.8;
+
+function countTrue(variant: CatalogVariant | undefined, sections: string[]): number {
+  if (!variant) return 0;
+  let n = 0;
+  for (const s of sections) {
+    const sec = variant.spec_sections?.[s];
+    if (!sec) continue;
+    for (const v of Object.values(sec)) if (v === true || String(v).trim().toLowerCase() === "yes") n++;
+  }
+  return n;
+}
+
+/**
+ * Chooses which variant represents a car when several tie on review score.
+ * - "Features and tech" in the top 2: the best-equipped variant (cheaper wins a tie).
+ * - "Safety and build quality": the most safety/ADAS features, then most features, then cheaper.
+ * - Otherwise: the sweet spot (SWEET_SPOT_FEATURE_SHARE above).
+ * Every tied variant already passed the budget filter, so all are affordable.
+ */
+function pickVariantAmongTies(
+  tied: RecommendCandidate[],
+  variantByKey: Map<string, CatalogVariant>,
+  answers: QuestionnaireAnswers,
+): RecommendCandidate {
+  if (tied.length === 1) return tied[0];
+  const priorities = asList(answers["q_top2_priorities"]);
+  const info = tied.map((c) => {
+    const v = variantByKey.get(`${c.car_id}::${c.variant_id}`);
+    return {
+      c,
+      features: countTrue(v, FEATURE_SECTIONS),
+      safety: countTrue(v, SAFETY_SECTIONS),
+      price: c.price_on_road ?? Number.MAX_SAFE_INTEGER,
+    };
+  });
+  type Info = (typeof info)[number];
+  const pick = (cmp: (a: Info, b: Info) => number) => [...info].sort(cmp)[0].c;
+
+  if (priorities.includes("Features and tech")) {
+    return pick((a, b) => b.features - a.features || a.price - b.price);
+  }
+  if (priorities.includes("Safety and build quality")) {
+    return pick((a, b) => b.safety - a.safety || b.features - a.features || a.price - b.price);
+  }
+  const maxFeatures = Math.max(...info.map((i) => i.features));
+  const floor = maxFeatures * SWEET_SPOT_FEATURE_SHARE;
+  const sweet = info.filter((i) => i.features >= floor);
+  return [...sweet].sort((a, b) => a.price - b.price || b.features - a.features)[0].c;
+}
+
 export interface RecommendCandidate {
   car_id: string;
   brand: string;
@@ -324,11 +394,23 @@ export function recommend(input: RecommendInput): RecommendOutput {
   }
 
   // Dedupe: keep only the best-scoring variant per car model, so two
-  // variants of the same car can never both take a shortlist slot.
-  const bestByCar = new Map<string, RecommendCandidate>();
+  // variants of the same car can never both take a shortlist slot. Review
+  // claims almost never exist per trim, so every variant of one powertrain
+  // usually ties exactly -- pickVariantAmongTies() then chooses on purpose
+  // instead of keeping whichever variant happened to be listed first (which
+  // was nearly always the base trim).
+  const byCar = new Map<string, RecommendCandidate[]>();
   for (const c of candidates) {
-    const cur = bestByCar.get(c.car_id);
-    if (!cur || c.composite_score > cur.composite_score) bestByCar.set(c.car_id, c);
+    const list = byCar.get(c.car_id);
+    if (list) list.push(c);
+    else byCar.set(c.car_id, [c]);
+  }
+  const variantByKey = new Map(catalogVariants.map((v) => [`${v.car_id}::${v.variant_id}`, v]));
+  const bestByCar = new Map<string, RecommendCandidate>();
+  for (const [carId, list] of byCar) {
+    const top = Math.max(...list.map((c) => c.composite_score));
+    const tied = list.filter((c) => top - c.composite_score <= SCORE_TIE_EPSILON);
+    bestByCar.set(carId, pickVariantAmongTies(tied, variantByKey, answers));
   }
 
   const ranked = Array.from(bestByCar.values()).sort((a, b) => b.composite_score - a.composite_score);
