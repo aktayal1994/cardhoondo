@@ -72,6 +72,8 @@ export async function POST(req: NextRequest) {
     variant_id: candidate.variant_id,
     powertrain_id: candidate.powertrain_id,
     price_on_road: candidate.price_on_road,
+    price_city: candidate.price_city,
+    price_basis: candidate.price_basis,
     score,
   });
 }

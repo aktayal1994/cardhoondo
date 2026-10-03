@@ -5,7 +5,7 @@ import { ArrowLeft } from "lucide-react";
 import type { RecommendOutput } from "../lib/scoring/recommend";
 import type { ScoreResult } from "../lib/scoring/types";
 import { confidenceLabel, verdictPhrase } from "../lib/verdict";
-import { formatINR, humanize } from "../lib/format";
+import { formatOnRoad, humanize } from "../lib/format";
 
 interface CompareViewProps {
   recommendationResultId: string;
@@ -84,7 +84,7 @@ export default function CompareView({ recommendationResultId, recommendOutput, o
                   <p className="font-display font-semibold text-ink">
                     {c.brand} {c.car_model}
                   </p>
-                  <p className="mt-0.5 text-xs font-normal text-ink-faint">{formatINR(c.price_on_road)}</p>
+                  <p className="mt-0.5 text-xs font-normal text-ink-faint">{formatOnRoad(c.price_on_road, c.price_city, c.price_basis)}</p>
                   <p className="mt-1 inline-block rounded-full border border-border bg-charcoal-800/60 px-2 py-0.5 text-xs font-medium text-ink-soft">
                     {confidenceLabel(c.coverage_ratio)}
                   </p>

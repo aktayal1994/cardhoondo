@@ -360,3 +360,10 @@ Searched every car's aggregated claims (`data/claims/*_aggregated.json`, not par
 - `lib/scoring/recommend.ts`: tied variants (within 1e-6) are now chosen by `pickVariantAmongTies()` using spec-sheet feature counts: Features priority -> best-equipped in budget; Safety priority -> most Safety+ADAS features; otherwise -> cheapest variant with >= 80% of the best tied variant's features ("sweet spot", avoids both base trim and top-trim upsell). Python twin `scripts/recommend.py` not changed yet.
 - Replayed both real 2 Oct searches: search 2 now Brezza VXi Turbo / Baleno Zeta / Exter HX4 CNG (was LXi / Delta / HX2 CNG). Verified on production with an anonymous request (test rows deleted).
 - Checked the "same price" suspicion: Baleno Delta and Exter HX2 CNG both have ex-showroom Rs 6,99,900 in Delhi, so identical on-road Rs 7,92,206 is genuine, not a bug.
+
+## 2026-10-03 — Results priced for the buyer's city
+
+- `/api/recommend` (and saved-search reopen, via the respondent's pincode) now price every variant for the buyer's city before ranking: pincode -> city (`lib/pricing/resolvePincode.ts`, shared with `/api/city-lookup`; failed lookups are no longer cached as New Delhi) -> `city_on_road_prices` for that city (`lib/data/fetchCityPrices.ts`, paged) -> scraped price, else `estimateOnRoadPrice`, else Delhi. Fetched in parallel with the main data. The budget filter uses the local price too.
+- Candidates carry `price_city` / `price_basis`; results, compare and car detail show "₹X on-road in <City>" (+ "(estimated)"). Older saved results show the bare price.
+- Verified on production: Indore pincode 452001 -> Indore prices (Syros EV HTK ₹14.77L vs ₹14.27L Delhi); no pincode -> "in New Delhi". Test rows deleted.
+- Note: the separate Vercel project `cardhoondo-deploy` (auto-builds from this repo's pushes) has failed every build since ~27 Sep because it has no Supabase env vars; it serves nothing. cardhoondo.com is the `cardhoondo` project, deployed by CLI.

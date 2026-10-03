@@ -6,7 +6,7 @@ import Link from "next/link";
 import { ArrowLeft, IndianRupee } from "lucide-react";
 import type { ScoreResult, ScoreBreakdownItem } from "../lib/scoring/types";
 import { verdictPhrase, confidenceSentence } from "../lib/verdict";
-import { formatINR, humanize } from "../lib/format";
+import { formatOnRoad, humanize } from "../lib/format";
 import FeedbackPrompt from "./FeedbackPrompt";
 
 interface CarDetailData {
@@ -15,6 +15,8 @@ interface CarDetailData {
   car_model: string;
   variant_id: string;
   price_on_road: number | null;
+  price_city?: string;
+  price_basis?: "city" | "estimate" | "delhi";
   score: ScoreResult;
 }
 
@@ -73,7 +75,7 @@ export default function CarDetail({ recommendationResultId, carId, fallbackLabel
       <h1 className="mt-4 font-display text-2xl font-bold text-ink">{data ? `${data.brand} ${data.car_model}` : fallbackLabel}</h1>
       {data && (
         <p className="text-sm text-ink-faint">
-          {data.variant_id} · {formatINR(data.price_on_road)} ·{" "}
+          {data.variant_id} · {formatOnRoad(data.price_on_road, data.price_city, data.price_basis)} ·{" "}
           <span className="font-mono">
             {data.score.facets_with_data} of {data.score.facets_with_data + data.score.facets_missing}
           </span>{" "}

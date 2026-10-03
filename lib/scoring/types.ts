@@ -78,4 +78,9 @@ export interface CatalogVariant {
   fuel_type: string | null;
   drive_type: string | null;
   spec_sections: Record<string, Record<string, unknown>>;
+  /** Where on_road_price comes from (set by runRecommendation): the buyer's
+   * city ("city" = scraped, "estimate" = city multiplier on ex-showroom), or
+   * the catalog's New Delhi reference ("delhi"). */
+  price_city?: string;
+  price_basis?: "city" | "estimate" | "delhi";
 }

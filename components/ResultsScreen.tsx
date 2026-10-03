@@ -8,7 +8,7 @@ import type { RecommendOutput, RecommendCandidate } from "../lib/scoring/recomme
 import type { WriteupOutput, WriteupCarOutput, WriteupFacetEntry } from "../lib/llm/writeup";
 import type { ScoreBreakdownItem } from "../lib/scoring/types";
 import { confidenceLabel, verdictPhrase } from "../lib/verdict";
-import { formatINR } from "../lib/format";
+import { formatOnRoad } from "../lib/format";
 import FeedbackPrompt from "./FeedbackPrompt";
 
 interface ResultsScreenProps {
@@ -175,7 +175,7 @@ function ResultCard({
 
       <h2 className="mt-3 font-display text-xl font-semibold text-ink">{carModelLabel(candidate)}</h2>
       <p className="text-sm text-ink-faint">
-        {candidate.variant_id} · {formatINR(candidate.price_on_road)}
+        {candidate.variant_id} · {formatOnRoad(candidate.price_on_road, candidate.price_city, candidate.price_basis)}
       </p>
 
       <div className="mt-4">

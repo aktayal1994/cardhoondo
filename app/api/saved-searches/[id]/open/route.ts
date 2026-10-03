@@ -49,12 +49,18 @@ export async function POST(req: NextRequest, { params }: Ctx) {
   }
 
   const svc = getSupabaseServerClient();
-  const { data: resp } = await svc.from("questionnaire_responses").select("answers").eq("id", saved.response_id).maybeSingle();
+  const { data: resp } = await svc
+    .from("questionnaire_responses")
+    .select("answers, respondents(pincode)")
+    .eq("id", saved.response_id)
+    .maybeSingle();
   if (!resp) return jsonNoStore({ error: "This saved search no longer exists.", code: "not_found" }, 404, ctx);
+  // Price for the city the search was made from (the respondent's pincode).
+  const pincode = (resp as { respondents?: { pincode?: string | null } | null }).respondents?.pincode ?? null;
 
   let output: RecommendOutput;
   try {
-    output = await runRecommendation(resp.answers, 3);
+    output = await runRecommendation(resp.answers, 3, { pincode });
   } catch (e) {
     console.error("saved search re-run failed:", (e as Error).message);
     return jsonNoStore({ error: "Couldn't re-run this search", code: "server_error" }, 500, ctx);

@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { UserRound } from "lucide-react";
 import { isValidPhoneNumber, isValidPincode } from "../lib/validation";
 import { CURRENT_NOTICE_VERSION } from "../lib/consent";
 import ConsentNotice from "./ConsentNotice";
+import { trackEvent } from "../lib/analytics";
 
 export interface IntroValues {
   name: string;
@@ -47,6 +48,15 @@ export default function IntroStep({ initialValues, savedContact, onContinue }: I
   const [touched, setTouched] = useState(false);
   const [changing, setChanging] = useState(false);
   const confirmOnly = Boolean(savedContact) && !changing;
+  // Funnel diagnostics (Oct 2026 ads): tells "left without trying" apart from
+  // "tried and the form rejected it". Field names only, never the values.
+  const startedFields = useRef(new Set<string>());
+
+  function trackFieldStart(field: "name" | "pincode" | "phone") {
+    if (startedFields.current.has(field)) return;
+    startedFields.current.add(field);
+    trackEvent("intro_field_start", { field });
+  }
 
   const nameError = touched && name.trim().length === 0;
   const pincodeError = touched && !isValidPincode(pincode);
@@ -55,7 +65,15 @@ export default function IntroStep({ initialValues, savedContact, onContinue }: I
 
   function handleContinue() {
     setTouched(true);
-    if (!canContinue) return;
+    if (!canContinue) {
+      const invalid = [
+        name.trim().length === 0 && "name",
+        !isValidPincode(pincode) && "pincode",
+        !isValidPhoneNumber(phone) && "phone",
+      ].filter(Boolean);
+      trackEvent("intro_blocked", { fields: invalid.join(",") });
+      return;
+    }
     onContinue({ name: name.trim(), pincode, phone_number: phone, consent_notice_version: CURRENT_NOTICE_VERSION });
   }
 
@@ -98,6 +116,7 @@ export default function IntroStep({ initialValues, savedContact, onContinue }: I
           </label>
           <input
             id="intro-name"
+            onFocus={() => trackFieldStart("name")}
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
@@ -116,6 +135,7 @@ export default function IntroStep({ initialValues, savedContact, onContinue }: I
           </label>
           <input
             id="intro-pincode"
+            onFocus={() => trackFieldStart("pincode")}
             type="text"
             inputMode="numeric"
             maxLength={6}
@@ -140,6 +160,7 @@ export default function IntroStep({ initialValues, savedContact, onContinue }: I
           </label>
           <input
             id="intro-phone"
+            onFocus={() => trackFieldStart("phone")}
             type="tel"
             inputMode="numeric"
             maxLength={10}

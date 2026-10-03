@@ -298,6 +298,9 @@ export interface RecommendCandidate {
   variant_id: string;
   powertrain_id: string;
   price_on_road: number | null;
+  /** City the on-road price is for, e.g. "Indore" (absent on results saved before 3 Oct 2026). */
+  price_city?: string;
+  price_basis?: "city" | "estimate" | "delhi";
   composite_score: number;
   raw_composite_score: number;
   coverage_ratio: number;
@@ -382,6 +385,8 @@ export function recommend(input: RecommendInput): RecommendOutput {
         variant_id: variant.variant_id,
         powertrain_id: powertrainId,
         price_on_road: variant.on_road_price,
+        price_city: variant.price_city,
+        price_basis: variant.price_basis,
         composite_score: adjustedScore,
         raw_composite_score: result.raw_composite_score,
         coverage_ratio: result.coverage_ratio,

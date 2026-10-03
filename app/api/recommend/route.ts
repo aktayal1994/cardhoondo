@@ -124,7 +124,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Failed to save questionnaire response", detail: insertErr.message }, { status: 500 });
   }
 
-  const output = await runRecommendation(body.answers, body.top_n ?? 3);
+  const output = await runRecommendation(body.answers, body.top_n ?? 3, { pincode: body.pincode });
 
   const { data: resultRow, error: resultErr } = await supabase
     .from("recommendation_results")
