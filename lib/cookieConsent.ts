@@ -1,15 +1,18 @@
 /**
  * Analytics cookie consent.
  *
- * Rule: Google Analytics is NOT loaded, and no analytics event is queued,
- * until the visitor has pressed "Accept" in the cookie banner. "Reject" (or no
- * choice yet) means nothing is loaded or sent. The choice lives in this
+ * Rule (since 3 Oct 2026, founder's decision): Google Analytics is ON by
+ * default for every visit, so ad clicks are counted -- with the opt-in banner
+ * almost no ad visitor pressed Accept and GA showed nothing. No banner is
+ * shown. A visitor can turn analytics off from "Cookie settings" in the
+ * footer; "denied" (including Rejects made under the old banner) is always
+ * honoured: nothing is loaded or sent. The choice lives in this
  * browser's localStorage only -- it is a preference, not personal data, so
  * there is no server record.
  *
  * Everything here must fail soft: localStorage can throw (private windows,
  * blocked storage) and tracking must never be able to break the product. When
- * storage is unavailable we behave as "no choice" and analytics stays off.
+ * storage is unavailable we behave as "no choice", which now means analytics on.
  */
 
 export const GA_MEASUREMENT_ID = "G-YQ93EFYPEZ";
@@ -36,7 +39,7 @@ export function getCookieChoice(): CookieChoice {
 }
 
 export function analyticsAllowed(): boolean {
-  return getCookieChoice() === "granted";
+  return getCookieChoice() !== "denied";
 }
 
 export function setCookieChoice(choice: "granted" | "denied"): void {
@@ -51,7 +54,7 @@ export function setCookieChoice(choice: "granted" | "denied"): void {
 
 let analyticsLoaded = false;
 
-/** Loads gtag.js and configures GA4. Idempotent. Only call after consent. */
+/** Loads gtag.js and configures GA4. Idempotent. Never call when the visitor turned analytics off. */
 export function loadAnalytics(): void {
   if (typeof window === "undefined" || analyticsLoaded) return;
   analyticsLoaded = true;

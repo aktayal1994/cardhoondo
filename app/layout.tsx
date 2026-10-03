@@ -137,8 +137,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         {children}
         <GAPageTracker />
-        {/* Google Analytics is loaded by CookieBanner only after the visitor accepts
-            (lib/cookieConsent.ts). Nothing analytics-related loads before that. */}
+        {/* Google Analytics is loaded by CookieBanner on every visit unless the
+            visitor turned it off in "Cookie settings" (lib/cookieConsent.ts). */}
         <CookieBanner />
       </body>
     </html>

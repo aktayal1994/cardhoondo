@@ -1,5 +1,5 @@
-{{nologin}}**Version 1.2 · Effective from 26 September 2026**
-{{login}}**Version 1.3 · Effective from 26 September 2026**
+{{nologin}}**Version 1.3 · Effective from 3 October 2026**
+{{login}}**Version 1.4 · Effective from 3 October 2026**
 
 ## 1. The short version
 
@@ -29,7 +29,7 @@ Contact for anything about your data: **Aakash Tayal, Grievance Officer**, mycar
 | **Dealer quote checks** (the car, variant and city or pincode, and the lines and amounts of the quote you type or paste, such as insurance, accessories and fees) | When you use the quote check | To compare your quote with our price data and show you where you can save, and to understand demand. **Please enter only the lines and amounts, not your name, phone number or address.** We can't read photos or PDF files. |
 | **On-road price requests** (car, variant, city or pincode, and the price shown) | Made on an earlier version of the price tool, which no longer collects them | Kept only as described in Section 9. |
 | **Campaign source** (the ad or link you came from, for example UTM tags) | Automatically, if present in the link | To learn which channels bring useful visitors. |
-| **Technical and usage data**: pages viewed, clicks, approximate location from IP address, device and browser type, cookie identifiers | Automatically, through Google Analytics, **only if you accept analytics cookies** (Section 8) | To measure and improve the site. |
+| **Technical and usage data**: pages viewed, clicks, approximate location from IP address, device and browser type, cookie identifiers | Automatically, through Google Analytics, **unless you turn analytics off** (Section 8) | To measure and improve the site. |
 | **Security logs** (request time, IP address, error logs) | Automatically | To keep the service safe, block abuse and investigate problems. |
 {{login}}| **Google account details**: your name, email address, profile photo (if you have one) and a Google account identifier | Only if you choose to sign in with Google | To create your account, sign you in, greet you by name and keep your saved searches. We never receive your Google password or contacts and ask for no other Google data. |
 {{login}}| **Saved searches**: your answers and results, the short title we generate from them (for example “The Safety-first City Family”), a name you may give the search, and the top cars shown | Only if you save a search | So you can come back to it later. **Saving links the search you ran, including the name, pincode and phone number you entered on it, to your account.** |
@@ -66,7 +66,7 @@ If we contact you, it is only about your recommendations or to ask for feedback.
 |---|---|---|
 | **Supabase** | Stores our database | Everything in Section 3 |
 | **Vercel** | Hosts our website and servers | Requests to our site, including IP address, and the data you submit while it passes through |
-| **Google Analytics (GA4)** | Usage statistics | Cookie identifiers, pages viewed, device data, approximate location. **Only after you accept analytics cookies.** |
+| **Google Analytics (GA4)** | Usage statistics | Cookie identifiers, pages viewed, device data, approximate location. **Not sent if you turn analytics off.** |
 | **Google Gemini API** | Writes the plain-language headline, summary and closing note on your results page | Your **questionnaire answers** (for example budget band, fuel, seating, who rides, priorities) and the shortlisted cars' facts (model, variant, on-road price, computed scores, factor names, verdict words, review counts). **Not sent: your name, mobile number, pincode, IP address, any dealer quote you enter, or any record ID.** We use Google's paid Gemini service, under which Google states it does not use prompts and responses to improve its products. |
 | **India Post pincode lookup (api.postalpincode.in)** | Turns a pincode into a district or city for pricing | Only the pincode, sent from our server (not your device) |
 {{login}}| **Google (sign-in)** | Lets you sign in with your Google account | Your Google name, email address, profile photo and account identifier, under Google's own privacy policy |
@@ -115,17 +115,17 @@ This is a possible idea, not a promise that it will launch.
 
 ## 8. Cookies and similar technologies
 
-| Name | Type | Purpose | Duration | Needs your consent? |
+| Name | Type | Purpose | Duration | Can you turn it off? |
 |---|---|---|---|---|
-| `_ga`, `_ga_G-YQ93EFYPEZ` (Google Analytics) | Cookie | Counts visits and pages, and measures which channels work | Up to 2 years (Google default) | **Yes.** Loaded only after you press "Accept analytics" |
-| `cardhoondo_cookie_choice_v1` | Browser local storage | Remembers whether you accepted or rejected analytics | Until you clear your browser data | No. It only stores your choice, on your device |
+| `_ga`, `_ga_G-YQ93EFYPEZ` (Google Analytics) | Cookie | Counts visits and pages, and measures which channels work | Up to 2 years (Google default) | **Yes.** On by default; turn it off from "Cookie settings" in the footer |
+| `cardhoondo_cookie_choice_v1` | Browser local storage | Remembers whether you turned analytics off | Until you clear your browser data | No. It only stores your choice, on your device |
 {{login}}| `sb-…-auth-token…` | Cookie (HTTP-only, secure) | Keeps you signed in. A short-lived companion cookie is used only while the Google sign-in is in progress. | Up to 30 days | No. Strictly needed to stay signed in |
 {{login}}| `ch_hint` | Cookie | Tells the page that a returning visitor may be signed in, so the “welcome back” area can load without the page jumping. Carries no identity. | Up to 30 days | No. Functional |
 {{login}}| `cardhoondo_pending_claim_v1`, `cardhoondo_post_auth_intent_v1` | Browser local storage | Remember a search you have not saved yet for up to 7 days, and a “save after sign-in” request for 10 minutes, so it can be saved once you sign in | Up to 7 days / 10 minutes | No. Functional |
-{{login}}| `cardhoondo_auth_pending` | Browser session storage | Remembers, for the current tab only, that you started signing in, so we can count a completed sign-in (only if you accepted analytics) | Until you close the tab | No. Functional |
+{{login}}| `cardhoondo_auth_pending` | Browser session storage | Remembers, for the current tab only, that you started signing in, so we can count a completed sign-in (not if you turned analytics off) | Until you close the tab | No. Functional |
 | `cardhoondo_questionnaire_v1` | Browser session storage | Remembers your answers, and the details you typed at the start, while you move between questionnaire pages so you don't lose progress. It stays on your device. | Until you close the tab or press "Start over" | No. It is strictly needed for the questionnaire |
 
-**Your choice.** The first time you visit we ask whether to allow analytics cookies, with "Accept analytics" and "Reject" given equal weight. Until you accept, Google Analytics is not loaded and nothing is sent to it. If you reject, or later change your mind, we delete any analytics cookies already set. You can change your choice at any time from **"Cookie settings"** in the footer of any page, or block cookies in your browser settings. We do not use advertising cookies or session-recording tools. If we add any, we will list them here and ask for your consent first.
+**Your choice.** We use Google Analytics on every visit to count visits and see which pages and channels work. You can turn it off at any time from **"Cookie settings"** in the footer of any page: once off, Google Analytics is not loaded, nothing is sent to it and we delete any analytics cookies already set. If you rejected analytics before 3 October 2026, that choice still applies. You can also block cookies in your browser settings. We do not use advertising cookies or session-recording tools. If we add any, we will list them here and ask for your consent first.
 
 ## 9. How long we keep it
 

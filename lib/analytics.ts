@@ -19,9 +19,9 @@ import { analyticsAllowed, loadAnalytics } from "./cookieConsent";
  * commands are always queued before the first event, whichever component's
  * effect runs first on page load.
  *
- * CONSENT: nothing is queued unless the visitor pressed "Accept" in the
- * cookie banner (lib/cookieConsent.ts). Queuing events before consent would
- * be a leak, because gtag.js replays the whole queue when it later loads.
+ * OPT-OUT: analytics is on by default (since 3 Oct 2026). Nothing is queued
+ * if the visitor turned analytics off in "Cookie settings"
+ * (lib/cookieConsent.ts).
  */
 export function trackEvent(name: string, params?: Record<string, unknown>): void {
   if (typeof window === "undefined") return;

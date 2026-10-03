@@ -346,3 +346,10 @@ Searched every car's aggregated claims (`data/claims/*_aggregated.json`, not par
 ## 2026-10-01 — GA4 events were never sent (fixed)
 - `lib/analytics.ts` pushed `["event", name, params]` arrays to dataLayer; gtag.js ignores plain arrays (only `arguments` objects count), so no page_view or custom event reached GA4 since the consent-gated loader shipped. Now pushes an `arguments` object and calls `loadAnalytics()` first so js/config always precede events.
 - Verified on cardhoondo.com: after Accept, `/g/collect` carries page_view (with UTM-tagged `dl`), cta_click, user_engagement. UTM → `questionnaire_responses.utm` confirmed working (real Instagram bio row, 30 Sep).
+
+## 2026-10-03 — Google Analytics on by default (opt-out)
+
+- Founder's decision: the opt-in cookie banner meant almost no Instagram ad visitor pressed Accept, so GA showed ~0 visits while Meta billed clicks (~Rs 3.2/click). GA now loads on every visit; the banner no longer pops up.
+- Visitors can turn analytics off from "Cookie settings" in the footer ("Turn off"); a "denied" choice, including old Rejects, is still honoured and clears `_ga*` cookies.
+- Privacy policy bumped to v1.4 (sign-in) / v1.3 (no sign-in), effective 3 Oct 2026; sections 3, 6 and 8 reworded to match.
+- Verified on cardhoondo.com: fresh visitor -> no banner, gtag loads, page_view reaches /g/collect; after "Turn off" nothing loads.
