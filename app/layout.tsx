@@ -65,6 +65,7 @@ export const metadata: Metadata = {
   authors: [{ name: "CarDhoondo" }],
   creator: "CarDhoondo",
   applicationName: "CarDhoondo",
+  appleWebApp: { capable: true, title: "CarDhoondo", statusBarStyle: "black-translucent" },
   category: "Automotive",
   alternates: {
     canonical: SITE_URL,

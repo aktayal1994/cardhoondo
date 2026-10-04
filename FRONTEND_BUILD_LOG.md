@@ -384,3 +384,11 @@ GA for 3 Oct (first full day with GA on every visit): ~102 visitors, 90% Instagr
 - Caching: `fetchCarPageData` (per car) and `fetchFeaturedCarSummaries` (published list) are `unstable_cache`d for 24 h (tag `car-pages`), so the catalogue scan runs once a day, not per request. Sitemap, `/cars` index (now with brand jump links, fuel and review count per card) and "more car reviews" (2 same-brand + nearest-price rivals) all use the list; sitemap lastmod = scores' generated_at.
 - New `lib/seo.ts` `pageMetadata()`: every page sets its own title (absolute, <= 60 chars), description (<= 155), canonical, og:title/description/url/image and twitter:title/description. Fixes guides/quotation/privacy/terms inheriting the homepage's og/twitter text. Car titles: "<Car> Review: Owner & Expert Verdict | CarDhoondo", falling back to "<Car> Review: What Owners Say [| CarDhoondo]" (`lib/cars/seo.ts`). Shorter guide/quotation titles and descriptions; on-page headlines unchanged.
 - Verified on cardhoondo.com: 69 car URLs in sitemap and on /cars, new pages 200 with own title/description/canonical/og, /cars/maruti-swift and junk slugs 404.
+
+## 2026-10-04 — Installable app (PWA) + Android test app link
+
+- `app/manifest.ts`: web app manifest (name "CarDhoondo: Which Car to Buy", dark theme, icons, shortcuts "Find my car" and "Check a dealer quote", start URL `/?source=app`).
+- `app/layout.tsx`: `appleWebApp` metadata so iPhones open it full-screen from the home screen.
+- `public/app-icon-192.png`, `app-icon-512.png`, `app-icon-maskable-512.png`: existing logo on a cream tile.
+- `public/.well-known/assetlinks.json`: Digital Asset Links for Android package `com.cardhoondo.app` (Bubblewrap/TWA build in `Claude/android-app`, kept out of git because it holds the signing key). If the signing key ever changes, update the SHA-256 here or the Android app shows a URL bar.
+- Verified on cardhoondo.com: manifest, icons and assetlinks return 200; APK signature matches the fingerprint.

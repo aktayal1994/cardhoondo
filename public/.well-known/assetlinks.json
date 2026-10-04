@@ -1,0 +1,8 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "com.cardhoondo.app",
+    "sha256_cert_fingerprints": ["4B:13:13:78:60:2C:91:AD:3A:AB:EB:4B:9C:9D:8D:75:FE:9E:76:16:B2:9F:60:B0:36:C6:43:21:D1:FA:78:91"]
+  }
+}]
