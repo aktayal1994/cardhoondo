@@ -392,3 +392,9 @@ GA for 3 Oct (first full day with GA on every visit): ~102 visitors, 90% Instagr
 - `public/app-icon-192.png`, `app-icon-512.png`, `app-icon-maskable-512.png`: existing logo on a cream tile.
 - `public/.well-known/assetlinks.json`: Digital Asset Links for Android package `com.cardhoondo.app` (Bubblewrap/TWA build in `Claude/android-app`, kept out of git because it holds the signing key). If the signing key ever changes, update the SHA-256 here or the Android app shows a URL bar.
 - Verified on cardhoondo.com: manifest, icons and assetlinks return 200; APK signature matches the fingerprint.
+
+## 2026-10-04 — Discontinued cars (on_sale flag)
+- New column `cars.on_sale` (default true; set false for tata_tigor and mahindra_marazzo, which CarDekho lists as discontinued). Source of truth: `"on_sale": false` in `scripts/catalog_models.json` (working copy), written by `import_to_supabase.py`.
+- Recommendations (`fetchRecommendationData`) and the dealer quote check (`fetchQuotationData`) skip off-sale cars. Python `recommend.py` mirrors this.
+- Review pages stay up for off-sale cars (used-car searches) with a "no longer sold new" notice and "last cost" price wording.
+- Verified: 79 recommendable cars locally; /cars/mahindra-marazzo shows the notice on production; /cars/kia-seltos does not.

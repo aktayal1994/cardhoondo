@@ -57,6 +57,8 @@ export interface CarPageData {
   shortfalls: CarFacetSummary[];
   /** Latest time the scores behind this page were regenerated. */
   updatedAt: string | null;
+  /** False once the model is discontinued (cars.on_sale); the page then says so. */
+  onSale: boolean;
 }
 
 export interface FeaturedCarSummary {
@@ -158,7 +160,7 @@ export async function loadCarPageData(carId: string): Promise<CarPageData | null
   const supabase = getSupabaseServerClient();
 
   const [carRes, ptRes, variantRes, facetRes, claimRes, modelsRes] = await Promise.all([
-    supabase.from("cars").select("car_id, brand, model, price_min, price_max, variant_count").eq("car_id", carId).maybeSingle(),
+    supabase.from("cars").select("car_id, brand, model, price_min, price_max, variant_count, on_sale").eq("car_id", carId).maybeSingle(),
     supabase.from("powertrains").select("powertrain_id, fuel, transmission, engine_type, displacement, max_power, max_torque, gearbox").eq("car_id", carId),
     supabase.from("variants").select("seating_capacity").eq("car_id", carId).limit(500),
     supabase
@@ -275,6 +277,7 @@ export async function loadCarPageData(carId: string): Promise<CarPageData | null
     likes,
     shortfalls,
     updatedAt,
+    onSale: car.on_sale !== false,
   };
   return isPublishable(page) ? page : null;
 }

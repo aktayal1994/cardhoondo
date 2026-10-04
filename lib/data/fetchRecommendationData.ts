@@ -38,12 +38,13 @@ export async function fetchRecommendationData(): Promise<RecommendationData> {
   const variantRows = await fetchAllRows<any>((from, to) =>
     supabase
       .from("variants")
-      .select("id, car_id, variant_id, url, ex_showroom_price, on_road_price, seating_capacity, fuel_type, drive_type, spec_sections, cars(brand, model)")
+      .select("id, car_id, variant_id, url, ex_showroom_price, on_road_price, seating_capacity, fuel_type, drive_type, spec_sections, cars(brand, model, on_sale)")
       .order("id")
       .range(from, to),
   );
 
-  const catalogVariants: CatalogVariant[] = variantRows.map((v: any) => ({
+  // Discontinued models (cars.on_sale = false) can't be bought new, so they never reach the ranking.
+  const catalogVariants: CatalogVariant[] = variantRows.filter((v: any) => v.cars?.on_sale !== false).map((v: any) => ({
     car_id: v.car_id,
     brand: v.cars?.brand ?? "",
     car_model: v.cars?.model ?? "",

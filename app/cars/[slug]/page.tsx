@@ -108,10 +108,17 @@ export default async function CarPage({ params }: Params) {
           )}
         </p>
 
+        {!data.onSale && (
+          <p className="mt-6 rounded-2xl border border-accent-rust/40 px-5 py-4 text-ink-soft">
+            <strong className="text-ink">The {name} is no longer sold new in India.</strong> These reviews are still useful if
+            you are looking at a used one, but CarDhoondo won&apos;t recommend it and the prices below are its last listed prices.
+          </p>
+        )}
+
         <p className="mt-6 text-lg leading-relaxed text-ink-soft">
           {price ? (
             <>
-              The {name} costs {price} ex-showroom in India
+              The {name} {data.onSale ? "costs" : "last cost"} {price} ex-showroom in India
               {data.variantCount ? ` across ${data.variantCount} variants` : ""}
               {fuels.length ? `, sold with ${joinList(fuels.map(inlineFuel))} ${fuels.length === 1 && fuels[0] === "Electric" ? "powertrain" : "powertrains"}` : ""}.{" "}
             </>

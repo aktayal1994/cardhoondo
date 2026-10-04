@@ -18,14 +18,14 @@ export interface QuotationVariant {
 
 export async function fetchCarModels(): Promise<CarModelOption[]> {
   const supabase = getSupabaseServerClient();
-  const { data, error } = await supabase.from("cars").select("car_id, brand, model").order("brand").order("model");
+  const { data, error } = await supabase.from("cars").select("car_id, brand, model").eq("on_sale", true).order("brand").order("model");
   if (error) throw error;
   return (data ?? []) as CarModelOption[];
 }
 
 export async function fetchCarById(carId: string): Promise<CarModelOption | null> {
   const supabase = getSupabaseServerClient();
-  const { data, error } = await supabase.from("cars").select("car_id, brand, model").eq("car_id", carId).maybeSingle();
+  const { data, error } = await supabase.from("cars").select("car_id, brand, model").eq("car_id", carId).eq("on_sale", true).maybeSingle();
   if (error) throw error;
   return (data as CarModelOption | null) ?? null;
 }
