@@ -439,3 +439,7 @@ GA for 3 Oct (first full day with GA on every visit): ~102 visitors, 90% Instagr
 ## 2026-10-04: Journey trimmed to three stages
 
 - Removed the "Owning" stage and the service bill check (founder not aligned with that use case). Journey now ends at taking delivery; desktop section is 3 columns; copy says "to the keys in your hand".
+
+## 2026-10-04: Data-only redeploy for four under-5-lakh cars
+
+- No code changes. Redeployed so the build picks up new review data: Tata Tiago, Maruti Wagon R, Alto K10 and Celerio (catalog, 25-city prices, 467 extracted claims) now clear isPublishable() and have /cars pages. Verified all four return 200 on cardhoondo.com.
