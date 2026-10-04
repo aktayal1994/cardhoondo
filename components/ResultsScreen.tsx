@@ -10,6 +10,7 @@ import type { ScoreBreakdownItem } from "../lib/scoring/types";
 import { confidenceLabel, verdictPhrase } from "../lib/verdict";
 import { formatOnRoad } from "../lib/format";
 import FeedbackPrompt from "./FeedbackPrompt";
+import JourneyNextSteps from "./JourneyNextSteps";
 
 interface ResultsScreenProps {
   recommendOutput: RecommendOutput;
@@ -136,6 +137,8 @@ export default function ResultsScreen({
           rather than guess.
         </p>
       )}
+
+      <JourneyNextSteps current="exploring" />
     </main>
   );
 }

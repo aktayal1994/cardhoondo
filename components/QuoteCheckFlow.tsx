@@ -11,6 +11,7 @@ import { parseQuoteText } from "../lib/quote/parseQuoteText";
 import { CATEGORY_LABELS, type Finding, type QuoteAnalysis, type QuoteCategory } from "../lib/quote/types";
 import { trackEvent } from "../lib/analytics";
 import ConsentNotice from "./ConsentNotice";
+import JourneyNextSteps from "./JourneyNextSteps";
 
 interface CarModelOption {
   car_id: string;
@@ -623,6 +624,8 @@ function ResultView({ result, onStartOver }: { result: Result; onStartOver: () =
       >
         Check another quote
       </button>
+
+      <JourneyNextSteps current="negotiating" />
     </div>
   );
 }

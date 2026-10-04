@@ -1,30 +1,38 @@
 import "./globals.css";
 import type { Metadata, Viewport } from "next";
-import { Source_Serif_4, Be_Vietnam_Pro, JetBrains_Mono } from "next/font/google";
+import localFont from "next/font/local";
 import GAPageTracker from "../components/GAPageTracker";
 import CookieBanner from "../components/CookieBanner";
 import BottomTabBar from "../components/BottomTabBar";
 
-const displayFont = Source_Serif_4({
-  subsets: ["latin"],
-  weight: ["500", "600", "700"],
-  style: ["normal", "italic"],
+// Self-hosted (latin subset, downloaded from Google Fonts on 4 Oct 2026) since
+// next/font/google started failing Vercel builds when Google sent it a font URL
+// it could not parse. Same files the Google loader used to fetch.
+const displayFont = localFont({
+  src: [
+    { path: "./fonts/SourceSerif4-variable-normal.woff2", weight: "500 700", style: "normal" },
+    { path: "./fonts/SourceSerif4-variable-italic.woff2", weight: "500 700", style: "italic" },
+  ],
   variable: "--font-display-face",
   display: "swap",
+  fallback: ["Georgia", "serif"],
 });
 
-const bodyFont = Be_Vietnam_Pro({
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
+const bodyFont = localFont({
+  src: [
+    { path: "./fonts/BeVietnamPro-400-normal.woff2", weight: "400", style: "normal" },
+    { path: "./fonts/BeVietnamPro-500-normal.woff2", weight: "500", style: "normal" },
+    { path: "./fonts/BeVietnamPro-600-normal.woff2", weight: "600", style: "normal" },
+  ],
   variable: "--font-body",
   display: "swap",
 });
 
-const dataFont = JetBrains_Mono({
-  subsets: ["latin"],
-  weight: ["400", "500"],
+const dataFont = localFont({
+  src: [{ path: "./fonts/JetBrainsMono-variable.woff2", weight: "400 500", style: "normal" }],
   variable: "--font-data",
   display: "swap",
+  fallback: ["ui-monospace", "monospace"],
 });
 
 const SITE_URL = "https://cardhoondo.com";

@@ -3,6 +3,9 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { BookOpen, Car, HelpCircle, Menu, ReceiptIndianRupee, Search, ShieldCheck, X } from "lucide-react";
+import { JOURNEY } from "../lib/journey";
+
+const SOON = JOURNEY.flatMap((s) => s.tools).filter((t) => t.href === null);
 
 /**
  * Phone-only menu button for the top bar. The desktop nav links are hidden
@@ -71,6 +74,14 @@ export default function MobileMenu({ onStart }: { onStart?: (location: string) =
             <Link key={it.href} href={it.href} onClick={close} className={rowClass}>
               <MenuRow icon={it.icon} title={it.title} sub={it.sub} />
             </Link>
+          ))}
+          <p className="mt-2 border-t border-border px-3 pb-1 pt-4 text-[11px] font-semibold uppercase tracking-wider text-ink-faint">
+            Coming soon
+          </p>
+          {SOON.map((t) => (
+            <div key={t.id} className="flex items-start gap-3 rounded-xl px-3 py-3 opacity-80">
+              <MenuRow icon={t.icon} title={t.title} sub={t.sub} />
+            </div>
           ))}
         </nav>
       )}

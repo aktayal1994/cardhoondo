@@ -428,3 +428,10 @@ GA for 3 Oct (first full day with GA on every visit): ~102 visitors, 90% Instagr
 - `components/NightDriveScene.tsx`: shared animated photo scene; a 3:2 frame covers any box (container query units) so headlight glows stay on the lamps at every size.
 - Hero: from 1024px the scene fills the hero behind the text (left gradient); 640-1023px shows it as a 16:9 panel under the text; phones keep the card. Glass chip with live review-point count. Old SVG EvidenceCar removed.
 - Top nav links now show from 1024px (they collided on tablets); the menu button covers tablets on every page. Nav "Find my car" pill hidden on phones on guides, legal and quote pages (tab bar has it).
+
+## 2026-10-04: Buying journey, with test drive / delivery / service tools as "Coming soon"
+
+- `lib/journey.ts`: one definition of the 4 stages (Exploring, Negotiating, Taking delivery, Owning) and the tool for each. Live: Find my car (hero), Dealer quote check. Coming soon (shown, not linked): Test drive checklist, Delivery inspection checklist, Service bill check.
+- Desktop home: new "From the first search to the first service" section right after the hero. Phone home: "With you at every step" timeline replaces the "More ways we help" tiles (quote check moved into it); reviews/compare/guides stay as "Research on your own" tiles. Phone menu lists the coming-soon tools.
+- `components/JourneyNextSteps.tsx`: "What's next on your car journey" strip at the end of results and of the quote check result.
+- Fonts self-hosted (`app/fonts`, `next/font/local`): `next/font/google` began failing Vercel builds ("Cannot read properties of null (reading '1')" in the Google loader) though the same setup built 45 minutes earlier.

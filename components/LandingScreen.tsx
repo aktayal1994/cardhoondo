@@ -35,6 +35,8 @@ import MobileMenu from "./MobileMenu";
 import WelcomeBackStrip from "./WelcomeBackStrip";
 import AppHome, { type HomeCar, type HomeComparison } from "./AppHome";
 import NightDriveScene from "./NightDriveScene";
+import { SoonBadge } from "./JourneyNextSteps";
+import { JOURNEY, type JourneyTool } from "../lib/journey";
 
 /**
  * "Nightdrive" -- a dark, cinematic scroll-driven redesign of the earlier
@@ -147,6 +149,7 @@ export default function LandingScreen({
         <AppHome onStart={onStart} stats={stats} cars={cars} comparisons={comparisons} />
         <div className="hidden sm:block">
           <Hero onStart={onStart} claims={stats.claims} />
+          <Journey onStart={onStart} claims={stats.claims} />
         </div>
         <TrustAndStats stats={stats} />
         <CaseIndex carsCount={stats.cars} />
@@ -526,6 +529,91 @@ function Hero({ onStart, claims }: { onStart: (location: string) => void; claims
       )}
     </section>
   );
+}
+
+/* ---------------------------------------------------------------------- */
+/* The buying journey (desktop; phones get AppHome's timeline): one stage  */
+/* per column, our tool for each. "Find my car" is the glowing hero card;  */
+/* tools not built yet are labelled "Coming soon" and not linked.          */
+/* ---------------------------------------------------------------------- */
+
+function Journey({ onStart, claims }: { onStart: (location: string) => void; claims: number }) {
+  return (
+    <section id="journey" className="border-b border-border py-20 sm:py-24">
+      <div className="mx-auto max-w-6xl px-6">
+        <div className="max-w-2xl">
+          <StaggerHeading
+            text="From the first search to the first service, one honest guide"
+            className="text-balance font-display text-3xl font-bold text-ink sm:text-4xl"
+          />
+          <RevealOnScroll delay={0.15}>
+            <p className="mt-4 leading-relaxed text-ink-soft">
+              Choosing the car is only the start. At every step after it, the same {approxFloor(claims).toLocaleString("en-IN")}+
+              points from real owner and expert reviews tell you what to check, what to ask and what to push back on.
+              Nobody else has read the reviews this closely.
+            </p>
+          </RevealOnScroll>
+        </div>
+
+        <div className="relative mt-14 grid grid-cols-2 gap-x-6 gap-y-12 lg:grid-cols-4">
+          <div aria-hidden className="absolute left-5 right-0 top-5 hidden h-px bg-gradient-to-r from-accent-rust/70 via-border to-transparent lg:block" />
+          {JOURNEY.map((stage, i) => (
+            <RevealOnScroll key={stage.id} delay={i * 0.08} className="relative">
+              <div className="relative z-10 flex h-10 w-10 items-center justify-center rounded-full border-2 border-accent-rust/70 bg-paper font-mono text-sm font-medium text-accent-rust-soft shadow-glow-sm">
+                {stage.step}
+              </div>
+              <p className="mt-4 font-display text-lg font-semibold text-ink">{stage.label}</p>
+              <p className="text-sm text-ink-faint">{stage.question}</p>
+              <div className="mt-4 flex flex-col gap-3">
+                {stage.tools.map((tool) => (
+                  <JourneyCard key={tool.id} tool={tool} onStart={onStart} />
+                ))}
+              </div>
+            </RevealOnScroll>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function JourneyCard({ tool, onStart }: { tool: JourneyTool; onStart: (location: string) => void }) {
+  const Icon = tool.icon;
+  if (tool.hero) {
+    return (
+      <div className="rounded-2xl border border-accent-rust/50 bg-gradient-to-b from-accent-rust/15 to-paper-raised p-5 shadow-glow-sm">
+        <Icon className="h-6 w-6 text-accent-rust" strokeWidth={1.9} />
+        <p className="mt-3 font-display text-xl font-semibold text-ink">{tool.title}</p>
+        <p className="mt-1.5 text-sm leading-relaxed text-ink-soft">{tool.sub}</p>
+        <GlowButton onClick={() => onStart("journey")} size="sm" className="mt-4">
+          Start here
+        </GlowButton>
+      </div>
+    );
+  }
+  const live = tool.href !== null;
+  const inner = (
+    <>
+      <div className="flex items-start justify-between gap-2">
+        <Icon className={`h-5 w-5 ${live ? "text-accent-rust-soft" : "text-ink-faint"}`} strokeWidth={1.9} />
+        {live ? (
+          <ArrowRight className="h-4 w-4 text-accent-rust-soft transition group-hover:translate-x-0.5" strokeWidth={2} />
+        ) : (
+          <SoonBadge />
+        )}
+      </div>
+      <p className={`mt-3 font-display text-base font-semibold ${live ? "text-ink" : "text-ink-soft"}`}>{tool.title}</p>
+      <p className="mt-1 text-sm leading-relaxed text-ink-soft">{tool.sub}</p>
+    </>
+  );
+  if (tool.href) {
+    return (
+      <Link href={tool.href} className="group block rounded-2xl border border-border bg-paper-raised p-5 transition hover:border-accent-rust/50">
+        {inner}
+      </Link>
+    );
+  }
+  return <div className="rounded-2xl border border-dashed border-border p-5">{inner}</div>;
 }
 
 /* ---------------------------------------------------------------------- */

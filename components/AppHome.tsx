@@ -2,10 +2,12 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, BookOpen, Car, ChevronRight, GitCompareArrows, ReceiptIndianRupee, ShieldCheck, Sparkles } from "lucide-react";
+import { ArrowRight, BookOpen, Car, ChevronRight, GitCompareArrows, ShieldCheck, Sparkles } from "lucide-react";
 import { useMe } from "../lib/auth/useMe";
 import { BRAND_LOGOS } from "../lib/brandLogos";
+import { JOURNEY, type JourneyTool } from "../lib/journey";
 import NightDriveScene from "./NightDriveScene";
+import { SoonBadge } from "./JourneyNextSteps";
 
 /** What the home screen needs to know about a car (kept small: it ships to the browser). */
 export interface HomeCar {
@@ -55,17 +57,10 @@ export default function AppHome({
         <TrustPill icon={Car} text={`${stats.cars} cars covered`} />
       </div>
 
-      <h2 className="mt-8 text-[13px] font-semibold uppercase tracking-wider text-ink-faint">More ways we help</h2>
+      <JourneyTimeline onStart={onStart} />
+
+      <h2 className="mt-8 text-[13px] font-semibold uppercase tracking-wider text-ink-faint">Research on your own</h2>
       <div className="mt-3 grid grid-cols-2 gap-3">
-        <Tile
-          href="/quotation"
-          icon={ReceiptIndianRupee}
-          title="Check a dealer quote"
-          sub="Find hidden charges"
-          tint="rgba(226,152,74,0.16)"
-          color="#f0be80"
-          badge="Save ₹₹"
-        />
         <Tile href="/cars" icon={Car} title="Car reviews" sub="What owners really say" tint="rgba(124,201,154,0.14)" color="#7cc99a" />
         <Tile
           href="/compare"
@@ -75,7 +70,15 @@ export default function AppHome({
           tint="rgba(127,182,224,0.14)"
           color="#8fc1e6"
         />
-        <Tile href="/guides" icon={BookOpen} title="Buying guides" sub="First car? Start here" tint="rgba(226,131,124,0.14)" color="#eba29c" />
+        <Tile
+          href="/guides"
+          icon={BookOpen}
+          title="Buying guides"
+          sub="First car? Start here"
+          tint="rgba(226,131,124,0.14)"
+          color="#eba29c"
+          wide
+        />
       </div>
 
       {cars.length > 0 && (
@@ -165,6 +168,7 @@ function Tile({
   tint,
   color,
   badge,
+  wide,
 }: {
   href: string;
   icon: typeof Car;
@@ -173,11 +177,14 @@ function Tile({
   tint: string;
   color: string;
   badge?: string;
+  wide?: boolean;
 }) {
   return (
     <Link
       href={href}
-      className="relative flex min-h-[124px] flex-col justify-between rounded-3xl border border-border p-4 transition active:scale-[0.97]"
+      className={`relative flex rounded-3xl border border-border p-4 transition active:scale-[0.97] ${
+        wide ? "col-span-2 items-center gap-4" : "min-h-[124px] flex-col justify-between"
+      }`}
       style={{ background: `linear-gradient(150deg, ${tint}, rgba(23,20,15,0.6) 70%)` }}
     >
       {badge && (
@@ -194,6 +201,80 @@ function Tile({
       </span>
     </Link>
   );
+}
+
+/**
+ * The buying journey as a vertical timeline: one stage per step, our tool for
+ * each. "Find my car" is already the hero card above, so here it is a compact
+ * "start here" row; tools not built yet are labelled, not linked.
+ */
+function JourneyTimeline({ onStart }: { onStart: (location: string) => void }) {
+  return (
+    <section className="mt-8">
+      <h2 className="text-[13px] font-semibold uppercase tracking-wider text-ink-faint">With you at every step</h2>
+      <p className="mt-1 text-sm leading-relaxed text-ink-soft">
+        From choosing the car to its first service, every tool runs on real owner and expert reviews.
+      </p>
+      <ol className="relative mt-4">
+        <span aria-hidden className="absolute bottom-6 left-[15px] top-4 w-px bg-gradient-to-b from-accent-rust/60 via-border to-transparent" />
+        {JOURNEY.map((stage) => (
+          <li key={stage.id} className="relative flex gap-3 pb-5 last:pb-0">
+            <span className="relative z-10 mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-accent-rust/60 bg-paper font-mono text-[11px] font-medium text-accent-rust-soft">
+              {stage.step}
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="text-[13px] font-semibold text-ink">
+                {stage.label} <span className="font-normal text-ink-faint">· {stage.question}</span>
+              </p>
+              <div className="mt-2 space-y-2">
+                {stage.tools.map((tool) => (
+                  <JourneyToolRow key={tool.id} tool={tool} onStart={onStart} />
+                ))}
+              </div>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </section>
+  );
+}
+
+function JourneyToolRow({ tool, onStart }: { tool: JourneyTool; onStart: (location: string) => void }) {
+  const live = tool.href !== null;
+  const body = (
+    <>
+      <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${live ? "bg-accent-rust/15" : "bg-charcoal-800/70"}`}>
+        <tool.icon className={`h-[18px] w-[18px] ${live ? "text-accent-rust-soft" : "text-ink-faint"}`} strokeWidth={1.9} />
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
+          <span className={`text-[15px] font-semibold ${live ? "text-ink" : "text-ink-soft"}`}>{tool.title}</span>
+          {tool.hero && <span className="rounded-full bg-accent-rust/15 px-2 py-0.5 text-[10px] font-bold text-accent-rust-soft">Start here</span>}
+          {!live && <SoonBadge />}
+        </span>
+        <span className="mt-0.5 block text-xs leading-snug text-ink-soft">{tool.sub}</span>
+      </span>
+      {live && <ChevronRight className="h-4 w-4 shrink-0 self-center text-ink-faint" strokeWidth={2} />}
+    </>
+  );
+  const cls = `flex w-full gap-3 rounded-2xl border p-3 text-left ${
+    live ? "border-border bg-paper-raised transition active:scale-[0.98]" : "border-dashed border-border"
+  }`;
+  if (tool.hero) {
+    return (
+      <button type="button" onClick={() => onStart("home_journey")} className={cls}>
+        {body}
+      </button>
+    );
+  }
+  if (tool.href) {
+    return (
+      <Link href={tool.href} className={cls}>
+        {body}
+      </Link>
+    );
+  }
+  return <div className={cls}>{body}</div>;
 }
 
 function RowHeader({ title, href }: { title: string; href: string }) {
