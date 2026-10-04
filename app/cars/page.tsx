@@ -3,6 +3,7 @@ import Link from "next/link";
 import Breadcrumbs from "../../components/Breadcrumbs";
 import { GuideFooter, GuideNav } from "../../components/GuideLayout";
 import { fetchFeaturedCarSummaries } from "../../lib/data/fetchCarPage";
+import { fetchPublishedComparisons } from "../../lib/data/fetchComparisons";
 import { carIdToSlug, displayBrand } from "../../lib/cars/featured";
 import { fuelLabel, priceRangeText } from "../../lib/cars/format";
 import { pageMetadata, withBrand } from "../../lib/seo";
@@ -29,7 +30,7 @@ function brandAnchor(brand: string): string {
 }
 
 export default async function CarsIndexPage() {
-  const cars = await fetchFeaturedCarSummaries();
+  const [cars, comparisons] = await Promise.all([fetchFeaturedCarSummaries(), fetchPublishedComparisons()]);
   const byBrand = new Map<string, typeof cars>();
   for (const c of [...cars].sort((a, b) => a.name.localeCompare(b.name))) {
     const brand = displayBrand(c.brand);
@@ -47,6 +48,25 @@ export default async function CarsIndexPage() {
           Reviews of {cars.length} cars sold in India, each built from what real owners and expert reviewers say: strengths,
           common complaints, prices and engine options. No sponsored picks.
         </p>
+
+        {comparisons.length > 0 && (
+          <p className="mt-4 text-sm leading-relaxed text-ink-soft">
+            Deciding between two?{" "}
+            {comparisons.slice(0, 4).map((c, i) => (
+              <span key={c.slug}>
+                {i > 0 && ", "}
+                <Link href={`/compare/${c.slug}`} className="text-accent-rust-soft underline underline-offset-2">
+                  {c.a.model} vs {c.b.model}
+                </Link>
+              </span>
+            ))}
+            {" or "}
+            <Link href="/compare" className="text-accent-rust-soft underline underline-offset-2">
+              see all {comparisons.length} comparisons
+            </Link>
+            .
+          </p>
+        )}
 
         <nav aria-label="Jump to a brand" className="mt-8 flex flex-wrap gap-2">
           {[...byBrand.keys()]

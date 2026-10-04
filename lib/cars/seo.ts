@@ -32,3 +32,30 @@ export function carPageDescription(name: string, claims: number, sources: number
     MAX_DESCRIPTION_CHARS,
   );
 }
+
+/** e.g. "Hyundai Creta vs Kia Seltos: Owner Verdict | CarDhoondo". Pass nameB
+ * as the bare model for same-brand pairs ("Maruti Suzuki Fronx vs Brezza"). */
+export function comparisonTitle(nameA: string, nameB: string, modelA: string, modelB: string): string {
+  return firstFitting(
+    [
+      `${nameA} vs ${nameB}: Owner Verdict | CarDhoondo`,
+      `${nameA} vs ${nameB}: Which Is Better?`,
+      `${nameA} vs ${nameB} | CarDhoondo`,
+      `${nameA} vs ${nameB}`,
+      `${modelA} vs ${modelB}: Owner Verdict | CarDhoondo`,
+      `${modelA} vs ${modelB}`,
+    ],
+    MAX_TITLE_CHARS,
+  );
+}
+
+export function comparisonDescription(modelA: string, modelB: string, sources: number): string {
+  return firstFitting(
+    [
+      `${modelA} or ${modelB}? See where each one wins on mileage, comfort, space and more, based on ${sources} owner and expert reviews, with prices.`,
+      `${modelA} or ${modelB}? Where each one wins, based on ${sources} owner and expert reviews, with prices.`,
+      `${modelA} vs ${modelB}: where each one wins, from ${sources} owner and expert reviews.`,
+    ],
+    MAX_DESCRIPTION_CHARS,
+  );
+}

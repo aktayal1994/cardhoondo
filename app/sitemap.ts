@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { SITE_URL, carIdToSlug } from "../lib/cars/featured";
 import { fetchFeaturedCarSummaries } from "../lib/data/fetchCarPage";
+import { fetchPublishedComparisons } from "../lib/data/fetchComparisons";
 import type { FeaturedCarSummary } from "../lib/data/fetchCarPage";
 
 // Real last-change dates only: a lastmod that is just "now" on every URL teaches
@@ -21,6 +22,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // error keeps the previous sitemap (with all car URLs) live, instead of
   // caching a sitemap with every car page missing for a day.
   const cars: FeaturedCarSummary[] = await fetchFeaturedCarSummaries();
+  const comparisons = await fetchPublishedComparisons();
+  // A comparison changes whenever either car's scores are regenerated.
+  const newer = (x: string | null, y: string | null) => (x && (!y || x > y) ? x : y);
   const newestCar = cars.reduce<string | null>((m, c) => (c.updatedAt && (!m || c.updatedAt > m) ? c.updatedAt : m), null);
 
   return [
@@ -32,6 +36,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "monthly" as const,
       priority: 0.8,
     })),
+    { url: `${SITE_URL}/compare`, ...(newestCar ? { lastModified: newestCar } : {}), changeFrequency: "weekly", priority: 0.8 },
+    ...comparisons.map((c) => {
+      const lastModified = newer(c.a.updatedAt, c.b.updatedAt);
+      return {
+        url: `${SITE_URL}/compare/${c.slug}`,
+        ...(lastModified ? { lastModified } : {}),
+        changeFrequency: "monthly" as const,
+        priority: 0.7,
+      };
+    }),
     { url: `${SITE_URL}/guides`, changeFrequency: "monthly", priority: 0.8 },
     { url: `${SITE_URL}/quotation`, changeFrequency: "monthly", priority: 0.8 },
     ...GUIDES.map((g) => ({

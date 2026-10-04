@@ -73,6 +73,7 @@ export interface FeaturedCarSummary {
   claimCount: number;
   sourceCount: number;
   updatedAt: string | null;
+  onSale: boolean;
 }
 
 // A verdict resting on one or two remarks is anecdote, not consensus. The
@@ -118,12 +119,13 @@ export const fetchFeaturedCarSummaries = unstable_cache(
           claimCount: d.claimCount,
           sourceCount: d.sourceCount,
           updatedAt: d.updatedAt,
+          onSale: d.onSale,
         });
       }
     }
     return out;
   },
-  ["published-car-summaries-v1"],
+  ["published-car-summaries-v2"],
   { revalidate: CAR_DATA_TTL_SECONDS, tags: ["car-pages"] },
 );
 
@@ -152,7 +154,7 @@ function mentionsOtherCar(text: string, ownModel: string, allModels: string[]): 
  * review data is too thin to publish (see isPublishable). Cached per car. */
 export const fetchCarPageData = unstable_cache(
   (carId: string): Promise<CarPageData | null> => loadCarPageData(carId),
-  ["car-page-data-v1"],
+  ["car-page-data-v2"],
   { revalidate: CAR_DATA_TTL_SECONDS, tags: ["car-pages"] },
 );
 
@@ -247,7 +249,21 @@ export async function loadCarPageData(carId: string): Promise<CarPageData | null
     .slice(0, MAX_SHORTFALLS)
     .map((f) => ({ ...f, quote: quoteFor(f.facet, "negative") }));
 
-  const facets = consolidated.map((f) => ({ ...f, quote: null }));
+  // Every rated area also carries one quote in the direction of its verdict
+  // (reusing the likes/shortfalls quote when there is one), so comparison
+  // pages can show why each car scored the way it did. The review page's own
+  // ratings list does not render these.
+  const headlineQuote = new Map([...likes, ...shortfalls].map((f) => [f.facet, f.quote]));
+  const facets = consolidated.map((f) => ({
+    ...f,
+    quote: headlineQuote.has(f.facet)
+      ? headlineQuote.get(f.facet)!
+      : f.score >= 0.2
+        ? quoteFor(f.facet, "positive")
+        : f.score < 0
+          ? quoteFor(f.facet, "negative")
+          : null,
+  }));
 
   const seating = Array.from(
     new Set(((variantRes.data ?? []) as any[]).map((v) => String(v.seating_capacity ?? "").trim()).filter(Boolean)),

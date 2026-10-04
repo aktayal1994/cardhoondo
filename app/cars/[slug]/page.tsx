@@ -5,6 +5,7 @@ import { ArrowRight } from "lucide-react";
 import Breadcrumbs from "../../../components/Breadcrumbs";
 import { GuideFooter, GuideNav } from "../../../components/GuideLayout";
 import { fetchCarPageData, fetchFeaturedCarSummaries } from "../../../lib/data/fetchCarPage";
+import { fetchPublishedComparisons } from "../../../lib/data/fetchComparisons";
 import type { CarFacetSummary, CarPageData, FeaturedCarSummary } from "../../../lib/data/fetchCarPage";
 import { SITE_URL, carIdToSlug, slugToCarId } from "../../../lib/cars/featured";
 import { capitalize, formatLakh, formatLongDate, fuelLabel, joinList, priceRangeText } from "../../../lib/cars/format";
@@ -55,7 +56,11 @@ export default async function CarPage({ params }: Params) {
   const { slug } = await params;
   const carId = await publishedCarId(slug);
   if (!carId) notFound();
-  const [data, featured] = await Promise.all([fetchCarPageData(carId), fetchFeaturedCarSummaries()]);
+  const [data, featured, allComparisons] = await Promise.all([
+    fetchCarPageData(carId),
+    fetchFeaturedCarSummaries(),
+    fetchPublishedComparisons(),
+  ]);
   if (!data) notFound();
 
   const { name } = data;
@@ -65,6 +70,7 @@ export default async function CarPage({ params }: Params) {
   const topLikes = data.likes.slice(0, 3).map((f) => facetLabelInline(f.facet));
   const topComplaints = data.shortfalls.filter((f) => f.score < 0).slice(0, 3).map((f) => facetLabelInline(f.facet));
   const related = pickRelated(data, featured);
+  const comparisons = allComparisons.filter((c) => c.a.carId === data.carId || c.b.carId === data.carId);
 
   const faqs = buildFaqs(data, { price, fuels, gearboxes, topLikes, topComplaints });
 
@@ -255,6 +261,29 @@ export default async function CarPage({ params }: Params) {
             </div>
           ))}
         </Section>
+
+        {comparisons.length > 0 && (
+          <Section title={`Compare the ${data.model}`}>
+            <ul className="grid gap-3 sm:grid-cols-2">
+              {comparisons.map((c) => {
+                const other = c.a.carId === data.carId ? c.b : c.a;
+                return (
+                  <li key={c.slug}>
+                    <Link
+                      href={`/compare/${c.slug}`}
+                      className="block rounded-2xl border border-border bg-paper-raised px-4 py-3 transition hover:border-accent-rust/50"
+                    >
+                      <span className="font-display text-base font-bold text-ink">
+                        {c.a.model} vs {c.b.model}
+                      </span>
+                      <span className="mt-0.5 block text-xs text-ink-faint">See where the {other.model} does better or worse</span>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </Section>
+        )}
 
         {related.length > 0 && (
           <Section title="More car reviews">

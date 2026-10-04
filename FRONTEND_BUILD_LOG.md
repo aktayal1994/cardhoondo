@@ -405,3 +405,9 @@ GA for 3 Oct (first full day with GA on every visit): ~102 visitors, 90% Instagr
 - Landing: the top-bar "Find my car" button is hidden on phones (the hero CTA sits just below and the menu leads with it). Other headers: tighter phone padding (px-4, button px-4 / px-3 under 360px).
 - Verified geometry at 320/360/390 px: no overlap, no horizontal scroll; desktop nav unchanged.
 - Note: this production deploy also carried another session's uncommitted `lib/data/fetchCarPage.ts` change (per-facet quotes, cache keys v2); not included in this commit.
+
+## 2026-10-04 (later) — Car comparison pages (/compare)
+- New `/compare` index and `/compare/<a>-vs-<b>` pages for 36 hand-picked rival pairs (`lib/cars/comparisons.ts`). A pair is published only when both cars have a review page, are on sale and share 5+ rated areas (`lib/data/fetchComparisons.ts`); 35 live today (Curvv vs Creta held back: 4 shared areas).
+- Content is assembled from facet scores and review quotes only, no AI text: summary of where each car does better (score gap of 0.3 or more), price line, key facts table, area-by-area table, "which to pick" line, FAQ + WebPage + Breadcrumb JSON-LD.
+- Car review pages now carry per-area quotes in `facets` (cache keys bumped to v2) and a "Compare the <model>" block; /cars links popular comparisons; sitemap lists /compare and every comparison.
+- Verified on production: titles, 404 for unpublished pairs, 35 comparison URLs in the sitemap, no horizontal scroll at 375px.
