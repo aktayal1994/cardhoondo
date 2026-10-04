@@ -422,3 +422,9 @@ GA for 3 Oct (first full day with GA on every visit): ~102 visitors, 90% Instagr
 ## 2026-10-04: Night-drive photo on the home Find my car card
 
 - Replaced the hand-drawn SVG car with a photoreal night-highway SUV (unbadged, made in ChatGPT; `public/home-suv-night.webp` 41 KB + `.jpg` fallback), animated with CSS only: slow push-in, breathing headlights, light streaks on the road. Respects reduced motion.
+
+## 2026-10-04: Night-drive scene on desktop and tablet
+
+- `components/NightDriveScene.tsx`: shared animated photo scene; a 3:2 frame covers any box (container query units) so headlight glows stay on the lamps at every size.
+- Hero: from 1024px the scene fills the hero behind the text (left gradient); 640-1023px shows it as a 16:9 panel under the text; phones keep the card. Glass chip with live review-point count. Old SVG EvidenceCar removed.
+- Top nav links now show from 1024px (they collided on tablets); the menu button covers tablets on every page. Nav "Find my car" pill hidden on phones on guides, legal and quote pages (tab bar has it).

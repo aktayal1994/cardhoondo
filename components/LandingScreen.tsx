@@ -34,6 +34,7 @@ import AccountMenu from "./AccountMenu";
 import MobileMenu from "./MobileMenu";
 import WelcomeBackStrip from "./WelcomeBackStrip";
 import AppHome, { type HomeCar, type HomeComparison } from "./AppHome";
+import NightDriveScene from "./NightDriveScene";
 
 /**
  * "Nightdrive" -- a dark, cinematic scroll-driven redesign of the earlier
@@ -362,7 +363,7 @@ function Nav({ onStart }: { onStart: (location: string) => void }) {
         <a href="#top" aria-label="CarDhoondo home">
           <Brandmark />
         </a>
-        <nav className="hidden items-center gap-7 text-sm font-medium text-ink-soft sm:flex">
+        <nav className="hidden items-center gap-7 text-sm font-medium text-ink-soft lg:flex">
           <a href="#how-it-works" className="transition hover:text-ink">
             How it works
           </a>
@@ -405,154 +406,19 @@ function Nav({ onStart }: { onStart: (location: string) => void }) {
 // Every chip now names both the source AND the actual conflicting advice.
 const COMPLAINTS = ["Chacha: “Buy diesel, no question.”", "Colleague: “Wait, new model's coming.”", "YouTube: 15 different Top 10 lists."];
 
-/** A proper shaded crossover-SUV silhouette (the body shape of what
- * CarDhoondo actually recommends, not a generic sedan) -- body panel
- * contour, glass with a diagonal reflection, alloy wheels with spokes,
- * head/tail lamps, a roof rail. The "assembled from evidence" concept is
- * kept but restrained: a handful of small data-point dots along real seams
- * (headlamp, mirror, door handle, wheel hub) rather than turning the whole
- * car into visible squares. The reveal itself is a blur-to-focus resolve,
- * timed to land right as the hero's complaint chips dim -- "the confusion
- * clears and your recommendation comes into focus," the actual product
- * moment, not a generic entrance animation. */
-function EvidenceCar({ claims }: { claims: number }) {
-  const reduce = useReducedMotion();
-
-  const vbW = 480;
-  const vbH = 235;
-  const sill = 175;
-  const wheelR = 44;
-
-  // Proportions checked against real SUV side-profile references (short,
-  // raked cab-forward nose; wheels ~40% of total body height, set into
-  // genuine flared arches cut into the body -- not just resting under a
-  // flat sill; a fastback-style roofline with a small rear spoiler kick;
-  // two separate window panes split by a B-pillar), not guessed freehand.
-  const body =
-    "M20,175 C20,166 26,160 34,158 L36,144 " +
-    "C41,118 54,99 74,89 C88,82 100,77 112,70 " +
-    "C120,58 130,49 144,43 C154,39 167,37 181,36 L318,41 " +
-    "C330,42 339,44 346,48 C351,46 355,45.5 359,47.5 " +
-    "C367,54 374,63 380,74 C386,87 391,99 395,111 " +
-    "C407,115 419,121 427,131 C434,139 438,149 438,159 L438,175 " +
-    "L398,175 A48,48 0 0 0 302,175 L178,175 A48,48 0 0 0 82,175 L20,175 Z";
-
-  const rimLight =
-    "M34,158 C41,118 54,99 74,89 C88,82 100,77 112,70 " +
-    "C120,58 130,49 144,43 C154,39 167,37 181,36 L318,41 " +
-    "C330,42 339,44 346,48 C351,46 355,45.5 359,47.5 " +
-    "C367,54 374,63 380,74 C386,87 391,99 395,111";
-
-  const glass = "M112,88 C120,64 132,52 146,46 L316,50 C328,51 336,53 343,56 C355,63 366,74 375,86 L390,100 L100,96 Z";
-  const bPillar = "M247,49 L256,50 L254,96 L245,95 Z";
-  const roofRail = "M188,34 L314,38";
-  const characterLine = "M92,140 C180,144 300,144 418,136";
-  const doorHandleFront = "M150,105 L166,106";
-  const doorHandleRear = "M280,109 L296,110";
-  const mirror = "M120,74 C114,71 108,73 107,79 C106,85 111,88 117,86 L122,79 Z";
-
+/** Glassy chip over the night-drive scene: the evidence behind every answer. */
+function ReviewChip({ claims }: { claims: number }) {
   return (
-    <motion.div
-      initial={reduce ? undefined : { filter: "blur(18px)", opacity: 0.35 }}
-      animate={{ filter: "blur(0px)", opacity: 1 }}
-      transition={{ duration: 1, delay: 1.05, ease: [0.16, 1, 0.3, 1] }}
-      className="relative mx-auto w-full max-w-[460px]"
-    >
-      <svg
-        viewBox={`0 0 ${vbW} ${vbH}`}
-        className="h-auto w-full drop-shadow-[0_10px_24px_rgba(0,0,0,0.55)]"
-        role="img"
-        aria-label="A crossover SUV, illustrated, being illuminated from the evidence behind CarDhoondo's recommendations"
-      >
-        <defs>
-          <linearGradient id="carBodyGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="var(--color-charcoal-600)" />
-            <stop offset="45%" stopColor="var(--color-charcoal-800)" />
-            <stop offset="100%" stopColor="var(--color-charcoal-900)" />
-          </linearGradient>
-          <linearGradient id="glassGrad" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#3a4a52" />
-            <stop offset="55%" stopColor="#212d34" />
-            <stop offset="100%" stopColor="#161e23" />
-          </linearGradient>
-          <radialGradient id="wheelGrad" cx="35%" cy="35%" r="70%">
-            <stop offset="0%" stopColor="var(--color-charcoal-500)" />
-            <stop offset="100%" stopColor="var(--color-charcoal-950)" />
-          </radialGradient>
-        </defs>
-
-        <ellipse cx={vbW / 2 - 5} cy={sill + wheelR + 6} rx="205" ry="11" fill="#000" opacity="0.45" />
-
-        <g>
-          <path d={body} fill="url(#carBodyGrad)" stroke="var(--color-charcoal-950)" strokeWidth="1.5" />
-          {/* rim-light along the roof/hood edge -- the "lit from above" cue */}
-          <path d={rimLight} fill="none" stroke="var(--color-accent-rust)" strokeWidth="1.75" opacity="0.65" strokeLinecap="round" />
-
-          <path d={glass} fill="url(#glassGrad)" />
-          <path d={bPillar} fill="var(--color-charcoal-950)" />
-          <path d="M126,80 L150,58" stroke="#8a9aa2" strokeWidth="2.5" opacity="0.4" strokeLinecap="round" />
-          <path d="M180,52 L192,72" stroke="#8a9aa2" strokeWidth="1.5" opacity="0.25" strokeLinecap="round" />
-
-          <path d={characterLine} fill="none" stroke="var(--color-charcoal-950)" strokeWidth="1" opacity="0.4" />
-          <path d={doorHandleFront} stroke="var(--color-charcoal-950)" strokeWidth="2.5" opacity="0.6" strokeLinecap="round" />
-          <path d={doorHandleRear} stroke="var(--color-charcoal-950)" strokeWidth="2.5" opacity="0.6" strokeLinecap="round" />
-          <path d={roofRail} stroke="var(--color-charcoal-950)" strokeWidth="3" opacity="0.5" strokeLinecap="round" />
-          <path d={mirror} fill="var(--color-charcoal-950)" opacity="0.85" />
-
-          {/* head + tail lamps */}
-          <path d="M22,152 C22,147 26,144 32,145 L42,149 L40,158 L26,158 C23,158 22,155 22,152 Z" fill="var(--color-accent-rust)" opacity="0.95" />
-          <path d="M420,133 C425,134 429,137 430,142 L428,151 L418,149 L419,139 Z" fill="#c85a4a" opacity="0.9" />
-
-          {/* wheels -- large flared arches (cut into the body path above) with */}
-          {/* the tire sitting inside, matched in radius to the arch cutout */}
-          {[130, 350].map((cx) => (
-            <g key={cx}>
-              <circle cx={cx} cy={sill} r={wheelR} fill="var(--color-charcoal-950)" />
-              <circle cx={cx} cy={sill} r={wheelR * 0.66} fill="url(#wheelGrad)" stroke="var(--color-charcoal-600)" strokeWidth="1" />
-              <circle cx={cx} cy={sill} r={wheelR * 0.18} fill="var(--color-charcoal-800)" />
-              {[0, 60, 120, 180, 240, 300].map((deg) => {
-                const rad = (deg * Math.PI) / 180;
-                const len = wheelR * 0.5;
-                const x2 = cx + Math.cos(rad) * len;
-                const y2 = sill + Math.sin(rad) * len;
-                return <line key={deg} x1={cx} y1={sill} x2={x2} y2={y2} stroke="var(--color-charcoal-600)" strokeWidth="2.5" strokeLinecap="round" />;
-              })}
-            </g>
-          ))}
-
-          {/* evidence data-points along real seams, restrained not tiled */}
-          {!reduce &&
-            [
-              { x: 32, y: 150 },
-              { x: 250, y: 95 },
-              { x: 114, y: 79 },
-              { x: 357, y: 47 },
-            ].map((p, i) => (
-              <circle
-                key={i}
-                cx={p.x}
-                cy={p.y}
-                r="2.3"
-                fill="var(--color-accent-rust-soft)"
-                className="animate-pulse-dot"
-                style={{ animationDelay: `${i * 260}ms` }}
-              />
-            ))}
-        </g>
-      </svg>
-      <p className="mt-3 text-center font-mono text-[11px] uppercase tracking-[0.14em] text-ink-faint">
-        Built from {approxFloor(claims).toLocaleString("en-IN")}+ real review claims
-      </p>
-    </motion.div>
+    <div className="flex items-center gap-2.5 rounded-2xl border border-white/10 bg-black/45 px-4 py-2.5 backdrop-blur-md">
+      <span className="h-2 w-2 rounded-full bg-accent-rust animate-pulse-dot" />
+      <span className="text-sm text-ink">
+        <span className="font-semibold">{approxFloor(claims).toLocaleString("en-IN")}+</span>{" "}
+        <span className="text-ink-soft">points from real owner and expert reviews</span>
+      </span>
+    </div>
   );
 }
 
-/** A soft amber glow that follows the pointer, purely decorative (absolute,
- * pointer-events-none, so it never steals hit-testing from the real content
- * stacked above it) and cheap -- one motion-value-driven background
- * template, so it repaints without triggering a React re-render per pointer
- * move. The actual pointer listener lives on the section wrapping this, via
- * the x/y motion values passed in. */
 function CursorHeadlight({ x, y }: { x: ReturnType<typeof useMotionValue<number>>; y: ReturnType<typeof useMotionValue<number>> }) {
   const background = useTransform(
     [x, y],
@@ -583,20 +449,24 @@ function Hero({ onStart, claims }: { onStart: (location: string) => void; claims
         glowX.set(-9999);
         glowY.set(-9999);
       }}
-      className="relative overflow-hidden pt-10 pb-20 sm:pt-16 sm:pb-28"
+      className="relative overflow-hidden"
     >
+      {/* Wide screens: the night drive fills the hero behind the text. */}
+      <div className="absolute inset-0 hidden lg:block">
+        <NightDriveScene wide priority />
+        <div className="absolute inset-0 bg-gradient-to-r from-paper via-paper/80 via-35% to-transparent to-60%" />
+        <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-paper to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-paper to-transparent" />
+      </div>
       {!reduce && <CursorHeadlight x={glowX} y={glowY} />}
       <motion.div
         style={reduce ? undefined : { opacity: fade, y: rise }}
-        className="relative mx-auto grid max-w-6xl grid-cols-1 items-center gap-14 px-6 lg:grid-cols-[1.05fr_0.95fr] lg:gap-10"
+        className="relative mx-auto max-w-6xl px-6 pt-14 sm:pt-16 lg:flex lg:min-h-[600px] lg:items-center lg:pb-24 lg:pt-10 xl:min-h-[min(calc(100vh-4rem),780px)]"
       >
-        <div>
+        <div className="lg:max-w-[30rem] xl:max-w-[34rem]">
           {/* The doubt-clearing beat: every conflicting opinion appears sharp,
-              holds a moment so it actually registers, then recedes into the
-              background right as the car (the answer) sharpens into focus
-              below -- the animation acting out "your confusion gets replaced
-              by one evidence-backed recommendation," not just a generic
-              stagger-in. */}
+              holds a moment so it actually registers, then recedes as the
+              answer (the car, the button) comes into focus. */}
           <div className="flex flex-wrap gap-2">
             {COMPLAINTS.map((text, i) => (
               <motion.span
@@ -617,9 +487,7 @@ function Hero({ onStart, claims }: { onStart: (location: string) => void; claims
             text="Still confused which car to buy in India?"
             className="mt-6 max-w-xl text-balance font-display text-[clamp(2.1rem,4.8vw,3.5rem)] font-semibold leading-[1.12] text-ink"
           />
-          <p
-            className="mt-4 max-w-md text-base leading-relaxed text-ink-soft sm:text-lg"
-          >
+          <p className="mt-4 max-w-md text-base leading-relaxed text-ink-soft sm:text-lg">
             One evidence-backed answer, not fifty conflicting opinions. Matched to how you actually drive.
           </p>
 
@@ -630,9 +498,21 @@ function Hero({ onStart, claims }: { onStart: (location: string) => void; claims
             <p className="font-mono text-xs text-ink-faint">11 questions &middot; about 3 minutes</p>
           </div>
         </div>
-
-        <EvidenceCar claims={claims} />
       </motion.div>
+
+      {/* Tablets and narrower windows: the same scene as a wide panel under the text. */}
+      <div className="relative mx-auto max-w-6xl px-6 pb-24 pt-12 lg:hidden">
+        <div className="relative aspect-[16/9] overflow-hidden rounded-[28px] shadow-glow">
+          <NightDriveScene />
+          <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/60 to-transparent" />
+          <div className="absolute bottom-4 left-4">
+            <ReviewChip claims={claims} />
+          </div>
+        </div>
+      </div>
+      <div className="pointer-events-none absolute bottom-28 right-[max(1.5rem,calc((100vw-72rem)/2+1.5rem))] hidden lg:block">
+        <ReviewChip claims={claims} />
+      </div>
 
       {!reduce && (
         <motion.div

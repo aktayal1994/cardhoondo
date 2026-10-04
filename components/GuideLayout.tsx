@@ -127,7 +127,7 @@ export function GuideNav() {
           <Image src="/cardhoondo-icon.png" alt="" width={237} height={237} className="h-8 w-8" />
           <span className="font-display text-base font-bold text-ink">CarDhoondo</span>
         </Link>
-        <nav className="hidden items-center gap-8 text-sm font-medium text-ink-soft sm:flex">
+        <nav className="hidden items-center gap-8 text-sm font-medium text-ink-soft lg:flex">
           <Link href="/cars" className="transition hover:text-ink">
             Car reviews
           </Link>

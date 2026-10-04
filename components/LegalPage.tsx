@@ -59,7 +59,7 @@ export default function LegalPage({
           <div className="flex items-center gap-1">
             <Link
               href="/questionnaire/core-requirements"
-              className="rounded-full bg-accent-rust px-4 py-2.5 max-[359px]:px-3 sm:px-5 text-sm font-semibold text-stage shadow-glow-sm transition hover:brightness-110 active:scale-[0.98]"
+              className="hidden rounded-full bg-accent-rust px-5 py-2.5 text-sm font-semibold text-stage shadow-glow-sm sm:inline-flex transition hover:brightness-110 active:scale-[0.98]"
             >
               Find my car
             </Link>

@@ -43,7 +43,7 @@ export default function MobileMenu({ onStart }: { onStart?: (location: string) =
   const rowClass = "flex items-start gap-3 rounded-xl px-3 py-3 transition hover:bg-paper-raised active:bg-paper-raised";
 
   return (
-    <div ref={wrapRef} className="sm:hidden">
+    <div ref={wrapRef} className="lg:hidden">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}

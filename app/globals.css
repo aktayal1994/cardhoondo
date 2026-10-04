@@ -468,6 +468,27 @@ html[data-auth="1"] .welcome-slot {
   box-shadow: 0 0 0 1px rgba(240, 190, 128, 0.22), 0 20px 40px -18px rgba(226, 152, 74, 0.55);
 }
 
+/* Scene box: fills its parent; the 3:2 frame inside covers it (see NightDriveScene). */
+.night-scene {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  container-type: size;
+}
+
+.night-frame {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  aspect-ratio: 3 / 2;
+  width: max(100%, 150cqh);
+  transform: translateY(-50%);
+}
+
+.night-scene--wide .night-frame {
+  width: max(75%, 150cqh);
+}
+
 /* Slow camera push-in towards the car. */
 .night-photo {
   transform-origin: 62% 58%;

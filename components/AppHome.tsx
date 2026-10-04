@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ArrowRight, BookOpen, Car, ChevronRight, GitCompareArrows, ReceiptIndianRupee, ShieldCheck, Sparkles } from "lucide-react";
 import { useMe } from "../lib/auth/useMe";
 import { BRAND_LOGOS } from "../lib/brandLogos";
+import NightDriveScene from "./NightDriveScene";
 
 /** What the home screen needs to know about a car (kept small: it ships to the browser). */
 export interface HomeCar {
@@ -115,7 +116,12 @@ function FindCard({ onStart, claims }: { onStart: (location: string) => void; cl
       onClick={() => onStart("home_card")}
       className="find-card relative mt-5 block w-full overflow-hidden rounded-[28px] text-left transition active:scale-[0.98]"
     >
-      <NightDrive />
+      <span className="relative mt-12 block aspect-[3/2] w-full">
+        <NightDriveScene priority />
+        {/* Blend the photo's dark sky into the card above, and fade into solid dark below. */}
+        <span className="absolute inset-x-0 top-0 h-1/4 bg-gradient-to-t from-transparent to-[#120d07]" />
+        <span className="absolute inset-x-0 -bottom-px h-2/5 bg-gradient-to-b from-transparent via-[#120d07]/70 to-[#120d07]" />
+      </span>
       <span className="absolute left-5 top-5 z-10 max-w-[13.5rem]">
         <span className="inline-flex items-center gap-1.5 rounded-full bg-black/45 px-3 py-1 text-[11px] font-semibold text-accent-rust-soft backdrop-blur-sm">
           <Sparkles className="h-3.5 w-3.5" strokeWidth={2.25} />
@@ -139,34 +145,6 @@ function FindCard({ onStart, claims }: { onStart: (location: string) => void; cl
         </span>
       </span>
     </button>
-  );
-}
-
-/**
- * A night-highway photo brought to life with cheap CSS motion: a slow camera
- * push-in, light streaks rushing past on the road, and breathing headlights.
- * Headlight spots are placed in % of the 3:2 frame, so they stay on the lamps
- * at every phone width.
- */
-function NightDrive() {
-  return (
-    <span className="relative mt-12 block aspect-[3/2] w-full overflow-hidden" aria-hidden>
-      <span className="night-photo absolute inset-0">
-        <picture>
-          <source srcSet="/home-suv-night.webp" type="image/webp" />
-          <img src="/home-suv-night.jpg" alt="" className="h-full w-full object-cover" fetchPriority="high" />
-        </picture>
-        <span className="headlight" style={{ left: "47%", top: "56%" }} />
-        <span className="headlight" style={{ left: "69.5%", top: "55.5%" }} />
-      </span>
-      <span className="streak" style={{ top: "70%", animationDelay: "0s" }} />
-      <span className="streak" style={{ top: "80%", animationDelay: "0.7s", width: "38%" }} />
-      <span className="streak" style={{ top: "88%", animationDelay: "1.3s" }} />
-      <span className="streak" style={{ top: "76%", animationDelay: "2.1s", width: "24%" }} />
-      {/* Blend the photo's dark sky into the card above, and fade into solid dark below. */}
-      <span className="absolute inset-x-0 top-0 h-1/4 bg-gradient-to-t from-transparent to-[#120d07]" />
-      <span className="absolute inset-x-0 -bottom-px h-2/5 bg-gradient-to-b from-transparent via-[#120d07]/70 to-[#120d07]" />
-    </span>
   );
 }
 
