@@ -1,4 +1,4 @@
-import { ClipboardCheck, Gauge, ReceiptIndianRupee, Search, Wrench } from "lucide-react";
+import { ClipboardCheck, Gauge, ReceiptIndianRupee, Search } from "lucide-react";
 
 /**
  * The car buying journey, stage by stage, and the CarDhoondo tool for each.
@@ -7,7 +7,7 @@ import { ClipboardCheck, Gauge, ReceiptIndianRupee, Search, Wrench } from "lucid
  * the same everywhere. `href: null` means the tool is not built yet and shows
  * as "Coming soon" (never a dead link).
  */
-export type JourneyStageId = "exploring" | "negotiating" | "delivery" | "owning";
+export type JourneyStageId = "exploring" | "negotiating" | "delivery";
 
 export interface JourneyTool {
   id: string;
@@ -78,21 +78,6 @@ export const JOURNEY: JourneyStage[] = [
         sub: "Check the car before you sign for it, with the weak spots reviewers found on your model at the top.",
         href: null,
         icon: ClipboardCheck,
-      },
-    ],
-  },
-  {
-    id: "owning",
-    step: "04",
-    label: "Owning",
-    question: "Am I paying too much at service?",
-    tools: [
-      {
-        id: "service_bill",
-        title: "Service bill check",
-        sub: "See which items on a service bill are due, which are pushed on you, and what to question.",
-        href: null,
-        icon: Wrench,
       },
     ],
   },

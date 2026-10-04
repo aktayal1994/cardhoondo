@@ -543,7 +543,7 @@ function Journey({ onStart, claims }: { onStart: (location: string) => void; cla
       <div className="mx-auto max-w-6xl px-6">
         <div className="max-w-2xl">
           <StaggerHeading
-            text="From the first search to the first service, one honest guide"
+            text="From the first search to the keys in your hand, one honest guide"
             className="text-balance font-display text-3xl font-bold text-ink sm:text-4xl"
           />
           <RevealOnScroll delay={0.15}>
@@ -555,7 +555,7 @@ function Journey({ onStart, claims }: { onStart: (location: string) => void; cla
           </RevealOnScroll>
         </div>
 
-        <div className="relative mt-14 grid grid-cols-2 gap-x-6 gap-y-12 lg:grid-cols-4">
+        <div className="relative mt-14 grid grid-cols-2 gap-x-6 gap-y-12 lg:grid-cols-3">
           <div aria-hidden className="absolute left-5 right-0 top-5 hidden h-px bg-gradient-to-r from-accent-rust/70 via-border to-transparent lg:block" />
           {JOURNEY.map((stage, i) => (
             <RevealOnScroll key={stage.id} delay={i * 0.08} className="relative">

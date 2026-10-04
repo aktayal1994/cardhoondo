@@ -435,3 +435,7 @@ GA for 3 Oct (first full day with GA on every visit): ~102 visitors, 90% Instagr
 - Desktop home: new "From the first search to the first service" section right after the hero. Phone home: "With you at every step" timeline replaces the "More ways we help" tiles (quote check moved into it); reviews/compare/guides stay as "Research on your own" tiles. Phone menu lists the coming-soon tools.
 - `components/JourneyNextSteps.tsx`: "What's next on your car journey" strip at the end of results and of the quote check result.
 - Fonts self-hosted (`app/fonts`, `next/font/local`): `next/font/google` began failing Vercel builds ("Cannot read properties of null (reading '1')" in the Google loader) though the same setup built 45 minutes earlier.
+
+## 2026-10-04: Journey trimmed to three stages
+
+- Removed the "Owning" stage and the service bill check (founder not aligned with that use case). Journey now ends at taking delivery; desktop section is 3 columns; copy says "to the keys in your hand".

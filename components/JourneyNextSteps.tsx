@@ -21,7 +21,7 @@ export default function JourneyNextSteps({ current }: { current: JourneyStageId 
   return (
     <section className="mt-10 rounded-[20px] border border-border bg-paper-raised/70 p-5 sm:p-6">
       <h2 className="font-display text-lg font-semibold text-ink">What&apos;s next on your car journey</h2>
-      <p className="mt-1 text-sm text-ink-soft">The same review data, there for you at every step until the keys are in your hand and after.</p>
+      <p className="mt-1 text-sm text-ink-soft">The same review data, there for you at every step until the keys are in your hand.</p>
       <ol className="mt-4 space-y-3">
         {stages.map((stage) =>
           stage.tools.map((tool) => {

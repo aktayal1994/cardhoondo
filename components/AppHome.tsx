@@ -213,7 +213,7 @@ function JourneyTimeline({ onStart }: { onStart: (location: string) => void }) {
     <section className="mt-8">
       <h2 className="text-[13px] font-semibold uppercase tracking-wider text-ink-faint">With you at every step</h2>
       <p className="mt-1 text-sm leading-relaxed text-ink-soft">
-        From choosing the car to its first service, every tool runs on real owner and expert reviews.
+        From choosing the car to taking delivery, every tool runs on real owner and expert reviews.
       </p>
       <ol className="relative mt-4">
         <span aria-hidden className="absolute bottom-6 left-[15px] top-4 w-px bg-gradient-to-b from-accent-rust/60 via-border to-transparent" />
