@@ -398,3 +398,10 @@ GA for 3 Oct (first full day with GA on every visit): ~102 visitors, 90% Instagr
 - Recommendations (`fetchRecommendationData`) and the dealer quote check (`fetchQuotationData`) skip off-sale cars. Python `recommend.py` mirrors this.
 - Review pages stay up for off-sale cars (used-car searches) with a "no longer sold new" notice and "last cost" price wording.
 - Verified: 79 recommendable cars locally; /cars/mahindra-marazzo shows the notice on production; /cars/kia-seltos does not.
+
+## 2026-10-04 — Phone menu (all features reachable from the top bar)
+
+- New `components/MobileMenu.tsx`: a menu button shown below `sm` in every top bar (landing, quote check, car reviews, guides, legal pages). Lists Find my car, Check a dealer quote, Car reviews, Buying guides, Why CarDhoondo, FAQ. Before this, phones (and the Android app) had no header route to the quote check, reviews or guides.
+- Landing: the top-bar "Find my car" button is hidden on phones (the hero CTA sits just below and the menu leads with it). Other headers: tighter phone padding (px-4, button px-4 / px-3 under 360px).
+- Verified geometry at 320/360/390 px: no overlap, no horizontal scroll; desktop nav unchanged.
+- Note: this production deploy also carried another session's uncommitted `lib/data/fetchCarPage.ts` change (per-facet quotes, cache keys v2); not included in this commit.

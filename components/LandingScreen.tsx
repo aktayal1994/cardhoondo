@@ -31,6 +31,7 @@ import {
 } from "lucide-react";
 import { CookieSettingsButton } from "./CookieBanner";
 import AccountMenu from "./AccountMenu";
+import MobileMenu from "./MobileMenu";
 import WelcomeBackStrip from "./WelcomeBackStrip";
 
 /**
@@ -367,9 +368,13 @@ function Nav({ onStart }: { onStart: (location: string) => void }) {
         </nav>
         <div className="flex items-center gap-1 sm:gap-3">
           <AccountMenu />
-          <GlowButton onClick={() => onStart("nav")} size="sm">
-            {PRIMARY_CTA}
-          </GlowButton>
+          {/* Phones: the hero's CTA sits just below, and "Find my car" heads the menu. */}
+          <span className="hidden sm:inline-flex">
+            <GlowButton onClick={() => onStart("nav")} size="sm">
+              {PRIMARY_CTA}
+            </GlowButton>
+          </span>
+          <MobileMenu onStart={onStart} />
         </div>
       </div>
     </header>

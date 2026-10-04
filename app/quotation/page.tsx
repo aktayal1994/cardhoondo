@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import Breadcrumbs from "../../components/Breadcrumbs";
 import QuotationFlowWithParams from "../../components/QuotationFlowWithParams";
+import MobileMenu from "../../components/MobileMenu";
 
 /**
  * Standalone dealer-quote check -- reachable directly (nav links) and, with
@@ -121,7 +122,7 @@ function QuoteExplainer() {
 function QuotationNav() {
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-paper/90 backdrop-blur">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
+      <div className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-4 py-3 sm:px-6">
         <Link href="/" className="flex items-center gap-2.5" aria-label="CarDhoondo home">
           <Image src="/cardhoondo-icon.png" alt="" width={237} height={237} className="h-8 w-8" />
           <span className="font-display text-base font-bold text-ink">CarDhoondo</span>
@@ -137,12 +138,15 @@ function QuotationNav() {
             Why CarDhoondo
           </Link>
         </nav>
-        <Link
-          href="/questionnaire/core-requirements"
-          className="rounded-full bg-accent-rust px-5 py-2.5 text-sm font-semibold text-stage shadow-sm transition hover:brightness-105 active:scale-[0.98]"
-        >
-          Find my car
-        </Link>
+        <div className="flex items-center gap-1">
+          <Link
+            href="/questionnaire/core-requirements"
+            className="rounded-full bg-accent-rust px-4 py-2.5 max-[359px]:px-3 sm:px-5 text-sm font-semibold text-stage shadow-sm transition hover:brightness-105 active:scale-[0.98]"
+          >
+            Find my car
+          </Link>
+          <MobileMenu />
+        </div>
       </div>
     </header>
   );
