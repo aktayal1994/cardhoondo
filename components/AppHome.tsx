@@ -113,62 +113,59 @@ function FindCard({ onStart, claims }: { onStart: (location: string) => void; cl
     <button
       type="button"
       onClick={() => onStart("home_card")}
-      className="find-card relative mt-5 block w-full overflow-hidden rounded-[28px] p-5 text-left transition active:scale-[0.98]"
+      className="find-card relative mt-5 block w-full overflow-hidden rounded-[28px] text-left transition active:scale-[0.98]"
     >
-      <span className="inline-flex items-center gap-1.5 rounded-full bg-black/30 px-3 py-1 text-[11px] font-semibold text-accent-rust-soft">
-        <Sparkles className="h-3.5 w-3.5" strokeWidth={2.25} />
-        Takes 3 minutes
-      </span>
-      <span className="mt-3 block max-w-[15rem] font-display text-[26px] font-semibold leading-[1.15] text-ink">
-        Find the car that fits your life
-      </span>
-      <span className="mt-2 block max-w-[16rem] text-sm leading-relaxed text-charcoal-100/80">
-        11 easy questions. 2 or 3 cars, each backed by {(Math.floor(claims / 100) * 100).toLocaleString("en-IN")}+ points from real reviews.
-      </span>
-
-      <MiniCar />
-
-      <span className="relative mt-1 flex items-center justify-between">
-        <span className="inline-flex items-center gap-2 rounded-full bg-accent-rust px-5 py-3 text-[15px] font-semibold text-charcoal-950 shadow-glow-sm">
-          Find my car
-          <ArrowRight className="h-4 w-4" strokeWidth={2.5} />
+      <NightDrive />
+      <span className="absolute left-5 top-5 z-10 max-w-[13.5rem]">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-black/45 px-3 py-1 text-[11px] font-semibold text-accent-rust-soft backdrop-blur-sm">
+          <Sparkles className="h-3.5 w-3.5" strokeWidth={2.25} />
+          Takes 3 minutes
         </span>
-        <span className="text-xs text-charcoal-100/70">Free, no sign-up</span>
+        <span className="mt-3 block font-display text-[26px] font-semibold leading-[1.15] text-ink drop-shadow-[0_2px_12px_rgba(0,0,0,0.8)]">
+          Find the car that fits your life
+        </span>
+      </span>
+
+      <span className="relative z-10 block px-5 pb-5">
+        <span className="block text-sm leading-relaxed text-charcoal-100/85">
+          11 easy questions. 2 or 3 cars, each backed by {(Math.floor(claims / 100) * 100).toLocaleString("en-IN")}+ points from real reviews.
+        </span>
+        <span className="mt-4 flex items-center justify-between">
+          <span className="inline-flex items-center gap-2 rounded-full bg-accent-rust px-5 py-3 text-[15px] font-semibold text-charcoal-950 shadow-glow-sm">
+            Find my car
+            <ArrowRight className="h-4 w-4" strokeWidth={2.5} />
+          </span>
+          <span className="text-xs text-charcoal-100/70">Free, no sign-up</span>
+        </span>
       </span>
     </button>
   );
 }
 
-/** A little SUV cruising along a moving road, so the card feels alive. */
-function MiniCar() {
+/**
+ * A night-highway photo brought to life with cheap CSS motion: a slow camera
+ * push-in, light streaks rushing past on the road, and breathing headlights.
+ * Headlight spots are placed in % of the 3:2 frame, so they stay on the lamps
+ * at every phone width.
+ */
+function NightDrive() {
   return (
-    <span className="relative mt-3 block h-20" aria-hidden>
-      <span className="road-dash absolute inset-x-0 bottom-3 h-[2px] opacity-60" />
-      <svg viewBox="-60 0 260 70" className="animate-car-drive absolute bottom-3 right-0 h-[72px] w-auto">
-        <defs>
-          <linearGradient id="mc-body" x1="0" x2="0" y1="0" y2="1">
-            <stop offset="0" stopColor="#f0be80" />
-            <stop offset="1" stopColor="#c47a32" />
-          </linearGradient>
-          <linearGradient id="mc-beam" x1="1" x2="0" y1="0" y2="0">
-            <stop offset="0" stopColor="#ffe9c4" stopOpacity="0.55" />
-            <stop offset="1" stopColor="#ffe9c4" stopOpacity="0" />
-          </linearGradient>
-        </defs>
-        <path d="M22 39 L-60 26 L-60 56 L22 43 Z" fill="url(#mc-beam)" />
-        <path
-          d="M18 46 C18 38 24 34 34 33 L58 31 L78 16 C82 13 86 12 92 12 L140 12 C148 12 153 15 158 20 L172 32 C182 33 190 37 190 46 L190 52 L18 52 Z"
-          fill="url(#mc-body)"
-        />
-        <path d="M84 18 C86 16 88 16 92 16 L120 16 L120 31 L68 31 Z" fill="#1b1309" opacity="0.85" />
-        <path d="M125 16 L140 16 C146 16 150 18 154 22 L164 31 L125 31 Z" fill="#1b1309" opacity="0.85" />
-        <rect x="20" y="38" width="10" height="5" rx="2" fill="#fff4dc" />
-        <rect x="182" y="38" width="7" height="5" rx="2" fill="#e2837c" />
-        <circle cx="52" cy="52" r="12" fill="#0f0d09" />
-        <circle cx="52" cy="52" r="5" fill="#857f6d" />
-        <circle cx="156" cy="52" r="12" fill="#0f0d09" />
-        <circle cx="156" cy="52" r="5" fill="#857f6d" />
-      </svg>
+    <span className="relative mt-12 block aspect-[3/2] w-full overflow-hidden" aria-hidden>
+      <span className="night-photo absolute inset-0">
+        <picture>
+          <source srcSet="/home-suv-night.webp" type="image/webp" />
+          <img src="/home-suv-night.jpg" alt="" className="h-full w-full object-cover" fetchPriority="high" />
+        </picture>
+        <span className="headlight" style={{ left: "47%", top: "56%" }} />
+        <span className="headlight" style={{ left: "69.5%", top: "55.5%" }} />
+      </span>
+      <span className="streak" style={{ top: "70%", animationDelay: "0s" }} />
+      <span className="streak" style={{ top: "80%", animationDelay: "0.7s", width: "38%" }} />
+      <span className="streak" style={{ top: "88%", animationDelay: "1.3s" }} />
+      <span className="streak" style={{ top: "76%", animationDelay: "2.1s", width: "24%" }} />
+      {/* Blend the photo's dark sky into the card above, and fade into solid dark below. */}
+      <span className="absolute inset-x-0 top-0 h-1/4 bg-gradient-to-t from-transparent to-[#120d07]" />
+      <span className="absolute inset-x-0 -bottom-px h-2/5 bg-gradient-to-b from-transparent via-[#120d07]/70 to-[#120d07]" />
     </span>
   );
 }

@@ -418,3 +418,7 @@ GA for 3 Oct (first full day with GA on every visit): ~102 visitors, 90% Instagr
 - Phone home is now an app dashboard (`components/AppHome.tsx`): big animated Find my car card, trust pills, four colour-coded feature tiles, swipeable most-reviewed cars and rival comparison chips. Desktop keeps the cinematic hero.
 - `app/page.tsx` is now a server page (ISR, daily) that loads real car summaries for the home rows; client logic moved to `components/HomePageClient.tsx`.
 - Guide/quote nav hides its "Find my car" pill on phones (the tab bar has it).
+
+## 2026-10-04: Night-drive photo on the home Find my car card
+
+- Replaced the hand-drawn SVG car with a photoreal night-highway SUV (unbadged, made in ChatGPT; `public/home-suv-night.webp` 41 KB + `.jpg` fallback), animated with CSS only: slow push-in, breathing headlights, light streaks on the road. Respects reduced motion.
