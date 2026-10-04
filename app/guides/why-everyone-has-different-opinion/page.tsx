@@ -1,16 +1,20 @@
 import type { Metadata } from "next";
+import { pageMetadata, withBrand } from "../../../lib/seo";
 import GuideLayout from "../../../components/GuideLayout";
 
 const TITLE = "Why Does Everyone Have a Different Opinion on Which Car to Buy?";
 const DESCRIPTION =
-  "Asked chacha, asked colleagues, watched 15 YouTube videos — and everyone said something different. Here's why car advice in India always conflicts, and what actually helps.";
+  "Asked chacha, asked colleagues, watched 15 YouTube videos, and everyone said something different. Why car advice in India conflicts, and what helps.";
 
-export const metadata: Metadata = {
-  title: TITLE,
+/** Shorter than the on-page headline so it fits Google's ~60-character title. */
+const SEO_TITLE = withBrand("Why Car Advice in India Always Conflicts");
+
+export const metadata: Metadata = pageMetadata({
+  title: SEO_TITLE,
   description: DESCRIPTION,
-  alternates: { canonical: "/guides/why-everyone-has-different-opinion" },
-  openGraph: { title: TITLE, description: DESCRIPTION, type: "article" },
-};
+  path: "/guides/why-everyone-has-different-opinion",
+  type: "article",
+});
 
 export default function Page() {
   return (

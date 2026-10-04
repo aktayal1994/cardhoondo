@@ -4,20 +4,29 @@ import Breadcrumbs from "../../components/Breadcrumbs";
 import { GuideFooter, GuideNav } from "../../components/GuideLayout";
 import { fetchFeaturedCarSummaries } from "../../lib/data/fetchCarPage";
 import { carIdToSlug, displayBrand } from "../../lib/cars/featured";
-import { priceRangeText } from "../../lib/cars/format";
+import { fuelLabel, priceRangeText } from "../../lib/cars/format";
+import { pageMetadata, withBrand } from "../../lib/seo";
 
 export const revalidate = 86400;
 
 const TITLE = "Car Reviews India: What Owners and Experts Say";
 const DESCRIPTION =
-  "Honest reviews of India's most popular cars, built from what real owners and expert reviewers say: strengths, common complaints, prices and engine options. No sponsored picks.";
+  "Car reviews built from what real owners and expert reviewers say: strengths, common complaints, prices and engines. No sponsored picks.";
 
-export const metadata: Metadata = {
-  title: TITLE,
-  description: DESCRIPTION,
-  alternates: { canonical: "/cars" },
-  openGraph: { title: TITLE, description: DESCRIPTION, url: "/cars" },
-};
+export const metadata: Metadata = pageMetadata({ title: withBrand(TITLE), description: DESCRIPTION, path: "/cars" });
+
+const FUEL_ORDER = ["Petrol", "Diesel", "CNG", "Hybrid", "Electric"];
+
+/** "Petrol, Diesel, CNG" in a fixed order, so cards read consistently. */
+function fuelList(fuels: string[]): string {
+  const labels = Array.from(new Set(fuels.map((f) => fuelLabel(f))));
+  const rank = (l: string) => (FUEL_ORDER.indexOf(l) === -1 ? 99 : FUEL_ORDER.indexOf(l));
+  return labels.sort((a, b) => rank(a) - rank(b)).join(", ");
+}
+
+function brandAnchor(brand: string): string {
+  return brand.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+}
 
 export default async function CarsIndexPage() {
   const cars = await fetchFeaturedCarSummaries();
@@ -34,12 +43,29 @@ export default async function CarsIndexPage() {
         <Breadcrumbs trail={[{ name: "Car reviews" }]} />
         <p className="mt-6 font-display text-sm font-semibold uppercase tracking-wide text-accent-rust-soft">Car reviews</p>
         <h1 className="mt-3 font-display text-3xl font-bold text-balance text-ink sm:text-4xl">{TITLE}</h1>
-        <p className="mt-4 max-w-xl text-lg leading-relaxed text-ink-soft">{DESCRIPTION}</p>
+        <p className="mt-4 max-w-xl text-lg leading-relaxed text-ink-soft">
+          Reviews of {cars.length} cars sold in India, each built from what real owners and expert reviewers say: strengths,
+          common complaints, prices and engine options. No sponsored picks.
+        </p>
+
+        <nav aria-label="Jump to a brand" className="mt-8 flex flex-wrap gap-2">
+          {[...byBrand.keys()]
+            .sort((a, b) => a.localeCompare(b))
+            .map((brand) => (
+              <a
+                key={brand}
+                href={`#${brandAnchor(brand)}`}
+                className="rounded-full border border-border px-3 py-1.5 text-sm text-ink-soft transition hover:border-accent-rust/50 hover:text-ink"
+              >
+                {brand} <span className="text-ink-faint">({byBrand.get(brand)!.length})</span>
+              </a>
+            ))}
+        </nav>
 
         {[...byBrand.entries()]
           .sort((a, b) => a[0].localeCompare(b[0]))
           .map(([brand, list]) => (
-            <section key={brand} className="mt-10">
+            <section key={brand} id={brandAnchor(brand)} className="mt-10 scroll-mt-24">
               <h2 className="font-display text-2xl font-bold text-ink">{brand} car reviews</h2>
               <ul className="mt-4 grid gap-3 sm:grid-cols-2">
                 {list.map((c) => (
@@ -49,7 +75,12 @@ export default async function CarsIndexPage() {
                       className="block rounded-2xl border border-border bg-paper-raised p-5 transition hover:border-accent-rust/50"
                     >
                       <h3 className="font-display text-lg font-bold text-ink">{c.name} review</h3>
-                      <p className="mt-1 text-sm text-ink-soft">{priceRangeText(c.priceMin, c.priceMax) ?? "Price not listed"} ex-showroom</p>
+                      <p className="mt-1 text-sm text-ink-soft">
+                        {priceRangeText(c.priceMin, c.priceMax) ? `${priceRangeText(c.priceMin, c.priceMax)} ex-showroom` : "Price not listed"}
+                      </p>
+                      <p className="mt-1 text-xs text-ink-faint">
+                        {[fuelList(c.fuels), `based on ${c.sourceCount} reviews`].filter(Boolean).join(" · ")}
+                      </p>
                     </Link>
                   </li>
                 ))}

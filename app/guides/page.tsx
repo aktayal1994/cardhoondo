@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata, withBrand } from "../../lib/seo";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
@@ -6,13 +7,9 @@ import Breadcrumbs from "../../components/Breadcrumbs";
 
 const TITLE = "Car Buying Guides for India";
 const DESCRIPTION =
-  "Straight answers to the questions every Indian car buyer gets stuck on — fuel type, transmission, dealer tactics, and why everyone's advice conflicts. No sponsored picks.";
+  "Straight answers to what Indian car buyers get stuck on: fuel type, transmission, dealer tactics and why everyone's advice conflicts. No sponsored picks.";
 
-export const metadata: Metadata = {
-  title: TITLE,
-  description: DESCRIPTION,
-  alternates: { canonical: "/guides" },
-};
+export const metadata: Metadata = pageMetadata({ title: withBrand(TITLE), description: DESCRIPTION, path: "/guides" });
 
 const GUIDES = [
   {

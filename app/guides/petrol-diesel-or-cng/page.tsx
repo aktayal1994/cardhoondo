@@ -1,16 +1,20 @@
 import type { Metadata } from "next";
+import { pageMetadata, withBrand } from "../../../lib/seo";
 import GuideLayout from "../../../components/GuideLayout";
 
 const TITLE = "Petrol, Diesel or CNG? How to Actually Decide in 2026";
 const DESCRIPTION =
-  "Petrol vs diesel vs CNG for your next car in India — the real running-cost math, where diesel still makes sense, and why the 'right' fuel type depends entirely on your own driving, not a general ranking.";
+  "Petrol vs diesel vs CNG in India: the real running-cost math, where diesel still makes sense, and why the right fuel depends on how much you drive.";
 
-export const metadata: Metadata = {
-  title: TITLE,
+/** Shorter than the on-page headline so it fits Google's ~60-character title. */
+const SEO_TITLE = withBrand("Petrol, Diesel or CNG? How to Decide in 2026");
+
+export const metadata: Metadata = pageMetadata({
+  title: SEO_TITLE,
   description: DESCRIPTION,
-  alternates: { canonical: "/guides/petrol-diesel-or-cng" },
-  openGraph: { title: TITLE, description: DESCRIPTION, type: "article" },
-};
+  path: "/guides/petrol-diesel-or-cng",
+  type: "article",
+});
 
 export default function Page() {
   return (

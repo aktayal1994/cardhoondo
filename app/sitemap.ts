@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
-import { FEATURED_CAR_IDS, SITE_URL, carIdToSlug } from "../lib/cars/featured";
-import { fetchFeaturedCarUpdatedAt } from "../lib/data/fetchCarPage";
+import { SITE_URL, carIdToSlug } from "../lib/cars/featured";
+import { fetchFeaturedCarSummaries } from "../lib/data/fetchCarPage";
+import type { FeaturedCarSummary } from "../lib/data/fetchCarPage";
 
 // Real last-change dates only: a lastmod that is just "now" on every URL teaches
 // Google to ignore the field. Guides carry the date of their last content edit;
@@ -16,20 +17,18 @@ const GUIDES: { slug: string; lastModified: string }[] = [
 export const revalidate = 86400;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  let carUpdatedAt: Record<string, string> = {};
-  try {
-    carUpdatedAt = await fetchFeaturedCarUpdatedAt();
-  } catch {
-    // A database hiccup must not take the whole sitemap down; the car URLs
-    // are still listed, just without a date.
-  }
+  // No try/catch on purpose: if the database is down during a revalidation the
+  // error keeps the previous sitemap (with all car URLs) live, instead of
+  // caching a sitemap with every car page missing for a day.
+  const cars: FeaturedCarSummary[] = await fetchFeaturedCarSummaries();
+  const newestCar = cars.reduce<string | null>((m, c) => (c.updatedAt && (!m || c.updatedAt > m) ? c.updatedAt : m), null);
 
   return [
     { url: SITE_URL, changeFrequency: "weekly", priority: 1 },
-    { url: `${SITE_URL}/cars`, changeFrequency: "weekly", priority: 0.9 },
-    ...FEATURED_CAR_IDS.map((id) => ({
-      url: `${SITE_URL}/cars/${carIdToSlug(id)}`,
-      ...(carUpdatedAt[id] ? { lastModified: carUpdatedAt[id] } : {}),
+    { url: `${SITE_URL}/cars`, ...(newestCar ? { lastModified: newestCar } : {}), changeFrequency: "weekly", priority: 0.9 },
+    ...cars.map((c) => ({
+      url: `${SITE_URL}/cars/${carIdToSlug(c.carId)}`,
+      ...(c.updatedAt ? { lastModified: c.updatedAt } : {}),
       changeFrequency: "monthly" as const,
       priority: 0.8,
     })),

@@ -6,46 +6,54 @@ import Breadcrumbs from "../../../components/Breadcrumbs";
 import { GuideFooter, GuideNav } from "../../../components/GuideLayout";
 import { fetchCarPageData, fetchFeaturedCarSummaries } from "../../../lib/data/fetchCarPage";
 import type { CarFacetSummary, CarPageData, FeaturedCarSummary } from "../../../lib/data/fetchCarPage";
-import { FEATURED_CAR_IDS, SITE_URL, carIdToSlug, slugToCarId } from "../../../lib/cars/featured";
+import { SITE_URL, carIdToSlug, slugToCarId } from "../../../lib/cars/featured";
 import { capitalize, formatLakh, formatLongDate, fuelLabel, joinList, priceRangeText } from "../../../lib/cars/format";
+import { carPageDescription, carPageTitle } from "../../../lib/cars/seo";
+import { pageMetadata } from "../../../lib/seo";
 import { facetLabel, facetLabelInline, themeLabel } from "../../../lib/cars/labels";
 import { verdictPhrase, verdictTone } from "../../../lib/verdict";
 
 /**
  * Public review page for one popular car: what owners and experts say, drawn
  * only from the claims already in the database (no new data, no AI text).
- * Only cars in FEATURED_CAR_IDS exist; anything else is a 404.
+ * A car has a page only when its review data clears isPublishable(); the
+ * published list is computed from the database and cached for a day.
+ * dynamicParams stays on so a car that becomes publishable after the deploy
+ * gets its page on the next revalidation instead of 404ing while already
+ * listed in /cars and the sitemap; any slug not in the list is a 404.
  */
 export const revalidate = 86400;
-export const dynamicParams = false;
+export const dynamicParams = true;
 
-export function generateStaticParams() {
-  return FEATURED_CAR_IDS.map((id) => ({ slug: carIdToSlug(id) }));
+export async function generateStaticParams() {
+  const cars = await fetchFeaturedCarSummaries();
+  return cars.map((c) => ({ slug: carIdToSlug(c.carId) }));
+}
+
+/** car_id for a slug that has a published page, else null (no per-car query for junk slugs). */
+async function publishedCarId(slug: string): Promise<string | null> {
+  const carId = slugToCarId(slug);
+  if (!carId) return null;
+  const cars = await fetchFeaturedCarSummaries();
+  return cars.some((c) => c.carId === carId) ? carId : null;
 }
 
 type Params = { params: Promise<{ slug: string }> };
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { slug } = await params;
-  const carId = slugToCarId(slug);
+  const carId = await publishedCarId(slug);
   const data = carId ? await fetchCarPageData(carId) : null;
   if (!data) return {};
 
-  const price = priceRangeText(data.priceMin, data.priceMax);
-  const title = `${data.name} Review India: Owner & Expert Verdict`;
-  const description = `${data.name} review built from ${data.claimCount} statements in ${data.sourceCount} owner and expert reviews: what people like, common complaints${price ? `, price ${price} ex-showroom` : ""} and engine options.`;
-  const url = `/cars/${slug}`;
-  return {
-    title,
-    description,
-    alternates: { canonical: url },
-    openGraph: { title, description, type: "article", url, images: [{ url: "/og-image.png", width: 1200, height: 630 }] },
-  };
+  const title = carPageTitle(data.name);
+  const description = carPageDescription(data.name, data.claimCount, data.sourceCount, priceRangeText(data.priceMin, data.priceMax));
+  return pageMetadata({ title, description, path: `/cars/${slug}`, type: "article" });
 }
 
 export default async function CarPage({ params }: Params) {
   const { slug } = await params;
-  const carId = slugToCarId(slug);
+  const carId = await publishedCarId(slug);
   if (!carId) notFound();
   const [data, featured] = await Promise.all([fetchCarPageData(carId), fetchFeaturedCarSummaries()]);
   if (!data) notFound();
@@ -113,9 +121,9 @@ export default async function CarPage({ params }: Params) {
               Reviewers are most positive about its {joinList(topLikes)}
               {topComplaints.length > 0 ? `, and most critical of its ${joinList(topComplaints)}` : ""}.
             </>
-          ) : (
-            <>Reviews are still building for this car.</>
-          )}{" "}
+          ) : topComplaints.length > 0 ? (
+            <>Reviewers are most critical of its {joinList(topComplaints)}.</>
+          ) : null}{" "}
           Here is the full picture, with the actual words reviewers used.
         </p>
 
@@ -382,18 +390,16 @@ function groupByTheme(facets: CarFacetSummary[]): [string, CarFacetSummary[]][] 
   return [...map.entries()].sort((a, b) => b[1].length - a[1].length);
 }
 
-/** Same brand first, then the nearest starting price. */
+/** Up to two siblings from the same brand, then rivals from other brands at
+ * the nearest starting price (what a shopper cross-shops), six in all. */
 function pickRelated(data: CarPageData, all: FeaturedCarSummary[]): FeaturedCarSummary[] {
-  const others = all.filter((c) => c.carId !== data.carId);
   const base = data.priceMin ?? 0;
-  return others
-    .sort((a, b) => {
-      const sameA = a.brand === data.brand ? 0 : 1;
-      const sameB = b.brand === data.brand ? 0 : 1;
-      if (sameA !== sameB) return sameA - sameB;
-      return Math.abs((a.priceMin ?? 0) - base) - Math.abs((b.priceMin ?? 0) - base);
-    })
-    .slice(0, 6);
+  const byPrice = (a: FeaturedCarSummary, b: FeaturedCarSummary) =>
+    Math.abs((a.priceMin ?? 0) - base) - Math.abs((b.priceMin ?? 0) - base);
+  const others = all.filter((c) => c.carId !== data.carId);
+  const sameBrand = others.filter((c) => c.brand === data.brand).sort(byPrice).slice(0, 2);
+  const rivals = others.filter((c) => c.brand !== data.brand).sort(byPrice);
+  return [...sameBrand, ...rivals].slice(0, 6);
 }
 
 function inlineFuel(fuel: string): string {

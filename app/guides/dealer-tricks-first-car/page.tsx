@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata, withBrand } from "../../../lib/seo";
 import Link from "next/link";
 import GuideLayout from "../../../components/GuideLayout";
 import {
@@ -10,25 +11,15 @@ import {
 
 const TITLE = "5 Car Dealer Tricks First-Time Buyers in India Should Know";
 const DESCRIPTION =
-  "5 real car dealer tricks first-time buyers in India run into — from variant pricing to EMI framing — plus practical car buying tips and exactly what to check before you sign.";
+  "5 car dealer tricks first-time buyers in India run into, from variant pricing to EMI framing, and exactly what to check before you sign.";
 
-export const metadata: Metadata = {
-  title: TITLE,
+export const metadata: Metadata = pageMetadata({
+  title: withBrand(TITLE),
   description: DESCRIPTION,
-  alternates: { canonical: "/guides/dealer-tricks-first-car" },
-  openGraph: {
-    title: TITLE,
-    description: DESCRIPTION,
-    type: "article",
-    images: [{ url: "/guides-dealer-tricks-hero.jpg", width: 1536, height: 1024, alt: TITLE }],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: TITLE,
-    description: DESCRIPTION,
-    images: ["/guides-dealer-tricks-hero.jpg"],
-  },
-};
+  path: "/guides/dealer-tricks-first-car",
+  type: "article",
+  image: { url: "/guides-dealer-tricks-hero.jpg", width: 1536, height: 1024, alt: TITLE },
+});
 
 export default function Page() {
   return (

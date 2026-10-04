@@ -1,48 +1,27 @@
 /**
- * Cars that get a public, indexable page at /cars/<slug>.
+ * Which cars get a public, indexable page at /cars/<slug>.
  *
- * Deliberately short. A page is only worth publishing when the car sells in
- * volume (people actually search for it) AND we hold enough review claims to
- * say something real (>= 100 claims, 8+ source reviews when this list was
- * made, 27 Sep 2026). Thin pages for rarely-searched or barely-reviewed cars
- * would dilute the site rather than help it.
+ * Data-driven since 4 Oct 2026 (was a hand-picked list of 20): every car in
+ * the catalog gets a page once its review data is deep enough that the page
+ * says something real. The rule lives in isPublishable() below and is applied
+ * to the same CarPageData the page renders, so a car is listed in /cars and
+ * the sitemap exactly when its page would render, never a hollow page.
  *
- * "Sells in volume" is a judgement from general knowledge of India's
- * 2025-26 monthly sales rankings (roughly 2,500+ units a month), not from a
- * sales dataset in this repo. Hyundai Creta (88 claims) and Tata Nexon
- * (63 claims) sell more than most of these but sit under the claims bar;
- * add them here once more reviews are extracted.
- *
- * To add a car: append its car_id here, confirm it has a catalog row and
- * claims, and redeploy. The page, index card and sitemap entry follow.
+ * Cars below the bar (too few claims, too few reviewers, too few rated areas)
+ * simply 404 until more reviews are extracted; they appear on their own after
+ * the next daily revalidation once they clear it.
  */
-export const FEATURED_CAR_IDS = [
-  "kia_seltos",
-  "maruti_dzire",
-  "maruti_brezza",
-  "maruti_ertiga",
-  "maruti_baleno",
-  "maruti_grand_vitara",
-  "hyundai_venue",
-  "hyundai_verna",
-  "hyundai_exter",
-  "kia_sonet",
-  "mahindra_xuv_3xo",
-  "mahindra_scorpio_n",
-  "mahindra_thar",
-  "mahindra_thar_roxx",
-  "honda_city",
-  "toyota_fortuner",
-  "tata_harrier",
-  "tata_nexon_ev",
-  "mg_windsor_ev",
-  "skoda_kylaq",
-] as const;
 
-/** Safety net: even a featured car renders 404 if the database ever holds
- * fewer claims than this (e.g. after a bad import), rather than publishing a
- * hollow page. */
+/** Total review claims the car must hold (same safety net as before). */
 export const MIN_CLAIMS_TO_PUBLISH = 60;
+/** Distinct videos/threads those claims come from: one chatty reviewer is not consensus. */
+export const MIN_SOURCES_TO_PUBLISH = 5;
+/** Rated areas (facets with 3+ claims) shown in "ratings by area". Stricter
+ * than the recommender's MIN_FACETS_FOR_ELIGIBILITY = 5, because a public page
+ * with five rows reads as thin. */
+export const MIN_RATED_FACETS_TO_PUBLISH = 8;
+/** Facets with 5+ claims that fill the "likes" and "falls short" sections. */
+export const MIN_HEADLINE_FACETS_TO_PUBLISH = 3;
 
 export const SITE_URL = "https://cardhoondo.com";
 
@@ -50,9 +29,25 @@ export function carIdToSlug(carId: string): string {
   return carId.replace(/_/g, "-");
 }
 
+/** Shape check only; whether the car has a page is decided from the data. */
 export function slugToCarId(slug: string): string | null {
-  const id = slug.replace(/-/g, "_");
-  return (FEATURED_CAR_IDS as readonly string[]).includes(id) ? id : null;
+  if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(slug)) return null;
+  return slug.replace(/-/g, "_");
+}
+
+export function isPublishable(d: {
+  claimCount: number;
+  sourceCount: number;
+  facets: unknown[];
+  likes: unknown[];
+  shortfalls: unknown[];
+}): boolean {
+  return (
+    d.claimCount >= MIN_CLAIMS_TO_PUBLISH &&
+    d.sourceCount >= MIN_SOURCES_TO_PUBLISH &&
+    d.facets.length >= MIN_RATED_FACETS_TO_PUBLISH &&
+    d.likes.length + d.shortfalls.length >= MIN_HEADLINE_FACETS_TO_PUBLISH
+  );
 }
 
 /** The catalog stores the short brand; people search the full name. */

@@ -1,5 +1,6 @@
+import { unstable_cache } from "next/cache";
 import { getSupabaseServerClient } from "../supabaseClient";
-import { FEATURED_CAR_IDS, MIN_CLAIMS_TO_PUBLISH, carDisplayName } from "../cars/featured";
+import { MIN_CLAIMS_TO_PUBLISH, carDisplayName, isPublishable } from "../cars/featured";
 import type { FacetScoreRow } from "../scoring/types";
 
 /**
@@ -65,6 +66,11 @@ export interface FeaturedCarSummary {
   name: string;
   priceMin: number | null;
   priceMax: number | null;
+  /** Fuel types as stored in the catalog (e.g. "petrol", "electric"). */
+  fuels: string[];
+  claimCount: number;
+  sourceCount: number;
+  updatedAt: string | null;
 }
 
 // A verdict resting on one or two remarks is anecdote, not consensus. The
@@ -77,22 +83,47 @@ const MAX_SHORTFALLS = 5;
 const QUOTE_MIN_CHARS = 50;
 const QUOTE_MAX_CHARS = 240;
 
-export async function fetchFeaturedCarSummaries(): Promise<FeaturedCarSummary[]> {
-  const supabase = getSupabaseServerClient();
-  const { data, error } = await supabase
-    .from("cars")
-    .select("car_id, brand, model, price_min, price_max")
-    .in("car_id", [...FEATURED_CAR_IDS]);
-  if (error) throw error;
-  return (data ?? []).map((c: any) => ({
-    carId: c.car_id,
-    brand: c.brand,
-    model: c.model,
-    name: carDisplayName(c.brand, c.model),
-    priceMin: c.price_min,
-    priceMax: c.price_max,
-  }));
-}
+/** How long car data is cached before Supabase is asked again (matches the pages' ISR). */
+const CAR_DATA_TTL_SECONDS = 86400;
+
+/**
+ * Every car that currently has a public page, with what the index, sitemap and
+ * "related cars" need. Built by loading each catalogued car's page data
+ * (itself cached per car) and keeping the ones isPublishable() accepts, so the
+ * list can never include a car whose page would 404. Cached for a day: one
+ * pass over the catalog per day, not per request.
+ */
+export const fetchFeaturedCarSummaries = unstable_cache(
+  async (): Promise<FeaturedCarSummary[]> => {
+    const supabase = getSupabaseServerClient();
+    const { data, error } = await supabase.from("cars").select("car_id").order("car_id");
+    if (error) throw error;
+    const ids = ((data ?? []) as any[]).map((c) => String(c.car_id));
+    const out: FeaturedCarSummary[] = [];
+    // Small batches keep Supabase load modest during a build or revalidation.
+    for (let i = 0; i < ids.length; i += 6) {
+      const pages = await Promise.all(ids.slice(i, i + 6).map((id) => fetchCarPageData(id)));
+      for (const d of pages) {
+        if (!d) continue;
+        out.push({
+          carId: d.carId,
+          brand: d.brand,
+          model: d.model,
+          name: d.name,
+          priceMin: d.priceMin,
+          priceMax: d.priceMax,
+          fuels: Array.from(new Set(d.powertrains.map((p) => p.fuel).filter((f): f is string => !!f))),
+          claimCount: d.claimCount,
+          sourceCount: d.sourceCount,
+          updatedAt: d.updatedAt,
+        });
+      }
+    }
+    return out;
+  },
+  ["published-car-summaries-v1"],
+  { revalidate: CAR_DATA_TTL_SECONDS, tags: ["car-pages"] },
+);
 
 // Model names that are also ordinary words, so seeing one in a quote does not
 // mean the reviewer was talking about that car.
@@ -115,24 +146,15 @@ function mentionsOtherCar(text: string, ownModel: string, allModels: string[]): 
   return false;
 }
 
-/** Newest facet-score generation time per featured car, for sitemap lastmod. */
-export async function fetchFeaturedCarUpdatedAt(): Promise<Record<string, string>> {
-  const supabase = getSupabaseServerClient();
-  const out: Record<string, string> = {};
-  for (const carId of FEATURED_CAR_IDS) {
-    const { data } = await supabase
-      .from("facet_scores")
-      .select("generated_at")
-      .eq("car_id", carId)
-      .order("generated_at", { ascending: false })
-      .limit(1);
-    const at = data?.[0]?.generated_at;
-    if (at) out[carId] = at;
-  }
-  return out;
-}
+/** Page data for one car, or null when the car has no catalog row or its
+ * review data is too thin to publish (see isPublishable). Cached per car. */
+export const fetchCarPageData = unstable_cache(
+  (carId: string): Promise<CarPageData | null> => loadCarPageData(carId),
+  ["car-page-data-v1"],
+  { revalidate: CAR_DATA_TTL_SECONDS, tags: ["car-pages"] },
+);
 
-export async function fetchCarPageData(carId: string): Promise<CarPageData | null> {
+export async function loadCarPageData(carId: string): Promise<CarPageData | null> {
   const supabase = getSupabaseServerClient();
 
   const [carRes, ptRes, variantRes, facetRes, claimRes, modelsRes] = await Promise.all([
@@ -229,7 +251,7 @@ export async function fetchCarPageData(carId: string): Promise<CarPageData | nul
     new Set(((variantRes.data ?? []) as any[]).map((v) => String(v.seating_capacity ?? "").trim()).filter(Boolean)),
   );
 
-  return {
+  const page: CarPageData = {
     carId: car.car_id,
     brand: car.brand,
     model: car.model,
@@ -254,6 +276,7 @@ export async function fetchCarPageData(carId: string): Promise<CarPageData | nul
     shortfalls,
     updatedAt,
   };
+  return isPublishable(page) ? page : null;
 }
 
 /** Strips the pipeline's own annotations, e.g. "(MG Astor video - ...)". */

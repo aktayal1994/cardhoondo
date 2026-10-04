@@ -1,16 +1,20 @@
 import type { Metadata } from "next";
+import { pageMetadata, withBrand } from "../../../lib/seo";
 import GuideLayout from "../../../components/GuideLayout";
 
 const TITLE = "Manual or Automatic for Indian Traffic? The Honest Answer";
 const DESCRIPTION =
-  "Automatic feels effortless in bumper-to-bumper traffic, manual still wins on highway mileage and cost — here's how to actually decide between manual, AMT, CVT, and DCT for Indian driving.";
+  "Automatic is effortless in traffic, manual still wins on cost. How to choose between manual, AMT, CVT, torque converter and DCT for Indian driving.";
 
-export const metadata: Metadata = {
-  title: TITLE,
+/** Shorter than the on-page headline so it fits Google's ~60-character title. */
+const SEO_TITLE = withBrand("Manual or Automatic for Indian Traffic?");
+
+export const metadata: Metadata = pageMetadata({
+  title: SEO_TITLE,
   description: DESCRIPTION,
-  alternates: { canonical: "/guides/manual-vs-automatic-india" },
-  openGraph: { title: TITLE, description: DESCRIPTION, type: "article" },
-};
+  path: "/guides/manual-vs-automatic-india",
+  type: "article",
+});
 
 export default function Page() {
   return (
