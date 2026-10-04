@@ -33,6 +33,7 @@ import { CookieSettingsButton } from "./CookieBanner";
 import AccountMenu from "./AccountMenu";
 import MobileMenu from "./MobileMenu";
 import WelcomeBackStrip from "./WelcomeBackStrip";
+import AppHome, { type HomeCar, type HomeComparison } from "./AppHome";
 
 /**
  * "Nightdrive" -- a dark, cinematic scroll-driven redesign of the earlier
@@ -122,7 +123,15 @@ function approxFloor(n: number, step = 100): number {
   return Math.floor(n / step) * step;
 }
 
-export default function LandingScreen({ onStart }: { onStart: (location: string) => void }) {
+export default function LandingScreen({
+  onStart,
+  cars = [],
+  comparisons = [],
+}: {
+  onStart: (location: string) => void;
+  cars?: HomeCar[];
+  comparisons?: HomeComparison[];
+}) {
   const stats = useLiveStats();
   return (
     <main className="relative min-h-screen overflow-x-clip bg-paper text-ink">
@@ -133,7 +142,11 @@ export default function LandingScreen({ onStart }: { onStart: (location: string)
         <div className="welcome-slot">
           <WelcomeBackStrip onStart={onStart} />
         </div>
-        <Hero onStart={onStart} claims={stats.claims} />
+        {/* Phones get an app-style home screen; the cinematic hero is desktop only. */}
+        <AppHome onStart={onStart} stats={stats} cars={cars} comparisons={comparisons} />
+        <div className="hidden sm:block">
+          <Hero onStart={onStart} claims={stats.claims} />
+        </div>
         <TrustAndStats stats={stats} />
         <CaseIndex carsCount={stats.cars} />
         <HowItWorks onStart={onStart} />

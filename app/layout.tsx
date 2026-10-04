@@ -3,6 +3,7 @@ import type { Metadata, Viewport } from "next";
 import { Source_Serif_4, Be_Vietnam_Pro, JetBrains_Mono } from "next/font/google";
 import GAPageTracker from "../components/GAPageTracker";
 import CookieBanner from "../components/CookieBanner";
+import BottomTabBar from "../components/BottomTabBar";
 
 const displayFont = Source_Serif_4({
   subsets: ["latin"],
@@ -137,6 +138,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body>
         {children}
+        <BottomTabBar />
         <GAPageTracker />
         {/* Google Analytics is loaded by CookieBanner on every visit unless the
             visitor turned it off in "Cookie settings" (lib/cookieConsent.ts). */}

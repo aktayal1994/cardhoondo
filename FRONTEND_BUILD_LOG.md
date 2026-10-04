@@ -411,3 +411,10 @@ GA for 3 Oct (first full day with GA on every visit): ~102 visitors, 90% Instagr
 - Content is assembled from facet scores and review quotes only, no AI text: summary of where each car does better (score gap of 0.3 or more), price line, key facts table, area-by-area table, "which to pick" line, FAQ + WebPage + Breadcrumb JSON-LD.
 - Car review pages now carry per-area quotes in `facets` (cache keys bumped to v2) and a "Compare the <model>" block; /cars links popular comparisons; sitemap lists /compare and every comparison.
 - Verified on production: titles, 404 for unpublished pairs, 35 comparison URLs in the sitemap, no horizontal scroll at 375px.
+
+## 2026-10-04: App-style phone shell
+
+- Bottom tab bar on phones (Home, Reviews, raised centre "Find my car", Quote, Guides); hidden inside the questionnaire/results flow and on desktop (`components/BottomTabBar.tsx`, rendered in `app/layout.tsx`).
+- Phone home is now an app dashboard (`components/AppHome.tsx`): big animated Find my car card, trust pills, four colour-coded feature tiles, swipeable most-reviewed cars and rival comparison chips. Desktop keeps the cinematic hero.
+- `app/page.tsx` is now a server page (ISR, daily) that loads real car summaries for the home rows; client logic moved to `components/HomePageClient.tsx`.
+- Guide/quote nav hides its "Find my car" pill on phones (the tab bar has it).

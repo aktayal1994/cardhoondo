@@ -147,7 +147,7 @@ export function GuideNav() {
         <div className="flex items-center gap-1">
           <Link
             href="/questionnaire/core-requirements"
-            className="rounded-full bg-accent-rust px-4 py-2.5 max-[359px]:px-3 sm:px-5 text-sm font-semibold text-stage shadow-sm transition hover:brightness-105 active:scale-[0.98]"
+            className="hidden rounded-full bg-accent-rust px-5 py-2.5 text-sm font-semibold text-stage shadow-sm transition hover:brightness-105 active:scale-[0.98] sm:inline-flex"
           >
             Find my car
           </Link>
