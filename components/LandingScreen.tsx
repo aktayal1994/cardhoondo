@@ -287,14 +287,19 @@ function StaggerHeading({
   text,
   as: Tag = "h2",
   className,
+  instant = false,
 }: {
   text: string;
   as?: "h1" | "h2";
   className?: string;
+  /** Render fully visible in the server HTML, no reveal. Used for the hero:
+   * ad visitors on slow in-app browsers (Instagram on Android) saw a near-black
+   * screen until JS hydrated, and ~99% left before the button appeared (GA, 3 Oct 2026). */
+  instant?: boolean;
 }) {
   const reduce = useReducedMotion();
   const words = text.split(" ");
-  if (reduce) return <Tag className={className}>{text}</Tag>;
+  if (reduce || instant) return <Tag className={className}>{text}</Tag>;
   return (
     <Tag className={className}>
       <motion.span
@@ -590,27 +595,22 @@ function Hero({ onStart, claims }: { onStart: (location: string) => void; claims
 
           <StaggerHeading
             as="h1"
+            instant
             text="Still confused which car to buy in India?"
             className="mt-6 max-w-xl text-balance font-display text-[clamp(2.1rem,4.8vw,3.5rem)] font-semibold leading-[1.12] text-ink"
           />
-          <motion.p
-            initial={reduce ? undefined : { opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.35 }}
+          <p
             className="mt-4 max-w-md text-base leading-relaxed text-ink-soft sm:text-lg"
           >
             One evidence-backed answer, not fifty conflicting opinions. Matched to how you actually drive.
-          </motion.p>
+          </p>
 
-          <motion.div
-            initial={reduce ? undefined : { opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.5 }}
-            className="mt-8 flex flex-wrap items-center gap-4"
-          >
+          {/* Headline, pitch and button are plain (not motion) so they are
+              visible in the server HTML before any JS runs -- see StaggerHeading `instant`. */}
+          <div className="mt-8 flex flex-wrap items-center gap-4">
             <GlowButton onClick={() => onStart("hero")}>{PRIMARY_CTA}</GlowButton>
             <p className="font-mono text-xs text-ink-faint">11 questions &middot; about 3 minutes</p>
-          </motion.div>
+          </div>
         </div>
 
         <EvidenceCar claims={claims} />

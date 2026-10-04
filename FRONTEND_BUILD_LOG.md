@@ -373,3 +373,7 @@ Searched every car's aggregated claims (`data/claims/*_aggregated.json`, not par
 - Why: the Instagram boost sent ~197 visitors and got 2 searches; need to tell whether people quit at the name/pincode/phone screen and whether they quit without trying or after the form rejected them.
 - `components/IntroStep.tsx`: `intro_field_start` (once per field per visit: name/pincode/phone) on focus, and `intro_blocked` with the invalid field names when "Agree and continue" is pressed on an invalid form. Field names only, never values.
 - Deployed from this checkout with only this file changed (another session had unshipped work in `Claude/web`). Verified on cardhoondo.com: page JS contains the events; in the browser, `intro_blocked` (name,pincode,phone) and `intro_field_start` (phone, pincode; no repeat) land in dataLayer and `/g/collect` fires.
+
+## 2026-10-04 — Landing hero visible before JavaScript
+
+GA for 3 Oct (first full day with GA on every visit): ~102 visitors, 90% Instagram's Android in-app browser, only 1 pressed "Find my car". The server HTML had the hero headline, pitch line and CTA at `opacity:0` (framer-motion reveal), so on slow in-app browsers visitors saw a near-black screen until JS hydrated. `components/LandingScreen.tsx`: hero `StaggerHeading` gets `instant`, the pitch `<p>` and CTA row are plain elements. Opinion chips and the car reveal still animate. Verified on cardhoondo.com: h1/CTA present and visible in server HTML.
