@@ -450,3 +450,11 @@ GA for 3 Oct (first full day with GA on every visit): ~102 visitors, 90% Instagr
 - `POST /api/recommend/hide` stores the car in the response's `answers.q_hidden_cars` (hard veto in `recommend.ts`, never asked as a question), re-runs scoring, updates the same result row (write-up cleared and re-requested) and any saved search's `top_cars`. Works for fresh results and reopened saved searches; survives a page reload.
 - Rate limits: new `recommend-hide` group (20 per 10 min); `/api/writeup` raised from 8 to 15 since each swap asks for a new summary. GA events `car_hidden` / `car_unhidden`.
 - Verified on cardhoondo.com: hide, bring back, and the page swap (Brezza out, Kylaq in).
+
+## 2026-10-24 — Seating question asks headcount; back-seat room weighted for three in the back
+
+- Real feedback: two visitors with parents/adults in the back were shown sub-4m cars ("Was expecting cars with best room for 3 people in second row").
+- `q_seating` is now "How many people usually travel in the car, including you?" (1-2 / 3-4 / 5, three in the back / 6-7). Old answers (4/5 seater, 7 seater, Either works) score exactly as before.
+- "5 people": `rear_legroom_kneeroom` x2.5 (was ~2% of the score), soft wheelbase check below 2650 mm (floor 0.55) because rear-space reviews are segment-relative, parking-length penalty halved, 5+ seat filter. "3-4": rear legroom x1.3. "6-7": third row x2.0, 6 or 7 seats.
+- Write-up prompt gets a back-seat line per car so it never calls a tight rear seat roomy.
+- Verified: typecheck, persona tests, simulated real answers (Tester: Sonet/Kylaq/Duster -> Duster/Basalt/Kushaq), question checked live on cardhoondo.com at desktop and 375px.

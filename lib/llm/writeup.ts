@@ -43,6 +43,8 @@ export interface WriteupCarInput {
   powertrain_id: string;
   price_on_road: number | null;
   score: ScoreResult;
+  /** Plain fact about back-seat room for 3 abreast, from wheelbase (absent when the user has no back-seat need). */
+  rear_room_note?: string;
 }
 
 export interface WriteupCarOutput {
@@ -141,7 +143,7 @@ function buildPrompt(
       const watchOuts = c.watch_outs
         .map((w) => `    - ${w.facet} (${w.theme}): ${w.verdict}, ${w.claim_count} claims, ${w.source_mix}`)
         .join("\n") || "    (none)";
-      return `- car_id: ${c.car_id}\n  ${c.brand} ${c.car_model} (${c.variant_id}), rank #${c.rank}\n  price on-road: ${c.price_on_road ?? "unknown"}\n  composite score: ${c.score.composite_score} (coverage: ${Math.round(c.score.coverage_ratio * 100)}% of tracked factors)\n  reasons to like:\n${reasons}\n  watch-outs:\n${watchOuts}`;
+      return `- car_id: ${c.car_id}\n  ${c.brand} ${c.car_model} (${c.variant_id}), rank #${c.rank}\n  price on-road: ${c.price_on_road ?? "unknown"}\n  composite score: ${c.score.composite_score} (coverage: ${Math.round(c.score.coverage_ratio * 100)}% of tracked factors)\n  reasons to like:\n${reasons}\n  watch-outs:\n${watchOuts}${c.rear_room_note ? `\n  back-seat room (from the car's wheelbase, a spec fact): ${c.rear_room_note}` : ""}`;
     })
     .join("\n\n");
 
@@ -154,6 +156,8 @@ Shortlisted cars, already ranked, with their pre-computed reasons to like and wa
 ${carsBlock}
 
 ${carsSkippedNoReviewData.length > 0 ? `Cars that matched this user's filters but had too little review data to rank confidently and were excluded: ${carsSkippedNoReviewData.join(", ")}. Mention this honestly in the closing note if relevant to what the user asked for — do not hide it, do not pad the shortlist to compensate.` : "Every car considered had enough review data to be scored; no data-gap caveat is needed unless the shortlist itself is shorter than expected."}
+
+${cars.some((c) => c.rear_room_note) ? "The user said five people usually travel, three in the back, so the ranking favoured cars with more back-seat room. Where a car's back-seat note says it is tight for three, say so plainly in that car's narrative; do not call its rear seat roomy." : ""}
 
 Return ONLY a JSON object with this exact shape, no markdown fences, no commentary:
 {

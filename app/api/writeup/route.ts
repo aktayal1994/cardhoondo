@@ -4,7 +4,16 @@ import { scoreCar } from "../../../lib/scoring/scoreRecommendation";
 import { fetchRecommendationData } from "../../../lib/data/fetchRecommendationData";
 import { generateWriteup, type WriteupCarInput } from "../../../lib/llm/writeup";
 import { getSupabaseServerClient } from "../../../lib/supabaseClient";
-import type { RecommendCandidate, RecommendOutput } from "../../../lib/scoring/recommend";
+import { threeInBack, type RecommendCandidate, type RecommendOutput } from "../../../lib/scoring/recommend";
+
+/** One plain line for the write-up when three will sit in the back.
+ * Reads the multiplier stored with the result (absent before 24 Oct 2026). */
+function rearRoomNote(answers: Record<string, unknown>, mult: number | undefined): string | undefined {
+  if (!threeInBack(answers as never) || mult == null) return undefined;
+  if (mult >= 0.999) return "long wheelbase, good back-seat room";
+  if (mult >= 0.85) return "back seat is adequate but not generous";
+  return "compact back seat, tight for three adults across";
+}
 
 interface WriteupRequestBody {
   recommendation_result_id: string;
@@ -71,6 +80,7 @@ export async function POST(req: NextRequest) {
       powertrain_id: c.powertrain_id,
       price_on_road: c.price_on_road,
       score: fullScore,
+      rear_room_note: rearRoomNote(answers, c.rear_room_multiplier),
     };
   });
 

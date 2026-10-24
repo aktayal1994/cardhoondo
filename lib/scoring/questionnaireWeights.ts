@@ -130,6 +130,11 @@ export const WEIGHT_RULES: Record<string, Record<string, Rule[]>> = {
   // is ambiguous) -- not a facet weight, so no rule here.
   q_seating: {
     "7 seater": [["third_row_usability", 2.0]],
+    // Headcount answers (24 Oct 2026). Three in the back makes rear room as
+    // important as a top-2 priority; reviews alone had it at ~2% of the score.
+    "6-7 people": [["third_row_usability", 2.0]],
+    "5 people": [["rear_legroom_kneeroom", 2.5]],
+    "3-4 people": [["rear_legroom_kneeroom", 1.3]],
   },
   q_who_rides: {
     Partner: [["seat_cushioning_support", 1.3]],

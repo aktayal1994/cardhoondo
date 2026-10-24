@@ -120,6 +120,10 @@ function seatingChip(answers: QuestionnaireAnswers): string {
   const s = answers["q_seating"];
   if (s === "4/5 seater") return "4–5 seats";
   if (s === "7 seater") return "7 seats";
+  if (s === "1-2 people") return "1–2 people";
+  if (s === "3-4 people") return "3–4 people";
+  if (s === "5 people") return "5 people";
+  if (s === "6-7 people") return "6–7 people";
   return "Any seating";
 }
 

@@ -144,15 +144,19 @@ export const QUESTIONS: QuestionDef[] = [
   {
     id: "q_seating",
     section: "core_requirements",
-    prompt: "What seating capacity do you need?",
-    explainer: "We'll filter out anything that can't seat your household.",
+    // Headcount, not car type (changed 24 Oct 2026): "5 people" tells us
+    // three sit in the back, which a 4/5-seater answer never did. Old saved
+    // answers ("4/5 seater", "7 seater", "Either works") still score as before.
+    prompt: "How many people usually travel in the car, including you?",
+    explainer: "So everyone fits, including the back seat.",
     icon: Users,
     type: "single",
     required: true,
     options: [
-      { value: "4/5 seater", label: "4/5 seater", icon: Car, microcopy: "Noted — a 4 or 5 seater." },
-      { value: "7 seater", label: "7 seater", icon: Bus, microcopy: "Got it — needs a proper third row." },
-      { value: "Either works", label: "Either works", icon: Shuffle, microcopy: "Noted — seating's flexible, we won't filter on it." },
+      { value: "1-2 people", label: "1 or 2", icon: User, microcopy: "Noted. Back seat room won't weigh much." },
+      { value: "3-4 people", label: "3 or 4", icon: Car, microcopy: "Got it. Two in the back." },
+      { value: "5 people", label: "5, three in the back", icon: Users, microcopy: "Got it. We'll look hard at back seat room for three." },
+      { value: "6-7 people", label: "6 or 7", icon: Bus, microcopy: "Got it. Needs a proper third row." },
     ],
   },
   {

@@ -67,8 +67,36 @@ export function parkingPenaltyMultiplier(variant: CatalogVariant, answers: Quest
   const lengthMm = parseInt(match[1], 10);
 
   const overMm = Math.max(0, lengthMm - rule.thresholdMm);
-  const penalty = (overMm / 100) * rule.penaltyPer100mm;
+  // Three adults in the back outweighs a mild parking worry: halve the
+  // length penalty so it doesn't push the shortlist back to sub-4m cars.
+  const softener = threeInBack(answers) ? 0.5 : 1.0;
+  const penalty = (overMm / 100) * rule.penaltyPer100mm * softener;
   return Math.max(PARKING_PENALTY_FLOOR, 1.0 - penalty);
+}
+
+// Rear-seat size check for "5 people" (q_seating, three in the back). The
+// rear_legroom_kneeroom facet carries the review evidence (weighted up in
+// questionnaireWeights.ts), but reviewers judge rear space against the car's
+// own segment: the Exter and Brezza score higher there than the Creta. This
+// soft multiplier uses wheelbase as the cross-segment check (exterior width
+// can't: Sonet and Creta are both 1790mm). Catalog spread (Oct 2026):
+// 2380-2850mm; Sonet/Brezza 2500, Creta 2610, Seltos 2690. Added 24 Oct 2026
+// after real users with three in the back were shown sub-4m cars.
+const REAR_ROOM_RULE = { thresholdMm: 2650, penaltyPer100mm: 0.25, floor: 0.55 };
+
+export function threeInBack(answers: QuestionnaireAnswers): boolean {
+  return answers["q_seating"] === "5 people";
+}
+
+export function rearRoomMultiplier(variant: CatalogVariant, answers: QuestionnaireAnswers): number {
+  if (!threeInBack(answers)) return 1.0;
+  const wbText = String(
+    (variant.spec_sections?.["Dimensions & Capacity"] as Record<string, unknown> | undefined)?.["Wheel Base"] ?? "",
+  );
+  const match = wbText.match(/(\d+)/);
+  if (!match) return 1.0;
+  const shortMm = Math.max(0, REAR_ROOM_RULE.thresholdMm - parseInt(match[1], 10));
+  return Math.max(REAR_ROOM_RULE.floor, 1.0 - (shortMm / 100) * REAR_ROOM_RULE.penaltyPer100mm);
 }
 
 export function commuteFuelNudgeMultiplier(variant: CatalogVariant, answers: QuestionnaireAnswers): number {
@@ -191,8 +219,19 @@ export function passesStructuralFilters(
   if (seatAnswer === "7 seater" && !seatNumbers.has(7)) {
     return { ok: false, reason: `seats=${variant.seating_capacity}, wanted 7` };
   }
-  if (seatAnswer === "4/5 seater" && !seatNumbers.has(4) && !seatNumbers.has(5)) {
+  if (
+    (seatAnswer === "4/5 seater" || seatAnswer === "1-2 people" || seatAnswer === "3-4 people") &&
+    !seatNumbers.has(4) &&
+    !seatNumbers.has(5)
+  ) {
     return { ok: false, reason: `seats=${variant.seating_capacity}, wanted 4/5` };
+  }
+  // 5 people: any car with 5+ seats (a 7-seater fits five too).
+  if (seatAnswer === "5 people" && ![5, 6, 7, 8].some((n) => seatNumbers.has(n))) {
+    return { ok: false, reason: `seats=${variant.seating_capacity}, wanted 5+` };
+  }
+  if (seatAnswer === "6-7 people" && !seatNumbers.has(6) && !seatNumbers.has(7)) {
+    return { ok: false, reason: `seats=${variant.seating_capacity}, wanted 6/7` };
   }
 
   // q_transmission: hard filter on the catalog's real spec field. Skipped by
@@ -307,6 +346,8 @@ export interface RecommendCandidate {
   facets_with_data: number;
   parking_penalty_multiplier: number;
   commute_fuel_nudge_multiplier: number;
+  /** Absent on results computed before 24 Oct 2026. */
+  rear_room_multiplier?: number;
   top_contributors: ScoreBreakdownItem[];
 }
 
@@ -397,7 +438,8 @@ export function recommend(input: RecommendInput): RecommendOutput {
       // precedent as coverage_ratio itself).
       const parkingMult = parkingPenaltyMultiplier(variant, answers);
       const commuteMult = commuteFuelNudgeMultiplier(variant, answers);
-      const adjustedScore = result.composite_score * parkingMult * commuteMult;
+      const rearMult = rearRoomMultiplier(variant, answers);
+      const adjustedScore = result.composite_score * parkingMult * commuteMult * rearMult;
 
       candidates.push({
         car_id: carId,
@@ -414,6 +456,7 @@ export function recommend(input: RecommendInput): RecommendOutput {
         facets_with_data: result.facets_with_data,
         parking_penalty_multiplier: parkingMult,
         commute_fuel_nudge_multiplier: commuteMult,
+        rear_room_multiplier: rearMult,
         top_contributors: result.breakdown.slice(0, 5),
       });
     }
