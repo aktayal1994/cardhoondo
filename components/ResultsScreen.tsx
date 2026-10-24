@@ -2,9 +2,9 @@
 
 import { motion } from "motion/react";
 import Link from "next/link";
-import { CheckCircle2, MinusCircle, Scale as ScaleIcon, IndianRupee } from "lucide-react";
+import { CheckCircle2, MinusCircle, Scale as ScaleIcon, IndianRupee, ArrowLeftRight, Undo2 } from "lucide-react";
 import { ALL_FACETS } from "../lib/scoring/questionnaireWeights";
-import type { RecommendOutput, RecommendCandidate } from "../lib/scoring/recommend";
+import type { RecommendOutput, RecommendCandidate, HiddenCar } from "../lib/scoring/recommend";
 import type { WriteupOutput, WriteupCarOutput, WriteupFacetEntry } from "../lib/llm/writeup";
 import type { ScoreBreakdownItem } from "../lib/scoring/types";
 import { confidenceLabel, verdictPhrase } from "../lib/verdict";
@@ -22,6 +22,12 @@ interface ResultsScreenProps {
   onRestart: () => void;
   /** Optional block shown right under the intro line (save prompt / saved-search banner). */
   topSlot?: React.ReactNode;
+  /** "Show next best": hide a car so the next best one takes its place, or bring it back. */
+  onHideCar: (carId: string) => void;
+  onUnhideCar: (carId: string) => void;
+  /** Car whose hide/bring-back request is in flight (all such buttons are disabled meanwhile). */
+  hidingCarId: string | null;
+  hideError: boolean;
 }
 
 const TOTAL_FACETS = ALL_FACETS.length;
@@ -50,8 +56,16 @@ export default function ResultsScreen({
   onCompare,
   onRestart,
   topSlot,
+  onHideCar,
+  onUnhideCar,
+  hidingCarId,
+  hideError,
 }: ResultsScreenProps) {
   const { shortlist, cars_skipped_no_review_data } = recommendOutput;
+  const hiddenCars = recommendOutput.hidden_cars ?? [];
+  const hiddenStrip = (
+    <HiddenCarsStrip cars={hiddenCars} onUnhide={onUnhideCar} busyCarId={hidingCarId} error={hideError} />
+  );
   const writeupByCarId = new Map((writeup?.recommendations ?? []).map((w) => [w.car_id, w]));
 
   if (shortlist.length === 0) {
@@ -61,9 +75,11 @@ export default function ResultsScreen({
           Nothing cleared the bar for a confident recommendation with these answers.
         </p>
         <p className="mt-2 text-ink-soft">
-          That's an honest result, not a bug — either nothing in the catalog matched your budget/fuel/seating, or
-          the cars that did don't have enough review data yet.
+          {hiddenCars.length > 0
+            ? "You have swapped out every car that fits your answers. Bring one back below, or try different answers."
+            : "That's an honest result, not a bug — either nothing in the catalog matched your budget/fuel/seating, or the cars that did don't have enough review data yet."}
         </p>
+        <div className="text-left">{hiddenStrip}</div>
         <button
           onClick={onRestart}
           className="mt-6 rounded-full border border-border px-6 py-3 text-sm font-medium text-ink-soft transition hover:border-accent-rust/50 hover:text-ink"
@@ -102,7 +118,20 @@ export default function ResultsScreen({
 
       <FeedbackPrompt recommendationResultId={recommendationResultId} />
 
-      <div className="mt-8 space-y-6">
+      {hiddenStrip}
+
+      {/* Phones can't hover for the button's tooltip, so say what it does up front. */}
+      {shortlist.length > 0 && hiddenCars.length === 0 && (
+        <p className="mt-8 flex items-start gap-2 text-sm text-ink-soft">
+          <ArrowLeftRight className="mt-0.5 h-4 w-4 shrink-0 text-accent-rust-soft" strokeWidth={1.75} />
+          <span>
+            Not keen on one of these? Tap <span className="font-medium text-ink">Show next best</span> on that car and
+            we'll swap in the next best match for you. You can always bring it back.
+          </span>
+        </p>
+      )}
+
+      <div className="mt-6 space-y-6">
         {shortlist.map((candidate, idx) => (
           <ResultCard
             key={candidate.car_id}
@@ -112,6 +141,9 @@ export default function ResultsScreen({
             writeupPending={!writeup && !writeupError}
             writeupError={writeupError}
             onSelect={() => onSelectCar(candidate.car_id)}
+            onHide={() => onHideCar(candidate.car_id)}
+            hideBusy={hidingCarId !== null}
+            hiding={hidingCarId === candidate.car_id}
           />
         ))}
       </div>
@@ -150,6 +182,9 @@ function ResultCard({
   writeupPending,
   writeupError,
   onSelect,
+  onHide,
+  hideBusy,
+  hiding,
 }: {
   rank: number;
   candidate: RecommendCandidate;
@@ -157,6 +192,9 @@ function ResultCard({
   writeupPending: boolean;
   writeupError: boolean;
   onSelect: () => void;
+  onHide: () => void;
+  hideBusy: boolean;
+  hiding: boolean;
 }) {
   const coveragePct = Math.round((candidate.facets_with_data / TOTAL_FACETS) * 100);
   const confidence = writeupCar?.confidence_label ?? confidenceLabel(candidate.coverage_ratio);
@@ -167,13 +205,24 @@ function ResultCard({
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: (rank - 1) * 0.08, ease: [0.16, 1, 0.3, 1] }}
-      className="rounded-[20px] border border-border bg-paper-raised p-5 shadow-card sm:p-6"
+      className={`rounded-[20px] border border-border bg-paper-raised p-5 shadow-card transition-opacity sm:p-6 ${hiding ? "opacity-50" : ""}`}
     >
-      <div className="flex flex-wrap items-center gap-2">
-        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-accent-rust font-mono text-xs font-medium text-charcoal-950 shadow-glow-sm">
-          {rank}
-        </span>
-        <span className="rounded-full border border-border bg-charcoal-800/60 px-3 py-1 text-xs font-medium text-ink-soft">{confidence}</span>
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="flex h-7 w-7 items-center justify-center rounded-full bg-accent-rust font-mono text-xs font-medium text-charcoal-950 shadow-glow-sm">
+            {rank}
+          </span>
+          <span className="rounded-full border border-border bg-charcoal-800/60 px-3 py-1 text-xs font-medium text-ink-soft">{confidence}</span>
+        </div>
+        <button
+          onClick={onHide}
+          disabled={hideBusy}
+          title="Hide this car and show the next best match"
+          className="flex shrink-0 items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-medium text-ink-soft transition hover:border-accent-rust/50 hover:text-ink disabled:cursor-wait disabled:opacity-60"
+        >
+          <ArrowLeftRight className="h-3.5 w-3.5" strokeWidth={1.75} />
+          {hiding ? "Swapping…" : "Show next best"}
+        </button>
       </div>
 
       <h2 className="mt-3 font-display text-xl font-semibold text-ink">{carModelLabel(candidate)}</h2>
@@ -230,6 +279,58 @@ function ResultCard({
         </Link>
       </div>
     </motion.article>
+  );
+}
+
+/** The cars hidden with "Show next best", each with a way to bring it back. */
+function HiddenCarsStrip({
+  cars,
+  onUnhide,
+  busyCarId,
+  error,
+}: {
+  cars: HiddenCar[];
+  onUnhide: (carId: string) => void;
+  busyCarId: string | null;
+  error: boolean;
+}) {
+  if (cars.length === 0 && !error) return null;
+  return (
+    <div className="mt-6 rounded-xl border border-border bg-charcoal-800/40 p-4 text-sm">
+      {cars.length > 0 && (
+        <>
+          <p className="text-ink-soft">
+            {cars.length === 1
+              ? "You swapped out this car for the next best match."
+              : `You swapped out these ${cars.length} cars for the next best matches.`}
+          </p>
+          <ul className="mt-2 flex flex-wrap gap-2">
+            {cars.map((c) => (
+              <li key={c.car_id}>
+                <button
+                  onClick={() => onUnhide(c.car_id)}
+                  disabled={busyCarId !== null}
+                  className="flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-medium text-ink transition hover:border-accent-rust/50 disabled:cursor-wait disabled:opacity-60"
+                >
+                  <span>
+                    {c.brand} {c.car_model}
+                  </span>
+                  <span className="flex items-center gap-1 text-accent-rust-soft">
+                    <Undo2 className="h-3.5 w-3.5" strokeWidth={1.75} />
+                    {busyCarId === c.car_id ? "Bringing back…" : "Bring back"}
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+      {error && (
+        <p className={`text-negative ${cars.length > 0 ? "mt-2" : ""}`}>
+          That didn't go through. Please try again in a moment.
+        </p>
+      )}
+    </div>
   );
 }
 

@@ -31,8 +31,11 @@ const WINDOW_MS = 10 * 60 * 1000;
 
 const GROUPS: Group[] = [
   { key: "recommend", limit: 15, match: (p) => p === "/api/recommend" },
+  // "Not for me" on a result card re-runs the scoring (no Gemini call itself).
+  { key: "recommend-hide", limit: 20, match: (p) => p === "/api/recommend/hide" },
   // Tightest limit: this is the one route that spends money (Gemini call) per request.
-  { key: "writeup", limit: 8, match: (p) => p === "/api/writeup" },
+  // 15 rather than 8 since every hidden car asks for a new summary.
+  { key: "writeup", limit: 15, match: (p) => p === "/api/writeup" },
   { key: "car-detail", limit: 40, match: (p) => p === "/api/car-detail" },
   { key: "feedback", limit: 20, match: (p) => p === "/api/feedback" },
   // Dealer-quote check: /api/quotation serves the car/variant dropdowns,
@@ -105,6 +108,7 @@ export function middleware(req: NextRequest) {
 export const config = {
   matcher: [
     "/api/recommend",
+    "/api/recommend/hide",
     "/api/writeup",
     "/api/car-detail",
     "/api/feedback",

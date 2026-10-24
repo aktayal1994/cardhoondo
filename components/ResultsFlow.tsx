@@ -11,9 +11,9 @@ import CompareView from "./CompareView";
 import SaveSearchPrompt from "./SaveSearchPrompt";
 import SavedSearchBanner from "./SavedSearchBanner";
 import AuthSheet from "./AuthSheet";
-import { loadQuestionnaireState, clearQuestionnaireState } from "../lib/questionnaireStore";
+import { loadQuestionnaireState, clearQuestionnaireState, saveAnswers } from "../lib/questionnaireStore";
 import { isSectionComplete } from "../lib/questions";
-import type { RecommendOutput } from "../lib/scoring/recommend";
+import { HIDDEN_CARS_KEY, type RecommendOutput } from "../lib/scoring/recommend";
 import type { WriteupOutput } from "../lib/llm/writeup";
 import { trackEvent } from "../lib/analytics";
 import { savePendingClaim, type PendingClaim } from "../lib/auth/pendingClaim";
@@ -56,10 +56,17 @@ export default function ResultsFlow({ source }: { source: ResultsSource }) {
 
   const [selectedCarId, setSelectedCarId] = useState<string | null>(null);
 
+  // "Not for me": the car being hidden/brought back right now, and whether the last try failed.
+  const [hidingCarId, setHidingCarId] = useState<string | null>(null);
+  const [hideError, setHideError] = useState(false);
+  // Only the newest write-up request may land (hiding cars quickly fires several).
+  const writeupSeq = useRef(0);
+
   const [claim, setClaim] = useState<PendingClaim | null>(null);
   const [savedInfo, setSavedInfo] = useState<{ saved: SavedSearchItem | null; diff: ShortlistDiff | null } | null>(null);
 
   const fetchWriteup = useCallback((resultId: string) => {
+    const seq = ++writeupSeq.current;
     fetch("/api/writeup", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -69,8 +76,12 @@ export default function ResultsFlow({ source }: { source: ResultsSource }) {
         if (!res.ok) throw new Error("writeup failed");
         return res.json();
       })
-      .then((json: WriteupOutput) => setWriteup(json))
-      .catch(() => setWriteupError(true));
+      .then((json: WriteupOutput) => {
+        if (seq === writeupSeq.current) setWriteup(json);
+      })
+      .catch(() => {
+        if (seq === writeupSeq.current) setWriteupError(true);
+      });
   }, []);
 
   const submitFresh = useCallback(async () => {
@@ -182,6 +193,46 @@ export default function ResultsFlow({ source }: { source: ResultsSource }) {
     else void openSaved(source.id);
   }, [source, submitFresh, openSaved]);
 
+  // Hide a car from this search (the next best one takes its place), or bring
+  // a hidden one back. The server re-runs the scoring with the veto and
+  // updates the same result row, so a new write-up is requested afterwards.
+  async function setCarHidden(carId: string, hide: boolean) {
+    if (!recommendationResultId || hidingCarId) return;
+    setHidingCarId(carId);
+    setHideError(false);
+    try {
+      const res = await fetch("/api/recommend/hide", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          recommendation_result_id: recommendationResultId,
+          car_id: carId,
+          action: hide ? "hide" : "unhide",
+        }),
+      });
+      if (!res.ok) throw new Error("hide failed");
+      const json: RecommendOutput = await res.json();
+      trackEvent(hide ? "car_hidden" : "car_unhidden", {
+        car_id: carId,
+        rank: (recommendOutput?.shortlist.findIndex((c) => c.car_id === carId) ?? -1) + 1,
+        shortlist_size: json.shortlist.length,
+      });
+      setRecommendOutput(json);
+      setWriteup(null);
+      setWriteupError(false);
+      // A fresh search re-submits from this tab's saved answers on reload, so
+      // keep the hidden list there too.
+      if (source.kind === "fresh") {
+        saveAnswers({ [HIDDEN_CARS_KEY]: (json.hidden_cars ?? []).map((c) => c.car_id) }, []);
+      }
+      if (json.shortlist.length > 0) fetchWriteup(recommendationResultId);
+    } catch {
+      setHideError(true);
+    } finally {
+      setHidingCarId(null);
+    }
+  }
+
   function restart() {
     clearQuestionnaireState();
     router.push("/");
@@ -265,6 +316,10 @@ export default function ResultsFlow({ source }: { source: ResultsSource }) {
           setStep("compare");
         }}
         onRestart={restart}
+        onHideCar={(carId) => void setCarHidden(carId, true)}
+        onUnhideCar={(carId) => void setCarHidden(carId, false)}
+        hidingCarId={hidingCarId}
+        hideError={hideError}
       />
     );
   }

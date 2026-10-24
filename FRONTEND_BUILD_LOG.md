@@ -443,3 +443,10 @@ GA for 3 Oct (first full day with GA on every visit): ~102 visitors, 90% Instagr
 ## 2026-10-04: Data-only redeploy for four under-5-lakh cars
 
 - No code changes. Redeployed so the build picks up new review data: Tata Tiago, Maruti Wagon R, Alto K10 and Celerio (catalog, 25-city prices, 467 extracted claims) now clear isPublishable() and have /cars pages. Verified all four return 200 on cardhoondo.com.
+
+## 2026-10-24: "Show next best" on result cards
+
+- Each result card has a "Show next best" button. It hides that car from the search and the next best car by score takes its place; a box above the cards lists swapped-out cars with "Bring back". A hint line above the cards explains the button for phone users.
+- `POST /api/recommend/hide` stores the car in the response's `answers.q_hidden_cars` (hard veto in `recommend.ts`, never asked as a question), re-runs scoring, updates the same result row (write-up cleared and re-requested) and any saved search's `top_cars`. Works for fresh results and reopened saved searches; survives a page reload.
+- Rate limits: new `recommend-hide` group (20 per 10 min); `/api/writeup` raised from 8 to 15 since each swap asks for a new summary. GA events `car_hidden` / `car_unhidden`.
+- Verified on cardhoondo.com: hide, bring back, and the page swap (Brezza out, Kylaq in).

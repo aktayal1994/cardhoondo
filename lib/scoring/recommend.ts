@@ -310,6 +310,17 @@ export interface RecommendCandidate {
   top_contributors: ScoreBreakdownItem[];
 }
 
+/** Answer key holding the car_ids a user hid from their results ("Not for
+ * me" on a result card). Never asked as a question: it is written only by
+ * /api/recommend/hide, and is a hard veto like q_brand_avoid. */
+export const HIDDEN_CARS_KEY = "q_hidden_cars";
+
+export interface HiddenCar {
+  car_id: string;
+  brand: string;
+  car_model: string;
+}
+
 export interface RecommendOutput {
   shortlist: RecommendCandidate[];
   all_ranked_cars: RecommendCandidate[];
@@ -318,6 +329,9 @@ export interface RecommendOutput {
   variants_excluded_by_filters: number;
   exclusion_sample: { car_id: string; variant_id: string; reason: string }[];
   weight_vector_top5: Record<string, number>;
+  /** Cars the user hid from this search, so the page can offer them back
+   * (absent on results computed before 24 Oct 2026). */
+  hidden_cars?: HiddenCar[];
 }
 
 export interface RecommendInput {
@@ -342,8 +356,15 @@ export function recommend(input: RecommendInput): RecommendOutput {
   const candidates: RecommendCandidate[] = [];
   const excluded: { car_id: string; variant_id: string; reason: string }[] = [];
   const noReviewData: string[] = [];
+  const hiddenIds = new Set(asList(answers[HIDDEN_CARS_KEY]));
+  const hiddenCars: HiddenCar[] = [];
 
   for (const carId of carIds) {
+    if (hiddenIds.has(carId)) {
+      const v = catalogVariants.find((x) => x.car_id === carId)!;
+      hiddenCars.push({ car_id: carId, brand: v.brand, car_model: v.car_model });
+      continue;
+    }
     const facetScores = facetScoresByCar[carId];
     if (!facetScores || facetScores.length === 0) {
       noReviewData.push(carId);
@@ -434,5 +455,6 @@ export function recommend(input: RecommendInput): RecommendOutput {
     variants_excluded_by_filters: excluded.length,
     exclusion_sample: excluded.slice(0, 10),
     weight_vector_top5: weightVectorTop5,
+    hidden_cars: hiddenCars,
   };
 }
