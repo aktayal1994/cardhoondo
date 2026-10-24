@@ -38,6 +38,7 @@ const GROUPS: Group[] = [
   { key: "writeup", limit: 15, match: (p) => p === "/api/writeup" },
   { key: "car-detail", limit: 40, match: (p) => p === "/api/car-detail" },
   { key: "feedback", limit: 20, match: (p) => p === "/api/feedback" },
+  { key: "share", limit: 20, match: (p) => p === "/api/share" },
   // Dealer-quote check: /api/quotation serves the car/variant dropdowns,
   // /api/quote-analysis runs the analysis and writes a row; /api/city-lookup
   // fans out to India Post's public API.
@@ -112,6 +113,7 @@ export const config = {
     "/api/writeup",
     "/api/car-detail",
     "/api/feedback",
+    "/api/share",
     "/api/quotation",
     "/api/quote-analysis",
     "/api/city-lookup",

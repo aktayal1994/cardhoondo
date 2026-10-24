@@ -1,5 +1,5 @@
-{{nologin}}**Version 1.3 · Effective from 3 October 2026**
-{{login}}**Version 1.4 · Effective from 3 October 2026**
+{{nologin}}**Version 1.4 · Effective from 24 October 2026**
+{{login}}**Version 1.5 · Effective from 24 October 2026**
 
 ## 1. The short version
 
@@ -57,6 +57,8 @@ If we contact you, it is only about your recommendations or to ask for feedback.
 
 {{nologin}}You don't need an account. Your answers and the contact details you give are stored against a random ID, not an account.
 {{login}}You don't need an account. If you don't sign in, your answers and the contact details you give are stored against a random ID, not an account. If you sign in and save a search, that search, with the contact details you entered on it, is attached to your account, so that only you can see it under your account.
+
+**Sharing your shortlist.** If you press **Share** on your results, we make a link that anyone you send it to can open. It shows the cars, their prices, the written summary and a short description of your needs (budget, fuel, seats and priorities). It never shows your name, phone number or pincode, and search engines are told not to list it. The link keeps showing that shortlist even if you change your results later. To have a link removed, email us (Section 14).
 
 ## 6. Who we share it with, and what we do not do
 

@@ -11,6 +11,7 @@ import { confidenceLabel, verdictPhrase } from "../lib/verdict";
 import { formatOnRoad } from "../lib/format";
 import FeedbackPrompt from "./FeedbackPrompt";
 import JourneyNextSteps from "./JourneyNextSteps";
+import ShareResultsButton from "./ShareResultsButton";
 
 interface ResultsScreenProps {
   recommendOutput: RecommendOutput;
@@ -97,11 +98,18 @@ export default function ResultsScreen({
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
       >
-        <div className="flex items-baseline justify-between">
-          <h1 className="font-display text-2xl font-bold text-ink">Your shortlist</h1>
-          <button onClick={onRestart} className="text-sm text-ink-faint underline decoration-dotted underline-offset-4 hover:text-ink-soft">
-            Start over
-          </button>
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <h1 className="font-display text-2xl font-bold text-ink">Your shortlist</h1>
+            <button onClick={onRestart} className="mt-1 text-sm text-ink-faint underline decoration-dotted underline-offset-4 hover:text-ink-soft">
+              Start over
+            </button>
+          </div>
+          <ShareResultsButton
+            recommendationResultId={recommendationResultId}
+            shortlistKey={shortlist.map((c) => c.car_id).join(",")}
+            ready={!!writeup || writeupError}
+          />
         </div>
         <p className="mt-1 text-ink-soft">
           {shortlist.length === 1 ? "One car" : `${shortlist.length} cars`} matched your answers with enough evidence

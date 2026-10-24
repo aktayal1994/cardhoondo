@@ -458,3 +458,9 @@ GA for 3 Oct (first full day with GA on every visit): ~102 visitors, 90% Instagr
 - "5 people": `rear_legroom_kneeroom` x2.5 (was ~2% of the score), soft wheelbase check below 2650 mm (floor 0.55) because rear-space reviews are segment-relative, parking-length penalty halved, 5+ seat filter. "3-4": rear legroom x1.3. "6-7": third row x2.0, 6 or 7 seats.
 - Write-up prompt gets a back-seat line per car so it never calls a tight rear seat roomy.
 - Verified: typecheck, persona tests, simulated real answers (Tester: Sonet/Kylaq/Duster -> Duster/Basalt/Kushaq), question checked live on cardhoondo.com at desktop and 375px.
+
+## 24 Oct 2026 — Share your shortlist as a link
+- "Share" button on the results page (`ShareResultsButton`): `POST /api/share` freezes the current shortlist (cars, prices, headline, likes/watch-outs with scores, persona, budget, an 8-row rating grid on the facets the person's answers weight most) into `shared_results` (new table, service role only, 12-char random token) and opens the phone share sheet; desktop copies the link and offers WhatsApp.
+- Public page `/r/<token>`: podium of the cars, budget strip, colour rating grid (faded when under 3 reviews), praise-vs-complaints bars and a real quote per car, "Find my car" CTA tagged `utm_source=shared_link`. noindex, disallowed in robots, 404 for unknown tokens. Never contains name, phone or pincode; the result id (which also authorises "Show next best") is never in the link.
+- Privacy policy v1.5/v1.4: "Sharing your shortlist" paragraph. Rate limit 20 per 10 min.
+- Verified: typecheck, link created and page rendered on cardhoondo.com, bad token 404, robots, privacy text live, 375px width fits; test rows deleted.
