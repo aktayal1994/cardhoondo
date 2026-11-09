@@ -3,6 +3,7 @@ import { SITE_URL, carIdToSlug } from "../lib/cars/featured";
 import { fetchFeaturedCarSummaries } from "../lib/data/fetchCarPage";
 import { fetchPublishedComparisons } from "../lib/data/fetchComparisons";
 import type { FeaturedCarSummary } from "../lib/data/fetchCarPage";
+import { RANKED_GUIDES } from "../lib/guides/rankedGuides";
 
 // Real last-change dates only: a lastmod that is just "now" on every URL teaches
 // Google to ignore the field. Guides carry the date of their last content edit;
@@ -13,7 +14,9 @@ const GUIDES: { slug: string; lastModified: string }[] = [
   { slug: "petrol-diesel-or-cng", lastModified: "2026-08-23" },
   { slug: "manual-vs-automatic-india", lastModified: "2026-08-23" },
   { slug: "dealer-tricks-first-car", lastModified: "2026-09-26" },
-  { slug: "best-car-under-10-lakh-family-of-4", lastModified: "2026-11-09" },
+  // Data-driven shortlists: dated by when the guide went live, since their
+  // cars' own pages carry the daily score changes.
+  ...RANKED_GUIDES.map((g) => ({ slug: g.slug, lastModified: g.published })),
 ];
 
 export const revalidate = 86400;

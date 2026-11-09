@@ -5,6 +5,7 @@ import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 import Breadcrumbs from "../../components/Breadcrumbs";
 import MobileMenu from "../../components/MobileMenu";
+import { RANKED_GUIDES } from "../../lib/guides/rankedGuides";
 
 const TITLE = "Car Buying Guides for India";
 const DESCRIPTION =
@@ -12,13 +13,7 @@ const DESCRIPTION =
 
 export const metadata: Metadata = pageMetadata({ title: withBrand(TITLE), description: DESCRIPTION, path: "/guides" });
 
-const GUIDES = [
-  {
-    href: "/guides/best-car-under-10-lakh-family-of-4",
-    eyebrow: "Family cars",
-    title: "Best Car Under ₹10 Lakh for a Family of 4",
-    dek: "Ranked on what owners and reviewers say about back seat room, ride, boot space and safety. Updated daily.",
-  },
+const WRITTEN_GUIDES = [
   {
     href: "/guides/why-everyone-has-different-opinion",
     eyebrow: "Decision paralysis",
@@ -43,6 +38,12 @@ const GUIDES = [
     title: "5 Car Dealer Tricks First-Time Buyers in India Should Know",
     dek: "The variant ladder, the quote with hidden line items, EMI framing, and what to actually check before you sign.",
   },
+];
+
+// The data-driven shortlists go first: they answer the questions people actually ask.
+const GUIDES = [
+  ...RANKED_GUIDES.map((g) => ({ href: `/guides/${g.slug}`, eyebrow: g.eyebrow, title: g.indexTitle, dek: g.indexDek })),
+  ...WRITTEN_GUIDES,
 ];
 
 export default function GuidesIndexPage() {

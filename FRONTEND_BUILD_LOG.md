@@ -475,3 +475,9 @@ GA for 3 Oct (first full day with GA on every visit): ~102 visitors, 90% Instagr
 - Ranking is not hand-picked: the page runs `runRecommendation` with a fixed family-of-4 answer set (under ₹10L, any fuel/gearbox, partner + young kids, safety + low running costs) and keeps the top 5 publishable on-sale cars. Ranking is trimmed and wrapped in `unstable_cache` (1 day): uncached, the Supabase responses filled the page fetch cache and ran `next dev` out of memory.
 - Added to `/guides` (first) and the sitemap. Submitted to IndexNow.
 - Verified: typecheck, local render at 1280px and 375px (no horizontal overflow), live 200 for OAI-SearchBot with the short answer and FAQ schema in the HTML.
+
+## 9 Nov 2026 — Eight "best car for X" guides from one settings list
+- All data-driven shortlist guides now live in `lib/guides/rankedGuides.ts` (one entry = one page) and render through `app/guides/[slug]/page.tsx` + `components/RankedGuidePage.tsx`. The list also feeds the sitemap and the top of `/guides`. Hand-written guides keep their own folders (matched first); unknown slugs 404 (`dynamicParams = false`).
+- Pages: family under ₹10L / ₹15L (10-15L) / ₹20L (15-20L), 7 seater under ₹20L, CNG under ₹10L, automatic under ₹10L, electric under ₹20L, first car for city driving. Each sets its own answers, the six verdict rows on each card and the FAQ topics. Each ends with links to the others.
+- Profiles that mostly repeated another page's list were left out (family of 5 under ₹15L, highway under ₹15L, automatic under ₹15L).
+- Verified: typecheck, all 8 render locally and live (200 for OAI-SearchBot, short answer present), 375px with no overflow, old guides 200, bad slug 404, sitemap has 8. Submitted to IndexNow.

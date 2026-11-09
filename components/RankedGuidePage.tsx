@@ -1,62 +1,28 @@
-import type { Metadata } from "next";
 import Link from "next/link";
 import { unstable_cache } from "next/cache";
-import { pageMetadata } from "../../../lib/seo";
-import GuideLayout from "../../../components/GuideLayout";
-import { runRecommendation } from "../../../lib/scoring/runRecommendation";
-import type { RecommendCandidate } from "../../../lib/scoring/recommend";
-import type { QuestionnaireAnswers } from "../../../lib/scoring/questionnaireWeights";
-import { fetchCarPageData, type CarFacetSummary, type CarPageData } from "../../../lib/data/fetchCarPage";
-import { SITE_URL, carDisplayName, carIdToSlug, isPublishable } from "../../../lib/cars/featured";
-import { verdictPhrase, verdictTone } from "../../../lib/verdict";
-import { formatOnRoad } from "../../../lib/format";
+import GuideLayout from "./GuideLayout";
+import { runRecommendation } from "../lib/scoring/runRecommendation";
+import type { RecommendCandidate } from "../lib/scoring/recommend";
+import type { QuestionnaireAnswers } from "../lib/scoring/questionnaireWeights";
+import { fetchCarPageData, type CarFacetSummary, type CarPageData } from "../lib/data/fetchCarPage";
+import { SITE_URL, carDisplayName, carIdToSlug, isPublishable } from "../lib/cars/featured";
+import { verdictPhrase, verdictTone } from "../lib/verdict";
+import { formatOnRoad } from "../lib/format";
+import {
+  BASE_ANSWERS,
+  FAMILY_CHECKS,
+  FAMILY_FAQS,
+  RANKED_GUIDES,
+  type RankedGuide,
+  type RankedGuideCheck,
+} from "../lib/guides/rankedGuides";
 
-const SLUG = "best-car-under-10-lakh-family-of-4";
-const TITLE = "Best Car Under ₹10 Lakh for a Family of 4 (Based on Real Reviews)";
-const SEO_TITLE = "Best Car Under ₹10 Lakh for a Family of 4 | CarDhoondo";
-const DESCRIPTION =
-  "The cars that owners and expert reviewers rate best for a family of four under ₹10 lakh on-road, with back seat room, ride, boot and safety verdicts.";
-
-export const metadata: Metadata = pageMetadata({
-  title: SEO_TITLE,
-  description: DESCRIPTION,
-  path: `/guides/${SLUG}`,
-  type: "article",
-});
-
-// The ranking is computed live from the review data, so it is refreshed daily
-// like the car pages it links to.
-export const revalidate = 86400;
-
-/** The family this page answers for, as questionnaire answers. Run through
- * the same scoring as the real questionnaire, so the page can never disagree
- * with what a visitor giving these answers would be shown. */
-const FAMILY_OF_4_ANSWERS: QuestionnaireAnswers = {
-  q_budget: ["<5L", "5-10L"],
-  q_fuel: ["No preference"],
-  q_seating: "3-4 people",
-  q_transmission: "No preference",
-  q_drive_type: "Mixed",
-  q_daily_commute: "20-50km",
-  q_parking_tightness: "Somewhat tight",
-  q_who_rides: ["Partner", "Young kids"],
-  q_top2_priorities: ["Safety and build quality", "Low running costs"],
-  q_frustration: "Jerky or bumpy rides",
-  q_brand_avoid: [],
-};
-
+/**
+ * Renders one entry of lib/guides/rankedGuides.ts: a short answer first (the
+ * part AI chats quote), then ranked cars with plain verdicts, then the
+ * questions people ask next. The page sets metadata and `revalidate`.
+ */
 const CARS_SHOWN = 5;
-const PUBLISHED = "2026-11-09";
-
-/** What a family actually asks about, in the order shown on each card. */
-const FAMILY_CHECKS: { facet: string; label: string }[] = [
-  { facet: "rear_legroom_kneeroom", label: "Back seat room" },
-  { facet: "suspension_softness", label: "Ride comfort" },
-  { facet: "boot_space_usable", label: "Boot space" },
-  { facet: "crash_rating_perception", label: "Safety" },
-  { facet: "fit_finish_quality", label: "Build quality" },
-  { facet: "city_mileage_actual", label: "Real city mileage" },
-];
 
 type RankedCar = Pick<RecommendCandidate, "car_id" | "variant_id" | "price_on_road" | "price_city" | "price_basis">;
 
@@ -69,23 +35,26 @@ interface CarPick {
 /** The ranking alone, trimmed to what the page shows and cached for a day.
  * Uncached, every Supabase response behind the ranking (thousands of rows)
  * landed in the page's fetch cache and ran the dev server out of memory. */
-const fetchFamilyRanking = unstable_cache(
-  async (): Promise<RankedCar[]> => {
-    const result = await runRecommendation(FAMILY_OF_4_ANSWERS, 15);
-    return result.all_ranked_cars.slice(0, 15).map((c) => ({
-      car_id: c.car_id,
-      variant_id: c.variant_id,
-      price_on_road: c.price_on_road,
-      price_city: c.price_city,
-      price_basis: c.price_basis,
-    }));
-  },
-  ["guide-family-of-4-under-10l-v1"],
-  { revalidate: 86400, tags: ["car-pages"] },
-);
+function fetchRanking(guide: RankedGuide): Promise<RankedCar[]> {
+  const answers = { ...BASE_ANSWERS, ...guide.answers } as QuestionnaireAnswers;
+  return unstable_cache(
+    async (): Promise<RankedCar[]> => {
+      const result = await runRecommendation(answers, 15);
+      return result.all_ranked_cars.slice(0, 15).map((c) => ({
+        car_id: c.car_id,
+        variant_id: c.variant_id,
+        price_on_road: c.price_on_road,
+        price_city: c.price_city,
+        price_basis: c.price_basis,
+      }));
+    },
+    ["ranked-guide-v1", guide.slug, JSON.stringify(answers)],
+    { revalidate: 86400, tags: ["car-pages"] },
+  )();
+}
 
-async function loadPicks(): Promise<CarPick[]> {
-  const ranked = await fetchFamilyRanking();
+async function loadPicks(guide: RankedGuide): Promise<CarPick[]> {
+  const ranked = await fetchRanking(guide);
   const picks: CarPick[] = [];
   for (const candidate of ranked) {
     if (picks.length >= CARS_SHOWN) break;
@@ -117,8 +86,10 @@ function listNames(names: string[]): string {
   return `${names.slice(0, -1).join(", ")} and ${names[names.length - 1]}`;
 }
 
-export default async function Page() {
-  const picks = await loadPicks();
+export default async function RankedGuidePage({ guide }: { guide: RankedGuide }) {
+  const { slug, title, published } = guide;
+  const checks = guide.checks ?? FAMILY_CHECKS;
+  const picks = await loadPicks(guide);
   const top3 = picks.slice(0, 3).map((p) => p.name);
   const totalSources = picks.reduce((n, p) => n + p.page.sourceCount, 0);
   const updated = picks
@@ -127,40 +98,29 @@ export default async function Page() {
     .sort()
     .pop();
   // Never earlier than the day the guide went live.
-  const dateModified = updated && updated.slice(0, 10) > PUBLISHED ? updated.slice(0, 10) : PUBLISHED;
+  const dateModified = updated && updated.slice(0, 10) > published ? updated.slice(0, 10) : published;
 
-  const rearBest = bestOn(picks, "rear_legroom_kneeroom");
-  const rideBest = bestOn(picks, "suspension_softness");
+  const shortAnswer = `${guide.lead}, the ${listNames(top3)} come out best on what owners and expert reviewers actually say about ${guide.judgedOn}.`;
 
-  const shortAnswer = `For a family of four with up to ₹10 lakh to spend on-road, the ${listNames(top3)} come out best on what owners and expert reviewers actually say about the things a family lives with, like back seat room, ride comfort and running costs.`;
-
-  const faqs: { q: string; a: string }[] = [
-    { q: "What is the best car under ₹10 lakh for a family of 4?", a: shortAnswer },
-    ...(rearBest
-      ? [
-          {
-            q: "Which car under ₹10 lakh has the most back seat room?",
-            a: `Of the cars on this list, owners rate the ${rearBest.pick.name}'s back seat best: ${verdictPhrase(rearBest.f.score).toLowerCase()}, based on ${rearBest.f.claimCount} reviews.`,
-          },
-        ]
-      : []),
-    ...(rideBest
-      ? [
-          {
-            q: "Which car under ₹10 lakh has the most comfortable ride?",
-            a: `Of the cars on this list, the ${rideBest.pick.name} gets the best ride comfort verdict: ${verdictPhrase(rideBest.f.score).toLowerCase()}, based on ${rideBest.f.claimCount} reviews.`,
-          },
-        ]
-      : []),
+  const faqs: { q: string; a: string }[] = [{ q: guide.bestQuestion, a: shortAnswer }];
+  for (const faq of guide.faqs ?? FAMILY_FAQS) {
+    const best = bestOn(picks, faq.facet);
+    if (!best) continue;
+    faqs.push({
+      q: `Which ${guide.which} ${faq.ask}?`,
+      a: `Of the cars on this list, owners rate the ${best.pick.name} best on ${faq.label}: ${verdictPhrase(best.f.score).toLowerCase()}, based on ${best.f.claimCount} reviews.`,
+    });
+  }
+  faqs.push(
     {
       q: "How did CarDhoondo pick these cars?",
-      a: "We read owner and expert reviews of every car on sale, sort each opinion into topics like back seat room or ride comfort, and score the cars on the topics that matter to a family of four. Nobody pays us to rank a car, and dealers and manufacturers have no say.",
+      a: `We read owner and expert reviews of every car on sale, sort each opinion into topics like back seat room or ride comfort, and score the cars on the topics that matter to ${guide.audience}. Nobody pays us to rank a car, and dealers and manufacturers have no say.`,
     },
     {
       q: "Are these prices on-road?",
       a: "Yes. Each price is the on-road price in New Delhi for the variant named. On-road prices change from city to city because of road tax, so check your own city's price before you visit a dealer.",
     },
-  ];
+  );
 
   const jsonLd = [
     {
@@ -171,7 +131,7 @@ export default async function Page() {
     {
       "@context": "https://schema.org",
       "@type": "ItemList",
-      name: TITLE,
+      name: title,
       itemListElement: picks.map((p, i) => ({
         "@type": "ListItem",
         position: i + 1,
@@ -183,12 +143,12 @@ export default async function Page() {
 
   return (
     <GuideLayout
-      eyebrow="Family cars"
-      title={TITLE}
-      slug={SLUG}
-      datePublished={PUBLISHED}
+      eyebrow={guide.eyebrow}
+      title={title}
+      slug={slug}
+      datePublished={published}
       dateModified={dateModified}
-      dek="No sponsored picks. These cars are ranked on what real owners and expert reviewers say about the things a family of four lives with every day."
+      dek={`No sponsored picks. These cars are ranked on what real owners and expert reviewers say about the things ${guide.audience} lives with every day.`}
     >
       <script
         type="application/ld+json"
@@ -205,28 +165,28 @@ export default async function Page() {
         </p>
       </div>
 
-      <h2>The {picks.length} best family cars under ₹10 lakh</h2>
+      <h2>
+        The {picks.length} best {guide.listHeading}
+      </h2>
       <p>
-        Every car below has an on-road price under ₹10 lakh in at least one variant. For each one we show how owners and
-        reviewers rate the six things families ask us about most. Where there are too few reviews to say, we tell you
-        instead of guessing.
+        Every car below has an on-road price of {guide.budgetPhrase} in at least one variant. For each one we show how
+        owners and reviewers rate the {checks.length} things that matter most here. Where there are too few reviews to
+        say, we tell you instead of guessing.
       </p>
 
       {/* Wrapped so the guide prose styles (numbered markers) skip this list: each card shows its own rank. */}
       <div>
         <ol className="mt-6 space-y-6">
-        {picks.map((p, i) => (
-          <CarCard key={p.page.carId} pick={p} rank={i + 1} />
-        ))}
+          {picks.map((p, i) => (
+            <CarCard key={p.page.carId} pick={p} rank={i + 1} checks={checks} />
+          ))}
         </ol>
       </div>
 
       <h2>How we picked these</h2>
       <p>
-        We ran our own recommender with the answers a typical young family gives: up to ₹10 lakh on-road, any fuel, any
-        gearbox, two adults and young kids, mixed city and highway driving, a 20 to 50 km daily commute, somewhat tight
-        parking, and safety plus low running costs as the top two priorities. It is the same scoring a visitor gets
-        when they take the questionnaire.
+        We ran our own recommender with the answers {guide.audience} typically gives: {guide.profile}. It is the same
+        scoring a visitor gets when they take the questionnaire.
       </p>
       <p>
         The scores come from opinions in owner and expert reviews, each one sorted into a topic such as back seat room
@@ -234,8 +194,8 @@ export default async function Page() {
         by any dealer or manufacturer, and nobody can buy a place on this list.
       </p>
       <p>
-        Your family might not be typical. If you drive mostly on highways, have parents riding in the back, or care more
-        about features than running costs, the right car changes. That is what the{" "}
+        Your situation might not be typical. If you drive mostly on highways, have parents riding in the back, or care
+        more about features than running costs, the right car changes. That is what the{" "}
         <Link href="/questionnaire/core-requirements">11-question match</Link> is for.
       </p>
 
@@ -246,6 +206,17 @@ export default async function Page() {
           <p className="mt-2 leading-relaxed text-ink-soft">{f.a}</p>
         </div>
       ))}
+
+      <h2>More shortlists built the same way</h2>
+      <ul>
+        {RANKED_GUIDES.filter((g) => g.slug !== slug).map((g) => (
+          <li key={g.slug}>
+            <Link href={`/guides/${g.slug}`} className="text-accent-rust-soft underline underline-offset-2">
+              {g.indexTitle}
+            </Link>
+          </li>
+        ))}
+      </ul>
     </GuideLayout>
   );
 }
@@ -261,15 +232,12 @@ function Verdict({ score }: { score: number }) {
   return <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${cls}`}>{verdictPhrase(score)}</span>;
 }
 
-function CarCard({ pick, rank }: { pick: CarPick; rank: number }) {
+function CarCard({ pick, rank, checks }: { pick: CarPick; rank: number; checks: RankedGuideCheck[] }) {
   const { candidate, page, name } = pick;
   const href = `/cars/${carIdToSlug(page.carId)}`;
-  // A family-relevant quote if there is one, else the car's strongest praise.
+  // A quote on the first topic this guide checks that has one, else the car's strongest praise.
   const quote =
-    facetOf(page, "rear_legroom_kneeroom")?.quote ??
-    facetOf(page, "suspension_softness")?.quote ??
-    page.likes.find((l) => l.quote)?.quote ??
-    null;
+    checks.map((c) => facetOf(page, c.facet)?.quote).find((q) => q) ?? page.likes.find((l) => l.quote)?.quote ?? null;
 
   return (
     <li className="rounded-2xl border border-border bg-paper-raised p-5 sm:p-6">
@@ -288,7 +256,7 @@ function CarCard({ pick, rank }: { pick: CarPick; rank: number }) {
       <p className="mt-1 text-xs text-ink-faint">Based on {page.sourceCount} owner and expert reviews</p>
 
       <dl className="mt-4 grid gap-x-6 gap-y-2.5 sm:grid-cols-2">
-        {FAMILY_CHECKS.map((c) => {
+        {checks.map((c) => {
           const f = facetOf(page, c.facet);
           return (
             <div key={c.facet} className="flex flex-wrap items-center justify-between gap-2 border-b border-border/60 pb-2">
