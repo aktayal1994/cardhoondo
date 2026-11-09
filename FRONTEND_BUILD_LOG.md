@@ -464,3 +464,8 @@ GA for 3 Oct (first full day with GA on every visit): ~102 visitors, 90% Instagr
 - Public page `/r/<token>`: podium of the cars, budget strip, colour rating grid (faded when under 3 reviews), praise-vs-complaints bars and a real quote per car, "Find my car" CTA tagged `utm_source=shared_link`. noindex, disallowed in robots, 404 for unknown tokens. Never contains name, phone or pincode; the result id (which also authorises "Show next best") is never in the link.
 - Privacy policy v1.5/v1.4: "Sharing your shortlist" paragraph. Rate limit 20 per 10 min.
 - Verified: typecheck, link created and page rendered on cardhoondo.com, bad token 404, robots, privacy text live, 375px width fits; test rows deleted.
+
+## 9 Nov 2026 — IndexNow for Bing (AI search visibility)
+- Site added to Bing Webmaster Tools (imported from Google Search Console) because ChatGPT search leans on Bing's index.
+- IndexNow key file `public/189804c40187bc5b4b725c58687ab691.txt` (must stay deployed) and `scripts/indexnow_ping.mjs`: with no arguments it submits every URL in the live sitemap; with paths it submits just those. Run it after any deploy that adds or changes public pages.
+- Verified: key file served on cardhoondo.com, all 123 sitemap URLs submitted, HTTP 202 Accepted.
