@@ -14,6 +14,12 @@ export const metadata: Metadata = pageMetadata({ title: withBrand(TITLE), descri
 
 const GUIDES = [
   {
+    href: "/guides/best-car-under-10-lakh-family-of-4",
+    eyebrow: "Family cars",
+    title: "Best Car Under ₹10 Lakh for a Family of 4",
+    dek: "Ranked on what owners and reviewers say about back seat room, ride, boot space and safety. Updated daily.",
+  },
+  {
     href: "/guides/why-everyone-has-different-opinion",
     eyebrow: "Decision paralysis",
     title: "Why Does Everyone Have a Different Opinion on Which Car to Buy?",

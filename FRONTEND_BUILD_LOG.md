@@ -469,3 +469,9 @@ GA for 3 Oct (first full day with GA on every visit): ~102 visitors, 90% Instagr
 - Site added to Bing Webmaster Tools (imported from Google Search Console) because ChatGPT search leans on Bing's index.
 - IndexNow key file `public/189804c40187bc5b4b725c58687ab691.txt` (must stay deployed) and `scripts/indexnow_ping.mjs`: with no arguments it submits every URL in the live sitemap; with paths it submits just those. Run it after any deploy that adds or changes public pages.
 - Verified: key file served on cardhoondo.com, all 123 sitemap URLs submitted, HTTP 202 Accepted.
+
+## 9 Nov 2026 — First AI-question guide: best car under ₹10 lakh for a family of 4
+- `/guides/best-car-under-10-lakh-family-of-4`: written for how people ask ChatGPT/Perplexity. Opens with a "Short answer" box, then 5 cars, each with on-road price for the picked variant and plain verdicts on back seat room, ride comfort, boot space, safety, build quality and real city mileage ("Not enough reviews yet" where under 3 reviews), one real quote, link to the car page. FAQ and ItemList structured data; FAQ answers are built from the data.
+- Ranking is not hand-picked: the page runs `runRecommendation` with a fixed family-of-4 answer set (under ₹10L, any fuel/gearbox, partner + young kids, safety + low running costs) and keeps the top 5 publishable on-sale cars. Ranking is trimmed and wrapped in `unstable_cache` (1 day): uncached, the Supabase responses filled the page fetch cache and ran `next dev` out of memory.
+- Added to `/guides` (first) and the sitemap. Submitted to IndexNow.
+- Verified: typecheck, local render at 1280px and 375px (no horizontal overflow), live 200 for OAI-SearchBot with the short answer and FAQ schema in the HTML.

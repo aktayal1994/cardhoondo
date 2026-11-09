@@ -13,6 +13,7 @@ const GUIDES: { slug: string; lastModified: string }[] = [
   { slug: "petrol-diesel-or-cng", lastModified: "2026-08-23" },
   { slug: "manual-vs-automatic-india", lastModified: "2026-08-23" },
   { slug: "dealer-tricks-first-car", lastModified: "2026-09-26" },
+  { slug: "best-car-under-10-lakh-family-of-4", lastModified: "2026-11-09" },
 ];
 
 export const revalidate = 86400;
