@@ -48,7 +48,7 @@ function fetchRanking(guide: RankedGuide): Promise<RankedCar[]> {
         price_basis: c.price_basis,
       }));
     },
-    ["ranked-guide-v1", guide.slug, JSON.stringify(answers)],
+    ["ranked-guide-v2", guide.slug, JSON.stringify(answers)],
     { revalidate: 86400, tags: ["car-pages"] },
   )();
 }

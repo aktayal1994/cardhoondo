@@ -481,3 +481,10 @@ GA for 3 Oct (first full day with GA on every visit): ~102 visitors, 90% Instagr
 - Pages: family under ₹10L / ₹15L (10-15L) / ₹20L (15-20L), 7 seater under ₹20L, CNG under ₹10L, automatic under ₹10L, electric under ₹20L, first car for city driving. Each sets its own answers, the six verdict rows on each card and the FAQ topics. Each ends with links to the others.
 - Profiles that mostly repeated another page's list were left out (family of 5 under ₹15L, highway under ₹15L, automatic under ₹15L).
 - Verified: typecheck, all 8 render locally and live (200 for OAI-SearchBot, short answer present), 375px with no overflow, old guides 200, bad slug 404, sitemap has 8. Submitted to IndexNow.
+
+## 2026-11-09: thin-evidence topics no longer count fully in rankings
+
+- `lib/scoring/scoreRecommendation.ts`: each topic's score is pulled toward neutral by n/(n+2) claims (1 claim keeps a third), and a topic only counts fully toward the coverage multiplier from 3 claims up. `coverage_ratio` (used for the "Confident match" labels) is unchanged. Python `scripts/score_recommendation.py` mirrored (outside this repo).
+- Effect: cars topping lists on 1-2 lucky reviews dropped (Taisor, XUV 7XO); Brezza now leads only where backed by 4-7 claims per topic and no longer tops the under-20-lakh list.
+- `components/RankedGuidePage.tsx`: cache key bumped to ranked-guide-v2 so guides re-rank right away.
+- Verified live: 3 guides show the new top 3; typecheck and persona tests pass.

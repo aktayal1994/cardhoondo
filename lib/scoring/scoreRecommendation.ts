@@ -39,6 +39,17 @@ const CONFIDENCE_DAMPENING: Record<Confidence, number> = { low: 0.5, medium: 0.8
 
 const TOTAL_FACETS = Object.keys(FACET_THEME_MAP).length;
 
+// Dampening the weight alone isn't enough: one glowing claim still reads as a
+// perfect +1.00 inside the average, and still counts as a whole covered facet.
+// So a facet's score is pulled toward neutral by n / (n + EVIDENCE_PRIOR)
+// claims (1 claim keeps a third of its score, 2 half, 8 four fifths), and it
+// only counts fully toward coverage from FULL_COVERAGE_CLAIMS claims up. This
+// stopped thin-but-lucky facets (e.g. a 1-claim crash rating of 1.00) from
+// putting a car on top of shortlists. The breakdown keeps the raw score for
+// display; only the ranking uses the shrunk one.
+export const EVIDENCE_PRIOR = 2;
+export const FULL_COVERAGE_CLAIMS = 3;
+
 interface ResolvedFacetData {
   score: number;
   claim_count: number;
@@ -87,6 +98,7 @@ export function scoreCar(
   brandFacetScores: BrandFacetScoreRow[] | null = null,
 ): ScoreResult {
   const breakdown: ScoreBreakdownItem[] = [];
+  let evidenceCoverage = 0;
   let weightedSum = 0;
   let totalWeight = 0;
 
@@ -96,9 +108,11 @@ export function scoreCar(
 
     const weight = weights[facet] ?? 1.0;
     const effectiveWeight = weight * CONFIDENCE_DAMPENING[data.confidence];
-    const contribution = data.score * effectiveWeight;
+    const shrunkScore = data.score * (data.claim_count / (data.claim_count + EVIDENCE_PRIOR));
+    const contribution = shrunkScore * effectiveWeight;
     weightedSum += contribution;
     totalWeight += effectiveWeight;
+    evidenceCoverage += Math.min(1, data.claim_count / FULL_COVERAGE_CLAIMS);
 
     breakdown.push({
       facet,
@@ -123,9 +137,11 @@ export function scoreCar(
   // covered. Without it, a car reviewed on 2 of 47 facets can outrank one
   // reviewed on 28 of 47 just because its tiny sample happened to be
   // favorable (see the Grand Vitara bug in CLAUDE.md's "Recommendation
-  // engine" section -- this is the same guard, ported unchanged).
+  // engine" section). The multiplier counts thin facets partly (see
+  // FULL_COVERAGE_CLAIMS); coverage_ratio stays a plain facet count because
+  // the "Confident match" labels are worded around it.
   const coverageRatio = round(breakdown.length / TOTAL_FACETS, 3);
-  const composite = round(rawComposite * coverageRatio, 3);
+  const composite = round(rawComposite * (evidenceCoverage / TOTAL_FACETS), 3);
 
   return {
     composite_score: composite,
