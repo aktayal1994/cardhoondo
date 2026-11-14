@@ -86,7 +86,7 @@ export default function CookieBanner() {
         <button
           type="button"
           onClick={accept}
-          className="flex-1 rounded-full bg-accent-rust px-5 py-2.5 text-sm font-semibold text-stage transition hover:brightness-110 active:scale-[0.98]"
+          className="flex-1 rounded-lg bg-accent-rust px-5 py-2.5 text-sm font-semibold text-stage transition hover:brightness-110 active:scale-[0.98]"
         >
           Keep analytics on
         </button>

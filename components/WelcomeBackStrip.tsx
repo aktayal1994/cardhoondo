@@ -105,7 +105,7 @@ export default function WelcomeBackStrip({ onStart }: { onStart: (location: stri
             <button
               type="button"
               onClick={() => onStart("welcome_back")}
-              className="inline-flex items-center gap-2 rounded-full bg-accent-rust px-5 py-2.5 text-sm font-semibold text-charcoal-950 shadow-glow-sm transition hover:brightness-110 active:scale-[0.97]"
+              className="inline-flex items-center gap-2 rounded-lg bg-accent-rust px-5 py-2.5 text-sm font-semibold text-charcoal-950 shadow-glow-sm transition hover:brightness-110 active:scale-[0.97]"
             >
               <Plus className="h-4 w-4" strokeWidth={2.5} />
               Start a new search
@@ -147,7 +147,7 @@ export default function WelcomeBackStrip({ onStart }: { onStart: (location: stri
                       setNotice({ kind: "error", text: result.message });
                     }
                   }}
-                  className="rounded-full bg-accent-rust px-5 py-2 text-sm font-semibold text-charcoal-950 disabled:opacity-60"
+                  className="rounded-lg bg-accent-rust px-5 py-2 text-sm font-semibold text-charcoal-950 disabled:opacity-60"
                 >
                   {nudgeBusy ? "Saving…" : "Save"}
                 </button>

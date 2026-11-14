@@ -125,7 +125,7 @@ export function UrgencyVisual() {
         <ArrowRight className="h-3.5 w-3.5 shrink-0 text-ink-faint" />
         <span className="rounded-full border border-border bg-paper px-3 py-1.5">Compare elsewhere</span>
         <ArrowRight className="h-3.5 w-3.5 shrink-0 text-ink-faint" />
-        <span className="rounded-full bg-accent-rust px-3 py-1.5 text-stage">Then decide</span>
+        <span className="rounded-lg bg-accent-rust px-3 py-1.5 text-stage">Then decide</span>
       </div>
       <VisualCaption>
         A genuine best price survives a written quotation and a second opinion. One that

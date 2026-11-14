@@ -140,7 +140,7 @@ export default function QuestionCard({ question, value, answers, onChange, onCon
           type="button"
           onClick={onConfirm}
           disabled={!isAnswerComplete(question, value)}
-          className="ml-12 mt-4 rounded-full bg-accent-rust px-6 py-2.5 text-sm font-semibold text-charcoal-950 shadow-glow-sm transition hover:brightness-110 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 disabled:shadow-none"
+          className="ml-12 mt-4 rounded-lg bg-accent-rust px-6 py-2.5 text-sm font-semibold text-charcoal-950 shadow-glow-sm transition hover:brightness-110 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 disabled:shadow-none"
         >
           {selected.length > 0 ? "Continue" : "Continue, no preference"}
         </button>

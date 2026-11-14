@@ -355,7 +355,7 @@ function SigninButton({ next }: { next: string }) {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="mt-6 rounded-full bg-accent-rust px-7 py-3.5 text-[15px] font-semibold text-charcoal-950 shadow-glow-sm transition hover:brightness-110"
+        className="mt-6 rounded-lg bg-accent-rust px-7 py-3.5 text-[15px] font-semibold text-charcoal-950 shadow-glow-sm transition hover:brightness-110"
       >
         Sign in
       </button>

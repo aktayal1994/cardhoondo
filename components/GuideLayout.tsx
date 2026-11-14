@@ -147,7 +147,7 @@ export function GuideNav() {
         <div className="flex items-center gap-1">
           <Link
             href="/questionnaire/core-requirements"
-            className="hidden rounded-full bg-accent-rust px-5 py-2.5 text-sm font-semibold text-stage shadow-sm transition hover:brightness-105 active:scale-[0.98] sm:inline-flex"
+            className="hidden rounded-lg bg-accent-rust px-5 py-2.5 text-sm font-semibold text-stage shadow-sm transition hover:brightness-105 active:scale-[0.98] sm:inline-flex"
           >
             Find my car
           </Link>
@@ -170,7 +170,7 @@ function BottomCta() {
       </p>
       <Link
         href="/questionnaire/core-requirements"
-        className="mt-5 inline-flex items-center gap-2 rounded-full bg-accent-rust px-6 py-3 text-sm font-semibold text-stage shadow-sm transition hover:brightness-105 active:scale-[0.98]"
+        className="mt-5 inline-flex items-center gap-2 rounded-lg bg-accent-rust px-6 py-3 text-sm font-semibold text-stage shadow-sm transition hover:brightness-105 active:scale-[0.98]"
       >
         Find my car <ArrowRight className="h-4 w-4" />
       </Link>

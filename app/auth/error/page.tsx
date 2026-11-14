@@ -31,7 +31,7 @@ export default async function AuthErrorPage({ searchParams }: { searchParams: Pr
         <p className="mt-2 text-sm text-ink-faint">You can keep using CarDhoondo without signing in.</p>
         <Link
           href="/"
-          className="mt-6 inline-block rounded-full bg-accent-rust px-7 py-3 text-[15px] font-semibold text-charcoal-950 shadow-glow-sm transition hover:brightness-110"
+          className="mt-6 inline-block rounded-lg bg-accent-rust px-7 py-3 text-[15px] font-semibold text-charcoal-950 shadow-glow-sm transition hover:brightness-110"
         >
           Back to CarDhoondo
         </Link>

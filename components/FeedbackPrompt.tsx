@@ -135,7 +135,7 @@ export default function FeedbackPrompt({ recommendationResultId, carId, variant 
                   type="button"
                   onClick={addComment}
                   disabled={!comment.trim() || commentStatus === "sending"}
-                  className="rounded-full bg-accent-rust px-6 py-2.5 text-sm font-semibold text-charcoal-950 shadow-glow-sm transition hover:brightness-110 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 disabled:shadow-none"
+                  className="rounded-lg bg-accent-rust px-6 py-2.5 text-sm font-semibold text-charcoal-950 shadow-glow-sm transition hover:brightness-110 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 disabled:shadow-none"
                 >
                   {commentStatus === "sending" ? "Sending…" : "Add note"}
                 </button>

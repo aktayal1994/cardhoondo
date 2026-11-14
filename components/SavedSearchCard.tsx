@@ -194,7 +194,7 @@ export default function SavedSearchCard({
 
       <Link
         href={`/saved/${item.id}`}
-        className="mt-4 inline-flex h-12 items-center justify-center rounded-full bg-accent-rust px-6 text-[15px] font-semibold text-charcoal-950 shadow-glow-sm transition hover:brightness-110 active:scale-[0.98]"
+        className="mt-4 inline-flex h-12 items-center justify-center rounded-lg bg-accent-rust px-6 text-[15px] font-semibold text-charcoal-950 shadow-glow-sm transition hover:brightness-110 active:scale-[0.98]"
       >
         Open results
       </Link>

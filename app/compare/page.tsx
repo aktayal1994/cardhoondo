@@ -22,12 +22,14 @@ export default async function ComparisonsIndex() {
     <main className="min-h-screen bg-paper">
       <GuideNav />
       <article className="mx-auto max-w-3xl px-6 py-12">
+        <div className="page-band">
         <Breadcrumbs trail={[{ name: "Comparisons" }]} />
         <h1 className="mt-6 font-display text-3xl font-bold text-balance text-ink sm:text-4xl">Car comparisons</h1>
         <p className="mt-4 text-lg leading-relaxed text-ink-soft">
           Stuck between two cars? Each comparison shows where one does better than the other, using what owners and expert
           reviewers actually said, with their own words. No sponsored picks.
         </p>
+        </div>
 
         <ul className="mt-8 grid gap-3 sm:grid-cols-2">
           {pairs.map((p) => (

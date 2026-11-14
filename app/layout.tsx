@@ -5,40 +5,19 @@ import GAPageTracker from "../components/GAPageTracker";
 import CookieBanner from "../components/CookieBanner";
 import BottomTabBar from "../components/BottomTabBar";
 
-// Self-hosted (latin subset, downloaded from Google Fonts on 4 Oct 2026) since
-// next/font/google started failing Vercel builds when Google sent it a font URL
-// it could not parse. Same files the Google loader used to fetch.
-const displayFont = localFont({
-  src: [
-    { path: "./fonts/SourceSerif4-variable-normal.woff2", weight: "500 700", style: "normal" },
-    { path: "./fonts/SourceSerif4-variable-italic.woff2", weight: "500 700", style: "italic" },
-  ],
-  variable: "--font-display-face",
-  display: "swap",
-  fallback: ["Georgia", "serif"],
-});
-
+// Figtree (latin, variable), self-hosted: next/font/google started failing
+// Vercel builds in Oct 2026. One family for headings, body and numbers.
 const bodyFont = localFont({
-  src: [
-    { path: "./fonts/BeVietnamPro-400-normal.woff2", weight: "400", style: "normal" },
-    { path: "./fonts/BeVietnamPro-500-normal.woff2", weight: "500", style: "normal" },
-    { path: "./fonts/BeVietnamPro-600-normal.woff2", weight: "600", style: "normal" },
-  ],
+  src: [{ path: "./fonts/Figtree-variable.woff2", weight: "300 900", style: "normal" }],
   variable: "--font-body",
   display: "swap",
-});
-
-const dataFont = localFont({
-  src: [{ path: "./fonts/JetBrainsMono-variable.woff2", weight: "400 500", style: "normal" }],
-  variable: "--font-data",
-  display: "swap",
-  fallback: ["ui-monospace", "monospace"],
+  fallback: ["Helvetica Neue", "Arial", "sans-serif"],
 });
 
 const SITE_URL = "https://cardhoondo.com";
 
 export const viewport: Viewport = {
-  themeColor: "#0a0908",
+  themeColor: "#ffffff",
 };
 
 export const metadata: Metadata = {
@@ -74,7 +53,7 @@ export const metadata: Metadata = {
   authors: [{ name: "CarDhoondo" }],
   creator: "CarDhoondo",
   applicationName: "CarDhoondo",
-  appleWebApp: { capable: true, title: "CarDhoondo", statusBarStyle: "black-translucent" },
+  appleWebApp: { capable: true, title: "CarDhoondo", statusBarStyle: "default" },
   category: "Automotive",
   alternates: {
     canonical: SITE_URL,
@@ -127,7 +106,7 @@ const jsonLd = [
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en-IN" suppressHydrationWarning className={`${displayFont.variable} ${bodyFont.variable} ${dataFont.variable}`}>
+    <html lang="en-IN" suppressHydrationWarning className={bodyFont.variable}>
       <head>
         {/* Marks <html> when this browser recently had a session, so the "welcome back"
             space is reserved before the page hydrates (no layout jump, no request for

@@ -34,7 +34,7 @@ export default function StepTransition({ message, onDone }: StepTransitionProps)
         alt=""
         width={237}
         height={237}
-        className="mb-2 h-10 w-10 drop-shadow-[0_0_20px_rgba(226,152,74,0.35)]"
+        className="mb-2 h-10 w-10"
       />
       <div className="flex gap-1.5" aria-hidden>
         <span className="animate-pulse-dot h-2 w-2 rounded-full bg-accent-rust" style={{ animationDelay: "0ms" }} />

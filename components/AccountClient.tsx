@@ -68,7 +68,7 @@ export default function AccountClient() {
         </p>
         <Link
           href="/"
-          className="mt-6 inline-block rounded-full bg-accent-rust px-6 py-3 text-[15px] font-semibold text-charcoal-950 shadow-glow-sm"
+          className="mt-6 inline-block rounded-lg bg-accent-rust px-6 py-3 text-[15px] font-semibold text-charcoal-950 shadow-glow-sm"
         >
           Back to CarDhoondo
         </Link>
@@ -92,7 +92,7 @@ export default function AccountClient() {
         <button
           type="button"
           onClick={() => setSheet(true)}
-          className="mt-6 rounded-full bg-accent-rust px-6 py-3 text-[15px] font-semibold text-charcoal-950 shadow-glow-sm"
+          className="mt-6 rounded-lg bg-accent-rust px-6 py-3 text-[15px] font-semibold text-charcoal-950 shadow-glow-sm"
         >
           Sign in
         </button>

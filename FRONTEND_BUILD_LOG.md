@@ -488,3 +488,12 @@ GA for 3 Oct (first full day with GA on every visit): ~102 visitors, 90% Instagr
 - Effect: cars topping lists on 1-2 lucky reviews dropped (Taisor, XUV 7XO); Brezza now leads only where backed by 4-7 claims per topic and no longer tops the under-20-lakh list.
 - `components/RankedGuidePage.tsx`: cache key bumped to ranked-guide-v2 so guides re-rank right away.
 - Verified live: 3 guides show the new top 3; typecheck and persona tests pass.
+
+## 2026-11-14: site-wide redesign, white and denim ("Denim")
+
+- Replaced the dark Nightdrive theme. `app/globals.css` keeps the old token names with new values (see the comment at the top of the `@theme` block): `accent-rust` is now denim #27548a, `stage*` is a denim pane, `charcoal-*` are light greys. One font, Figtree (`app/fonts/Figtree-variable.woff2`).
+- New home page `components/redesign/RedesignHome.tsx` + `Animations.tsx` (code-drawn looping illustrations, count-up numbers, scroll-driven car). Photos in `public/redesign/` are AI-generated, no brand badges.
+- Phones (and the Android wrapper) open on the app-style `components/AppHome.tsx`, restyled, in place of the hero, journey and car grid; wider screens get the hero.
+- Inner pages: denim title band (`.page-band`) on car reviews, car pages, comparisons, guides list and legal pages; shared-results page and Google button restyled; main buttons are 8px-radius.
+- `LandingScreen.tsx`, `NightDriveScene.tsx`, `HomePageClient.tsx` and the old font files are unused but kept.
+- Verified live: home (desktop + 375px), cars, a car page, guides, quotation, privacy, questionnaire step 1 all 200 and in the new look. Not viewed on screen after the change: results, saved searches, account, shared links, sign-in sheet.

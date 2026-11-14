@@ -98,6 +98,7 @@ export default async function CarPage({ params }: Params) {
       <GuideNav />
 
       <article className="mx-auto max-w-3xl px-6 py-12">
+        <div className="page-band">
         <Breadcrumbs trail={[{ name: "Car reviews", href: "/cars" }, { name }]} />
 
         <p className="mt-6 font-display text-sm font-semibold uppercase tracking-wide text-accent-rust-soft">{data.brand} review</p>
@@ -113,6 +114,7 @@ export default async function CarPage({ params }: Params) {
             </>
           )}
         </p>
+        </div>
 
         {!data.onSale && (
           <p className="mt-6 rounded-2xl border border-accent-rust/40 px-5 py-4 text-ink-soft">
@@ -240,7 +242,7 @@ export default async function CarPage({ params }: Params) {
           <div className="mt-5 flex flex-wrap gap-3">
             <Link
               href="/questionnaire/core-requirements"
-              className="inline-flex items-center gap-2 rounded-full bg-accent-rust px-6 py-3 text-sm font-semibold text-stage shadow-sm transition hover:brightness-105 active:scale-[0.98]"
+              className="inline-flex items-center gap-2 rounded-lg bg-accent-rust px-6 py-3 text-sm font-semibold text-stage shadow-sm transition hover:brightness-105 active:scale-[0.98]"
             >
               Find my car <ArrowRight className="h-4 w-4" />
             </Link>

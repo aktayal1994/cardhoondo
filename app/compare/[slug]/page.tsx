@@ -122,6 +122,7 @@ export default async function ComparisonPage({ params }: Params) {
       <GuideNav />
 
       <article className="mx-auto max-w-3xl px-6 py-12">
+        <div className="page-band">
         <Breadcrumbs trail={[{ name: "Comparisons", href: "/compare" }, { name: `${A} vs ${B}` }]} />
 
         <p className="mt-6 font-display text-sm font-semibold uppercase tracking-wide text-accent-rust-soft">Head to head</p>
@@ -131,6 +132,7 @@ export default async function ComparisonPage({ params }: Params) {
         <p className="mt-3 text-sm text-ink-faint">
           Based on {a.claimCount + b.claimCount} statements from {sources} owner and expert reviews
         </p>
+        </div>
 
         <p className="mt-6 text-lg leading-relaxed text-ink-soft">
           {summary} {levelNames.length > 0 && `On ${joinList(levelNames)} there is little to separate them. `}
@@ -217,7 +219,7 @@ export default async function ComparisonPage({ params }: Params) {
           <div className="mt-5 flex flex-wrap gap-3">
             <Link
               href="/questionnaire/core-requirements"
-              className="inline-flex items-center gap-2 rounded-full bg-accent-rust px-6 py-3 text-sm font-semibold text-stage shadow-sm transition hover:brightness-105 active:scale-[0.98]"
+              className="inline-flex items-center gap-2 rounded-lg bg-accent-rust px-6 py-3 text-sm font-semibold text-stage shadow-sm transition hover:brightness-105 active:scale-[0.98]"
             >
               Find my car <ArrowRight className="h-4 w-4" />
             </Link>

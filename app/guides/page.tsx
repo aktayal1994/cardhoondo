@@ -58,7 +58,7 @@ export default function GuidesIndexPage() {
           <div className="flex items-center gap-1">
             <Link
               href="/questionnaire/core-requirements"
-              className="hidden rounded-full bg-accent-rust px-5 py-2.5 text-sm font-semibold text-stage shadow-glow-sm sm:inline-flex transition hover:brightness-110 active:scale-[0.98]"
+              className="hidden rounded-lg bg-accent-rust px-5 py-2.5 text-sm font-semibold text-stage shadow-glow-sm sm:inline-flex transition hover:brightness-110 active:scale-[0.98]"
             >
               Find my car
             </Link>
@@ -68,10 +68,12 @@ export default function GuidesIndexPage() {
       </header>
 
       <div className="mx-auto max-w-3xl px-6 py-14">
+        <div className="page-band [--band-pull:3.5rem]">
         <Breadcrumbs trail={[{ name: "Guides" }]} />
         <p className="mt-6 font-display text-sm font-semibold uppercase tracking-wide text-accent-rust-soft">Guides</p>
         <h1 className="mt-3 font-display text-3xl font-bold text-balance text-ink sm:text-4xl">{TITLE}</h1>
         <p className="mt-4 max-w-xl text-lg leading-relaxed text-ink-soft">{DESCRIPTION}</p>
+        </div>
 
         <div className="mt-10 flex flex-col gap-4">
           {GUIDES.map((g) => (

@@ -59,7 +59,7 @@ export default function LegalPage({
           <div className="flex items-center gap-1">
             <Link
               href="/questionnaire/core-requirements"
-              className="hidden rounded-full bg-accent-rust px-5 py-2.5 text-sm font-semibold text-stage shadow-glow-sm sm:inline-flex transition hover:brightness-110 active:scale-[0.98]"
+              className="hidden rounded-lg bg-accent-rust px-5 py-2.5 text-sm font-semibold text-stage shadow-glow-sm sm:inline-flex transition hover:brightness-110 active:scale-[0.98]"
             >
               Find my car
             </Link>
@@ -69,8 +69,11 @@ export default function LegalPage({
       </header>
 
       <article className="mx-auto max-w-3xl px-6 py-14">
+        <div className="page-band [--band-pull:3.5rem]">
         <p className="font-display text-sm font-semibold uppercase tracking-wide text-accent-rust-soft">{eyebrow}</p>
         <h1 className="mt-3 font-display text-3xl font-bold text-balance text-ink sm:text-4xl">{title}</h1>
+        </div>
+
         <div
           className="prose-guide prose-legal mt-8"
           // eslint-disable-next-line react/no-danger

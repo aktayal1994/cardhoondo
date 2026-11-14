@@ -1,4 +1,4 @@
-import HomePageClient from "../components/HomePageClient";
+import RedesignHome from "../components/redesign/RedesignHome";
 import type { HomeCar, HomeComparison } from "../components/AppHome";
 import { fetchFeaturedCarSummaries } from "../lib/data/fetchCarPage";
 import { fetchPublishedComparisons } from "../lib/data/fetchComparisons";
@@ -17,7 +17,7 @@ async function loadHomeData(): Promise<{ cars: HomeCar[]; comparisons: HomeCompa
     const cars = summaries
       .filter((c) => c.onSale)
       .sort((a, b) => b.sourceCount - a.sourceCount)
-      .slice(0, 10)
+      .slice(0, 8)
       .map((c) => ({
         slug: carIdToSlug(c.carId),
         name: c.name,
@@ -35,5 +35,5 @@ async function loadHomeData(): Promise<{ cars: HomeCar[]; comparisons: HomeCompa
 
 export default async function HomePage() {
   const { cars, comparisons } = await loadHomeData();
-  return <HomePageClient cars={cars} comparisons={comparisons} />;
+  return <RedesignHome cars={cars} comparisons={comparisons} />;
 }

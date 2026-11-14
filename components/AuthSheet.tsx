@@ -142,7 +142,7 @@ export default function AuthSheet({
               type="button"
               onClick={continueWithGoogle}
               disabled={going}
-              className="mt-5 flex h-12 w-full items-center justify-center gap-3 rounded-full border border-[#8E918F] bg-[#131314] px-6 text-[15px] font-medium text-white transition hover:bg-[#1f1f21] active:scale-[0.98] disabled:opacity-70"
+              className="mt-5 flex h-12 w-full items-center justify-center gap-3 rounded-lg border border-[#747775] bg-white px-6 text-[15px] font-medium text-[#1f1f1f] transition hover:bg-[#f7f7f7] active:scale-[0.98] disabled:opacity-70"
             >
               <GoogleG />
               {going ? "Opening Google…" : "Continue with Google"}

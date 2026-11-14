@@ -418,7 +418,7 @@ export default function QuoteCheckFlow({ initialCarId, initialVariantId }: { ini
             <button
               onClick={handleSubmit}
               disabled={submitting}
-              className="w-full rounded-full bg-accent-rust px-8 py-3.5 text-base font-semibold text-stage shadow-glow-sm transition hover:brightness-110 active:scale-[0.98] disabled:opacity-60"
+              className="w-full rounded-lg bg-accent-rust px-8 py-3.5 text-base font-semibold text-stage shadow-glow-sm transition hover:brightness-110 active:scale-[0.98] disabled:opacity-60"
             >
               {submitting ? "Checking your quote…" : "Agree and check my quote"}
             </button>
@@ -605,7 +605,7 @@ function ResultView({ result, onStartOver }: { result: Result; onStartOver: () =
               href={`https://wa.me/?text=${encodeURIComponent(message)}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 rounded-full bg-accent-rust px-4 py-2 text-xs font-semibold text-stage transition hover:brightness-110"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-accent-rust px-4 py-2 text-xs font-semibold text-stage transition hover:brightness-110"
             >
               <Send className="h-3.5 w-3.5" strokeWidth={2} /> Share on WhatsApp
             </a>

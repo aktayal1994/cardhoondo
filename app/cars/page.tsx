@@ -41,6 +41,7 @@ export default async function CarsIndexPage() {
     <main className="min-h-screen bg-paper">
       <GuideNav />
       <div className="mx-auto max-w-3xl px-6 py-12">
+        <div className="page-band">
         <Breadcrumbs trail={[{ name: "Car reviews" }]} />
         <p className="mt-6 font-display text-sm font-semibold uppercase tracking-wide text-accent-rust-soft">Car reviews</p>
         <h1 className="mt-3 font-display text-3xl font-bold text-balance text-ink sm:text-4xl">{TITLE}</h1>
@@ -48,6 +49,7 @@ export default async function CarsIndexPage() {
           Reviews of {cars.length} cars sold in India, each built from what real owners and expert reviewers say: strengths,
           common complaints, prices and engine options. No sponsored picks.
         </p>
+        </div>
 
         {comparisons.length > 0 && (
           <p className="mt-4 text-sm leading-relaxed text-ink-soft">
@@ -116,7 +118,7 @@ export default async function CarsIndexPage() {
           </p>
           <Link
             href="/questionnaire/core-requirements"
-            className="mt-5 inline-flex rounded-full bg-accent-rust px-6 py-3 text-sm font-semibold text-stage shadow-sm transition hover:brightness-105 active:scale-[0.98]"
+            className="mt-5 inline-flex rounded-lg bg-accent-rust px-6 py-3 text-sm font-semibold text-stage shadow-sm transition hover:brightness-105 active:scale-[0.98]"
           >
             Find my car
           </Link>

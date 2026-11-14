@@ -82,7 +82,7 @@ export default function SaveSearchPrompt({ claim }: { claim: PendingClaim | null
               type="button"
               onClick={save}
               disabled={phase === "saving"}
-              className="shrink-0 rounded-full bg-accent-rust px-6 py-3 text-[15px] font-semibold text-charcoal-950 shadow-glow-sm transition hover:brightness-110 active:scale-[0.97] disabled:opacity-60"
+              className="shrink-0 rounded-lg bg-accent-rust px-6 py-3 text-[15px] font-semibold text-charcoal-950 shadow-glow-sm transition hover:brightness-110 active:scale-[0.97] disabled:opacity-60"
             >
               {phase === "saving" ? "Saving…" : "Save this search"}
             </button>

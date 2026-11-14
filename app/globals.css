@@ -1,69 +1,71 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: var(--font-body), "Be Vietnam Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --font-display: var(--font-display-face), "Source Serif 4", Georgia, serif;
-  --font-mono: var(--font-data), "JetBrains Mono", ui-monospace, monospace;
+  /* "Denim" -- white panes alternating with denim-blue panes, one friendly
+     sans (Figtree) at modest weights, soft corners, one light shadow. Replaced
+     the dark "Nightdrive" theme in Nov 2026. Token NAMES are unchanged from
+     Nightdrive so every component picked the new look up without edits; that
+     is why a few names no longer describe their colour:
+       accent-rust      = the denim brand colour (was amber)
+       charcoal-950     = white, the text colour ON a denim button
+       charcoal-900..50 = light greys for skeletons, tracks and hover fills
+       stage*           = a denim pane and the text that sits on it */
+  --font-sans: var(--font-body), "Figtree", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-display: var(--font-body), "Figtree", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: var(--font-body), "Figtree", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 
-  /* "Nightdrive" -- a dark cinematic canvas, replacing the earlier warm-paper
-     "evidence dossier" theme. Near-black warm ground (not blue-black, so it
-     never reads as generic fintech-navy), one glowing amber accent doing the
-     job headlights do at night: the thing that cuts through the dark and
-     tells you where to look. Motion-only redesign (no WebGL) inspired by
-     razorpay.com/foundation-model's scroll-driven cinematic pacing.
+  --color-denim: #27548a;
+  --color-denim-deep: #1e4470;
+  --color-wash: #edf2f8;
 
-     The charcoal scale keeps its light-theme direction (950/900 = darkest,
-     50 = lightest) -- it's a surface-elevation ramp now, not a text-color
-     ramp. Any UI that needs to READ as text uses ink/ink-soft/ink-faint or
-     the accent tones instead, never charcoal-6/7/800 directly, since those
-     were calibrated as dark *text on light paper* and are illegible here. */
-  --color-charcoal-950: #050403;
-  --color-charcoal-900: #0f0d09;
-  --color-charcoal-800: #1b1812;
-  --color-charcoal-700: #2a251c;
-  --color-charcoal-600: #453e2e;
-  --color-charcoal-500: #6b6250;
-  --color-charcoal-100: #d9d2c0;
-  --color-charcoal-50: #efe9db;
+  --color-charcoal-950: #ffffff;
+  --color-charcoal-900: #f7f7f7;
+  --color-charcoal-800: #f0f0f0;
+  --color-charcoal-700: #ebebeb;
+  --color-charcoal-600: #dddddd;
+  --color-charcoal-500: #b0b0b0;
+  --color-charcoal-100: #f2f2f2;
+  --color-charcoal-50: #f7f7f7;
 
-  --color-paper: #0a0908;
-  --color-paper-raised: #17140f;
-  --color-ink: #f4efe3;
-  --color-ink-soft: #ada496;
-  --color-ink-faint: #857f6d;
-  --color-border: #2b271e;
+  --color-paper: #ffffff;
+  --color-paper-raised: #ffffff;
+  --color-ink: #222222;
+  --color-ink-soft: #5c5c5c;
+  --color-ink-faint: #6a6a6a;
+  --color-border: #dddddd;
 
-  --color-positive: #7cc99a;
-  --color-positive-bg: rgba(124, 201, 154, 0.12);
-  --color-negative: #e2837c;
-  --color-negative-bg: rgba(226, 131, 124, 0.12);
-  --color-neutral-verdict: #a89f8c;
-  --color-neutral-verdict-bg: rgba(168, 159, 140, 0.14);
+  --color-positive: #1f7a4d;
+  --color-positive-bg: #e9f5ee;
+  --color-negative: #b3261e;
+  --color-negative-bg: #fbecea;
+  --color-neutral-verdict: #6a6a6a;
+  --color-neutral-verdict-bg: #f2f2f2;
 
-  /* Accent-rust -- one glowing amber, the brand color and the only "loud"
-     hue on the page. -soft is a brighter tint, safe as small-text-on-dark. */
-  --color-accent-rust: #e2984a;
-  --color-accent-rust-soft: #f0be80;
+  --color-accent-rust: #27548a;
+  --color-accent-rust-soft: #27548a;
 
-  /* Kept for backward compatibility with components written for the old
-     "one dark section on an otherwise light page" model (StepTransition,
-     ThinkingBridge, GuideLayout's footer/CTA) -- the whole app is the stage
-     now, so these just mirror the main tokens. */
-  --color-stage: var(--color-paper);
-  --color-stage-raised: var(--color-paper-raised);
-  --color-stage-ink: var(--color-ink);
-  --color-stage-ink-soft: var(--color-ink-soft);
-  --color-stage-border: var(--color-border);
+  --color-stage: #27548a;
+  --color-stage-raised: #1e4470;
+  --color-stage-ink: #ffffff;
+  --color-stage-ink-soft: #d6e2ef;
+  --color-stage-border: rgba(255, 255, 255, 0.24);
 }
 
 html {
-  color-scheme: dark;
+  color-scheme: light;
+}
+
+:root {
+  --rd-denim: var(--color-denim);
+  --rd-denim-deep: var(--color-denim-deep);
+  --rd-wash: var(--color-wash);
 }
 
 body {
   background: var(--color-paper);
   color: var(--color-ink);
   font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
 }
 
 * {
@@ -131,9 +133,7 @@ body {
    which previously wiped out a solid bg utility on any section combining
    the two classes (a real regression once, caught from a screenshot). */
 .stage-glow {
-  background-image:
-    radial-gradient(38% 32% at 92% 0%, rgba(226, 152, 74, 0.14), transparent 65%),
-    radial-gradient(45% 40% at 8% 100%, rgba(69, 62, 46, 0.35), transparent 65%);
+  background-image: none;
 }
 
 /* Ambient drifting glow -- a slow, cheap (no WebGL) stand-in for a "camera
@@ -176,18 +176,9 @@ body {
   opacity: 0.55;
 }
 
-.ambient-glow::before {
-  top: -10%;
-  right: -10%;
-  background: radial-gradient(circle, rgba(226, 152, 74, 0.22), transparent 70%);
-  animation: drift-a 22s ease-in-out infinite;
-}
-
+.ambient-glow::before,
 .ambient-glow::after {
-  bottom: -15%;
-  left: -10%;
-  background: radial-gradient(circle, rgba(124, 201, 154, 0.08), transparent 70%);
-  animation: drift-b 26s ease-in-out infinite;
+  display: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -202,26 +193,16 @@ body {
    layers at different densities/opacities read as depth without any extra
    markup or a canvas element. */
 .starfield {
-  background-image:
-    radial-gradient(1.5px 1.5px at 20% 30%, rgba(244, 239, 227, 0.5), transparent 100%),
-    radial-gradient(1px 1px at 65% 15%, rgba(244, 239, 227, 0.35), transparent 100%),
-    radial-gradient(1.5px 1.5px at 80% 60%, rgba(244, 239, 227, 0.4), transparent 100%),
-    radial-gradient(1px 1px at 40% 80%, rgba(244, 239, 227, 0.3), transparent 100%),
-    radial-gradient(1px 1px at 10% 65%, rgba(244, 239, 227, 0.35), transparent 100%),
-    radial-gradient(1.5px 1.5px at 92% 35%, rgba(244, 239, 227, 0.3), transparent 100%),
-    radial-gradient(1px 1px at 55% 50%, rgba(244, 239, 227, 0.25), transparent 100%),
-    radial-gradient(1px 1px at 30% 10%, rgba(244, 239, 227, 0.3), transparent 100%);
-  background-size: 100% 100%;
-  background-repeat: no-repeat;
+  background-image: none;
 }
 
 .dot-grid {
-  background-image: radial-gradient(circle, rgba(244, 239, 227, 0.1) 1px, transparent 1px);
+  background-image: radial-gradient(circle, rgba(34, 34, 34, 0.08) 1px, transparent 1px);
   background-size: 22px 22px;
 }
 
 .dot-grid-dark {
-  background-image: radial-gradient(circle, rgba(244, 239, 227, 0.14) 1px, transparent 1px);
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.16) 1px, transparent 1px);
   background-size: 22px 22px;
 }
 
@@ -230,15 +211,16 @@ body {
    against a dark one. A glow reads as "this is lit up / important" instead
    of "this is pinned down," the right metaphor shift for a night canvas. */
 .shadow-glow {
-  box-shadow: 0 0 0 1px rgba(226, 152, 74, 0.18), 0 8px 30px -8px rgba(226, 152, 74, 0.35);
+  box-shadow: rgba(0, 0, 0, 0.02) 0 0 0 1px, rgba(0, 0, 0, 0.04) 0 2px 6px 0, rgba(0, 0, 0, 0.1) 0 4px 8px 0;
 }
 
+/* Used on buttons and as the focus look of text fields. */
 .shadow-glow-sm {
-  box-shadow: 0 0 0 1px rgba(226, 152, 74, 0.22), 0 4px 16px -6px rgba(226, 152, 74, 0.4);
+  box-shadow: 0 0 0 1px rgba(39, 84, 138, 0.2), 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
 .shadow-card {
-  box-shadow: 0 1px 0 0 rgba(244, 239, 227, 0.04) inset, 0 12px 32px -16px rgba(0, 0, 0, 0.6);
+  box-shadow: rgba(0, 0, 0, 0.02) 0 0 0 1px, rgba(0, 0, 0, 0.04) 0 2px 6px 0, rgba(0, 0, 0, 0.1) 0 4px 8px 0;
 }
 
 @keyframes stamp-in {
@@ -361,7 +343,6 @@ body {
   padding-left: 1rem;
   margin: 1.5rem 0;
   color: var(--color-ink);
-  font-style: italic;
 }
 
 /* Legal pages (/privacy, /terms) -- used together with .prose-guide, which
@@ -432,7 +413,7 @@ html[data-auth="1"] .welcome-slot {
 /* ---------------------------------------------------------------------- */
 
 .tabbar {
-  background: linear-gradient(to top, rgba(10, 9, 8, 0.98), rgba(10, 9, 8, 0.9));
+  background: rgba(255, 255, 255, 0.97);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   border-top: 1px solid var(--color-border);
@@ -446,13 +427,7 @@ html[data-auth="1"] .welcome-slot {
 /* The raised centre button: a ring of the page colour cuts it out of the
    bar, and a slow breathing glow says "start here". */
 .tabbar-fab {
-  box-shadow: 0 0 0 5px var(--color-paper), 0 8px 24px -4px rgba(226, 152, 74, 0.6);
-  animation: fab-breathe 2.8s ease-in-out infinite;
-}
-
-@keyframes fab-breathe {
-  0%, 100% { box-shadow: 0 0 0 5px var(--color-paper), 0 8px 24px -4px rgba(226, 152, 74, 0.55); }
-  50% { box-shadow: 0 0 0 5px var(--color-paper), 0 8px 34px 0 rgba(226, 152, 74, 0.85); }
+  box-shadow: 0 0 0 5px var(--color-paper), rgba(0, 0, 0, 0.1) 0 4px 8px 0;
 }
 
 /* Floating cookie panel sits above the tab bar on phones. */
@@ -464,8 +439,7 @@ html[data-auth="1"] .welcome-slot {
 
 /* Home "Find my car" card: night-drive photo on top, solid warm dark below. */
 .find-card {
-  background: #120d07;
-  box-shadow: 0 0 0 1px rgba(240, 190, 128, 0.22), 0 20px 40px -18px rgba(226, 152, 74, 0.55);
+  background: var(--color-denim);
 }
 
 /* Scene box: fills its parent; the 3:2 frame inside covers it (see NightDriveScene). */
@@ -550,4 +524,212 @@ html[data-auth="1"] .welcome-slot {
   .streak {
     animation: none !important;
   }
+}
+
+/* ---------------------------------------------------------------------- */
+/* Denim design: panes, cards, buttons and the looping illustrations       */
+/* ---------------------------------------------------------------------- */
+
+/* A denim pane: text flips to white, hairlines to translucent white. */
+.rd-denim,
+.bg-stage,
+.page-band {
+  background: var(--rd-denim);
+  --color-ink: #ffffff;
+  --color-ink-soft: #d6e2ef;
+  --color-ink-faint: #c3d3e5;
+  --color-border: rgba(255, 255, 255, 0.24);
+  /* On denim the accent is white, and a filled button is white with denim text. */
+  --color-accent-rust: #ffffff;
+  --color-accent-rust-soft: #ffffff;
+  --color-charcoal-950: var(--rd-denim);
+  --color-charcoal-800: rgba(255, 255, 255, 0.14);
+  color: var(--color-ink);
+}
+
+/* Filled buttons: white text on denim (and the reverse on a denim pane). */
+.bg-accent-rust.text-stage {
+  color: #ffffff;
+}
+.rd-denim .bg-accent-rust.text-stage,
+.bg-stage .bg-accent-rust.text-stage {
+  color: var(--rd-denim);
+}
+
+/* A white card sitting on any pane: back to dark text. */
+.rd-card {
+  background: #ffffff;
+  --color-ink: #222222;
+  --color-ink-soft: #5c5c5c;
+  --color-ink-faint: #6a6a6a;
+  --color-border: #dddddd;
+  --color-accent-rust: var(--rd-denim);
+  --color-accent-rust-soft: var(--rd-denim);
+  --color-charcoal-950: #ffffff;
+  --color-charcoal-800: #f0f0f0;
+  color: var(--color-ink);
+  border-radius: 14px;
+}
+
+.rd-float {
+  box-shadow: rgba(0, 0, 0, 0.02) 0 0 0 1px, rgba(0, 0, 0, 0.04) 0 2px 6px 0, rgba(0, 0, 0, 0.1) 0 4px 8px 0;
+}
+
+.rd-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 48px;
+  padding: 0 24px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.25;
+  white-space: nowrap;
+  background: var(--rd-denim);
+  color: #ffffff;
+  transition: background-color 0.15s ease;
+}
+.rd-btn:hover {
+  background: var(--rd-denim-deep);
+}
+.rd-btn-sm {
+  height: 40px;
+  padding: 0 16px;
+  font-size: 14px;
+}
+.rd-btn-white {
+  background: #ffffff;
+  color: var(--rd-denim);
+}
+.rd-btn-white:hover {
+  background: var(--rd-wash);
+}
+
+.rd-h2 {
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+@media (min-width: 640px) {
+  .rd-h2 {
+    font-size: 30px;
+  }
+}
+
+.rd-scroll {
+  scrollbar-width: none;
+}
+.rd-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* ------------------------------------------------------------------ */
+/* Looping vector animations (components/redesign/Animations.tsx).     */
+/* They run only while on screen (`.is-in`).                           */
+/* ------------------------------------------------------------------ */
+
+.rd-anim * {
+  animation-play-state: paused;
+}
+.rd-anim.is-in * {
+  animation-play-state: running;
+}
+
+/* Checklist: three ticks draw themselves one after another. */
+.rd-tick {
+  stroke-dasharray: 15;
+  stroke-dashoffset: 15;
+  animation: rd-tick 4.2s ease-in-out infinite;
+}
+@keyframes rd-tick {
+  0% { stroke-dashoffset: 15; }
+  12%, 82% { stroke-dashoffset: 0; }
+  94%, 100% { stroke-dashoffset: 15; }
+}
+
+/* Scale: the beam tips each way, then settles level. */
+.rd-beam {
+  transform-origin: 24px 14px;
+  animation: rd-beam 4.2s ease-in-out infinite;
+}
+@keyframes rd-beam {
+  0%, 100% { transform: rotate(0deg); }
+  15% { transform: rotate(-10deg); }
+  35% { transform: rotate(8deg); }
+  52% { transform: rotate(-4deg); }
+  66%, 99% { transform: rotate(0deg); }
+}
+
+/* Car: the road runs underneath while the body bobs. */
+.rd-road {
+  animation: rd-road 0.7s linear infinite;
+}
+@keyframes rd-road {
+  to { stroke-dashoffset: 12; }
+}
+.rd-bob {
+  animation: rd-bob 0.7s ease-in-out infinite alternate;
+}
+@keyframes rd-bob {
+  to { transform: translateY(-1.2px); }
+}
+
+/* Phone: a short ring, then a rest. */
+.rd-ring {
+  transform-origin: 24px 24px;
+  animation: rd-ring 3.4s ease-in-out infinite;
+}
+@keyframes rd-ring {
+  0%, 30%, 100% { transform: rotate(0deg); }
+  5%, 15%, 25% { transform: rotate(-9deg); }
+  10%, 20% { transform: rotate(9deg); }
+}
+.rd-wave {
+  opacity: 0;
+  animation: rd-wave 3.4s ease-out infinite;
+}
+.rd-wave-2 {
+  animation-delay: 0.18s;
+}
+@keyframes rd-wave {
+  0%, 32%, 100% { opacity: 0; }
+  8%, 22% { opacity: 0.8; }
+}
+
+/* Hero verdict marks pop in once on load (no script needed). */
+.rd-pop {
+  animation: rd-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+@keyframes rd-pop {
+  from { transform: scale(0); }
+  to { transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rd-anim *,
+  .rd-pop {
+    animation: none !important;
+  }
+  .rd-tick {
+    stroke-dashoffset: 0;
+  }
+  .rd-wave {
+    opacity: 0.8;
+  }
+}
+
+/* The denim title band at the top of inner pages. It sits inside the page's
+   narrow text column but paints edge to edge (the shadow is the colour, the
+   clip stops it spilling up or down), and pulls itself up over the column's
+   top padding so it meets the header. */
+.page-band {
+  margin-top: calc(-1 * var(--band-pull, 3rem));
+  margin-bottom: 2.5rem;
+  padding: 2.25rem 0 2.5rem;
+  box-shadow: 0 0 0 100vmax var(--rd-denim);
+  clip-path: inset(0 -100vmax);
 }

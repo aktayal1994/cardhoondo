@@ -282,7 +282,7 @@ export default function StepQuestionForm({
               <button
                 type="button"
                 onClick={continueManually}
-                className="mt-4 rounded-full bg-accent-rust px-6 py-2.5 text-sm font-semibold text-charcoal-950 shadow-glow-sm transition hover:brightness-110 active:scale-95"
+                className="mt-4 rounded-lg bg-accent-rust px-6 py-2.5 text-sm font-semibold text-charcoal-950 shadow-glow-sm transition hover:brightness-110 active:scale-95"
               >
                 Continue
               </button>
@@ -299,7 +299,7 @@ export default function StepQuestionForm({
 
       {profileOpen && (
         <div className="fixed inset-0 z-20 lg:hidden">
-          <div className="absolute inset-0 bg-charcoal-950/70" onClick={() => setProfileOpen(false)} />
+          <div className="absolute inset-0 bg-black/50" onClick={() => setProfileOpen(false)} />
           <div className="absolute inset-y-0 right-0 w-full max-w-sm overflow-y-auto border-l border-border bg-paper-raised p-5 shadow-card">
             <div className="mb-3 flex items-center justify-between">
               <p className="font-medium text-ink">What we know about you</p>

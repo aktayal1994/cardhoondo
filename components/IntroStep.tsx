@@ -191,7 +191,7 @@ export default function IntroStep({ initialValues, savedContact, onContinue }: I
         <button
           type="button"
           onClick={handleContinue}
-          className="rounded-full bg-accent-rust px-8 py-3.5 text-base font-semibold text-stage shadow-glow-sm transition hover:brightness-110 active:scale-[0.98]"
+          className="rounded-lg bg-accent-rust px-8 py-3.5 text-base font-semibold text-stage shadow-glow-sm transition hover:brightness-110 active:scale-[0.98]"
         >
           Agree and continue
         </button>

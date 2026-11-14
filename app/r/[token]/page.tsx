@@ -66,7 +66,7 @@ export default async function SharedShortlistPage({ params }: Params) {
       <div className="relative overflow-hidden">
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-x-0 top-0 h-80 bg-[radial-gradient(ellipse_60%_100%_at_80%_0%,rgba(226,152,74,0.16),transparent_70%)]"
+          className="hidden"
         />
         <div className="relative mx-auto max-w-4xl px-4 pb-16 pt-10 sm:px-6 sm:pt-14">
           {/* Hero */}
@@ -89,7 +89,7 @@ export default async function SharedShortlistPage({ params }: Params) {
           </p>
           <Link
             href={FIND_MY_CAR}
-            className="mt-5 inline-flex items-center gap-2 rounded-full bg-accent-rust px-6 py-3 text-sm font-semibold text-charcoal-950 shadow-glow-sm transition hover:brightness-110"
+            className="mt-5 inline-flex items-center gap-2 rounded-lg bg-accent-rust px-6 py-3 text-sm font-semibold text-charcoal-950 shadow-glow-sm transition hover:brightness-110"
           >
             Find the car that fits you <ArrowRight className="h-4 w-4" />
           </Link>
@@ -114,7 +114,7 @@ export default async function SharedShortlistPage({ params }: Params) {
           </div>
 
           {/* CTA */}
-          <section className="mt-12 rounded-3xl bg-gradient-to-br from-accent-rust to-accent-rust-soft p-6 text-charcoal-950 sm:p-8">
+          <section className="mt-12 rounded-[14px] bg-stage p-6 text-white sm:p-8">
             <h2 className="font-display text-2xl font-bold sm:text-3xl">Your needs are different. So is your car.</h2>
             <p className="mt-2 max-w-xl text-sm font-medium sm:text-base">
               Answer 11 quick questions about how you drive and who rides with you. Get 2 or 3 cars matched to you, each backed by real
@@ -123,7 +123,7 @@ export default async function SharedShortlistPage({ params }: Params) {
             <div className="mt-5 flex flex-wrap items-center gap-3">
               <Link
                 href={FIND_MY_CAR}
-                className="inline-flex items-center gap-2 rounded-full bg-charcoal-950 px-6 py-3 text-sm font-semibold text-ink transition hover:bg-charcoal-900"
+                className="inline-flex items-center gap-2 rounded-lg bg-white px-6 py-3 text-sm font-semibold text-denim transition hover:bg-wash"
               >
                 Find my car <ArrowRight className="h-4 w-4" />
               </Link>
@@ -174,7 +174,7 @@ function CoverageRing({ covered }: { covered: number }) {
         cx="33"
         cy="33"
         r={r}
-        stroke="#e2984a"
+        stroke="#27548a"
         strokeWidth="6"
         fill="none"
         strokeLinecap="round"
@@ -198,7 +198,7 @@ function PodiumCard({ car, reviewHref }: { car: SharedCar; reviewHref: string | 
   return (
     <article
       className={`rounded-3xl border bg-paper-raised p-5 text-center ${
-        first ? "border-accent-rust shadow-[0_0_0_1px_rgba(226,152,74,0.35),0_12px_40px_-12px_rgba(226,152,74,0.45)] sm:pt-7" : "border-border"
+        first ? "border-accent-rust shadow-glow sm:pt-7" : "border-border"
       }`}
     >
       <div className="flex items-center justify-between">
@@ -209,7 +209,7 @@ function PodiumCard({ car, reviewHref }: { car: SharedCar; reviewHref: string | 
         {logo ? (
           <Image src={logo} alt="" width={40} height={40} className="h-full w-full object-contain" />
         ) : (
-          <Car className="h-6 w-6 text-charcoal-900" />
+          <Car className="h-6 w-6 text-ink-soft" />
         )}
       </div>
       <h3 className="mt-3 font-display text-2xl font-bold text-ink">{car.car_model}</h3>
@@ -298,11 +298,11 @@ function BudgetStrip({ cars, budget }: { cars: SharedCar[]; budget: { min: numbe
 }
 
 const LEVELS = [
-  { min: 0.6, word: "Loved", cls: "bg-[#2e7a4e] text-[#eafff1]" },
-  { min: 0.2, word: "Liked", cls: "bg-[#24503a] text-[#bdf0cf]" },
-  { min: -0.2, word: "Mixed", cls: "bg-[#3a3630] text-[#e2dcd2]" },
-  { min: -0.6, word: "Some complaints", cls: "bg-[#5a2c28] text-[#ffc9c3]" },
-  { min: -Infinity, word: "Disliked", cls: "bg-[#93392f] text-[#fff0ee]" },
+  { min: 0.6, word: "Loved", cls: "bg-[#1f7a4d] text-white" },
+  { min: 0.2, word: "Liked", cls: "bg-[#d5eedd] text-[#14532d]" },
+  { min: -0.2, word: "Mixed", cls: "bg-[#eeeeee] text-[#444444]" },
+  { min: -0.6, word: "Some complaints", cls: "bg-[#fbdcd8] text-[#8a1c13]" },
+  { min: -Infinity, word: "Disliked", cls: "bg-[#b3261e] text-white" },
 ];
 function level(score: number) {
   if (score >= 0.6) return LEVELS[0];
