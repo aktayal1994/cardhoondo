@@ -1,5 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Car pages share one ranking calculation during a build; the default 60 seconds was once too short for it.
+  staticPageGenerationTimeout: 180,
   async redirects() {
     return [
       // One canonical address. Sign-in stores a short-lived cookie on the address it starts on and Google

@@ -912,6 +912,16 @@ function Footer() {
       ],
     },
     {
+      head: "Popular shortlists",
+      links: [
+        { label: "Best family car under ₹10 lakh", href: "/guides/best-car-under-10-lakh-family-of-4" },
+        { label: "Best family car under ₹15 lakh", href: "/guides/best-car-under-15-lakh-family" },
+        { label: "Best family car under ₹20 lakh", href: "/guides/best-car-under-20-lakh-family" },
+        { label: "Best 7 seater under ₹20 lakh", href: "/guides/best-7-seater-car-under-20-lakh" },
+        { label: "Best automatic under ₹10 lakh", href: "/guides/best-automatic-car-under-10-lakh" },
+      ],
+    },
+    {
       head: "CarDhoondo",
       links: [
         { label: "About", href: "#about" },
@@ -930,7 +940,7 @@ function Footer() {
   return (
     <footer className="border-t border-border bg-[#f7f7f7] py-10 sm:py-12">
       <div className={WRAP}>
-        <div className="grid gap-8 sm:grid-cols-3">
+        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
           {columns.map((col) => (
             <div key={col.head}>
               <p className="font-semibold">{col.head}</p>

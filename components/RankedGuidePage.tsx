@@ -1,71 +1,18 @@
 import Link from "next/link";
-import { unstable_cache } from "next/cache";
 import GuideLayout from "./GuideLayout";
-import { runRecommendation } from "../lib/scoring/runRecommendation";
-import type { RecommendCandidate } from "../lib/scoring/recommend";
-import type { QuestionnaireAnswers } from "../lib/scoring/questionnaireWeights";
-import { fetchCarPageData, type CarFacetSummary, type CarPageData } from "../lib/data/fetchCarPage";
-import { SITE_URL, carDisplayName, carIdToSlug, isPublishable } from "../lib/cars/featured";
+import type { CarFacetSummary, CarPageData } from "../lib/data/fetchCarPage";
+import { SITE_URL, carIdToSlug } from "../lib/cars/featured";
 import { verdictPhrase, verdictTone } from "../lib/verdict";
 import { formatOnRoad } from "../lib/format";
-import {
-  BASE_ANSWERS,
-  FAMILY_CHECKS,
-  FAMILY_FAQS,
-  RANKED_GUIDES,
-  type RankedGuide,
-  type RankedGuideCheck,
-} from "../lib/guides/rankedGuides";
+import { FAMILY_CHECKS, FAMILY_FAQS, RANKED_GUIDES, type RankedGuide, type RankedGuideCheck } from "../lib/guides/rankedGuides";
+import { loadGuidePicks, type CarPick } from "../lib/guides/guidePicks";
 
 /**
  * Renders one entry of lib/guides/rankedGuides.ts: a short answer first (the
- * part AI chats quote), then ranked cars with plain verdicts, then the
- * questions people ask next. The page sets metadata and `revalidate`.
+ * part AI chats quote), then ranked cars with plain verdicts, the next few
+ * that came close, then the questions people ask next. The page sets metadata
+ * and `revalidate`; the picks come from lib/guides/guidePicks.ts.
  */
-const CARS_SHOWN = 5;
-
-type RankedCar = Pick<RecommendCandidate, "car_id" | "variant_id" | "price_on_road" | "price_city" | "price_basis">;
-
-interface CarPick {
-  candidate: RankedCar;
-  page: CarPageData;
-  name: string;
-}
-
-/** The ranking alone, trimmed to what the page shows and cached for a day.
- * Uncached, every Supabase response behind the ranking (thousands of rows)
- * landed in the page's fetch cache and ran the dev server out of memory. */
-function fetchRanking(guide: RankedGuide): Promise<RankedCar[]> {
-  const answers = { ...BASE_ANSWERS, ...guide.answers } as QuestionnaireAnswers;
-  return unstable_cache(
-    async (): Promise<RankedCar[]> => {
-      const result = await runRecommendation(answers, 15);
-      return result.all_ranked_cars.slice(0, 15).map((c) => ({
-        car_id: c.car_id,
-        variant_id: c.variant_id,
-        price_on_road: c.price_on_road,
-        price_city: c.price_city,
-        price_basis: c.price_basis,
-      }));
-    },
-    ["ranked-guide-v2", guide.slug, JSON.stringify(answers)],
-    { revalidate: 86400, tags: ["car-pages"] },
-  )();
-}
-
-async function loadPicks(guide: RankedGuide): Promise<CarPick[]> {
-  const ranked = await fetchRanking(guide);
-  const picks: CarPick[] = [];
-  for (const candidate of ranked) {
-    if (picks.length >= CARS_SHOWN) break;
-    const page = await fetchCarPageData(candidate.car_id);
-    // Only cars with a public review page, so every name links somewhere real.
-    if (!page || !page.onSale || !isPublishable(page)) continue;
-    picks.push({ candidate, page, name: carDisplayName(page.brand, page.model) });
-  }
-  return picks;
-}
-
 function facetOf(page: CarPageData, facet: string): CarFacetSummary | undefined {
   return page.facets.find((f) => f.facet === facet);
 }
@@ -89,7 +36,7 @@ function listNames(names: string[]): string {
 export default async function RankedGuidePage({ guide }: { guide: RankedGuide }) {
   const { slug, title, published } = guide;
   const checks = guide.checks ?? FAMILY_CHECKS;
-  const picks = await loadPicks(guide);
+  const { picks, close } = await loadGuidePicks(guide);
   const top3 = picks.slice(0, 3).map((p) => p.name);
   const totalSources = picks.reduce((n, p) => n + p.page.sourceCount, 0);
   const updated = picks
@@ -183,6 +130,23 @@ export default async function RankedGuidePage({ guide }: { guide: RankedGuide })
         </ol>
       </div>
 
+      {close.length > 0 && (
+        <>
+          <h2>
+            {close.length} more that came close
+          </h2>
+          <p>
+            These scored just below the top {picks.length} for {guide.audience}. Each one is still worth a look if it
+            suits you better on the point named.
+          </p>
+          <ul>
+            {close.map((p) => (
+              <CloseCar key={p.page.carId} pick={p} checks={checks} />
+            ))}
+          </ul>
+        </>
+      )}
+
       <h2>How we picked these</h2>
       <p>
         We ran our own recommender with the answers {guide.audience} typically gives: {guide.profile}. It is the same
@@ -230,6 +194,29 @@ function Verdict({ score }: { score: number }) {
         ? "bg-negative-bg text-negative"
         : "bg-neutral-verdict-bg text-neutral-verdict";
   return <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${cls}`}>{verdictPhrase(score)}</span>;
+}
+
+/** One line for a car just outside the main list: price, then its best and worst point among this guide's checks. */
+function CloseCar({ pick, checks }: { pick: CarPick; checks: RankedGuideCheck[] }) {
+  const { candidate, page, name } = pick;
+  const rated = checks
+    .map((c) => ({ label: c.label.toLowerCase(), f: facetOf(page, c.facet) }))
+    .filter((x): x is { label: string; f: CarFacetSummary } => !!x.f && x.f.claimCount >= 3);
+  const best = rated.filter((x) => x.f.score >= 0.2).sort((a, b) => b.f.score - a.f.score)[0];
+  const worst = rated.filter((x) => x.f.score <= -0.2).sort((a, b) => a.f.score - b.f.score)[0];
+  return (
+    <li>
+      <Link href={`/cars/${carIdToSlug(page.carId)}`} className="font-semibold text-accent-rust-soft underline underline-offset-2">
+        {name}
+      </Link>
+      : {candidate.variant_id},{" "}
+      {formatOnRoad(candidate.price_on_road, candidate.price_city ?? null, candidate.price_basis ?? null)}.
+      {best && ` Reviewers are ${verdictPhrase(best.f.score).toLowerCase()} about its ${best.label}`}
+      {best && worst && `, and ${verdictPhrase(worst.f.score).toLowerCase()} about its ${worst.label}`}
+      {!best && worst && ` Reviewers are ${verdictPhrase(worst.f.score).toLowerCase()} about its ${worst.label}`}
+      {(best || worst) && "."}
+    </li>
+  );
 }
 
 function CarCard({ pick, rank, checks }: { pick: CarPick; rank: number; checks: RankedGuideCheck[] }) {

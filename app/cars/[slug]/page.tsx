@@ -6,6 +6,7 @@ import Breadcrumbs from "../../../components/Breadcrumbs";
 import { GuideFooter, GuideNav } from "../../../components/GuideLayout";
 import { fetchCarPageData, fetchFeaturedCarSummaries } from "../../../lib/data/fetchCarPage";
 import { fetchPublishedComparisons } from "../../../lib/data/fetchComparisons";
+import { guideRanksForCar } from "../../../lib/guides/guidePicks";
 import type { CarFacetSummary, CarPageData, FeaturedCarSummary } from "../../../lib/data/fetchCarPage";
 import { SITE_URL, carIdToSlug, slugToCarId } from "../../../lib/cars/featured";
 import { capitalize, formatLakh, formatLongDate, fuelLabel, joinList, priceRangeText } from "../../../lib/cars/format";
@@ -56,10 +57,11 @@ export default async function CarPage({ params }: Params) {
   const { slug } = await params;
   const carId = await publishedCarId(slug);
   if (!carId) notFound();
-  const [data, featured, allComparisons] = await Promise.all([
+  const [data, featured, allComparisons, guideRanks] = await Promise.all([
     fetchCarPageData(carId),
     fetchFeaturedCarSummaries(),
     fetchPublishedComparisons(),
+    guideRanksForCar(carId),
   ]);
   if (!data) notFound();
 
@@ -263,6 +265,29 @@ export default async function CarPage({ params }: Params) {
             </div>
           ))}
         </Section>
+
+        {guideRanks.length > 0 && (
+          <Section title={`Where the ${data.model} ranks in our shortlists`}>
+            <p>
+              These lists are ranked on the same owner and expert reviews, for one kind of buyer each. Nobody pays for a place.
+            </p>
+            <ul className="grid gap-3 sm:grid-cols-2">
+              {guideRanks.map((g) => (
+                <li key={g.slug}>
+                  <Link
+                    href={`/guides/${g.slug}`}
+                    className="block rounded-2xl border border-border bg-paper-raised px-4 py-3 transition hover:border-accent-rust/50"
+                  >
+                    <span className="font-display text-base font-bold text-ink">{g.title}</span>
+                    <span className="mt-0.5 block text-xs text-ink-faint">
+                      The {data.model} is number {g.rank} on this list
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </Section>
+        )}
 
         {comparisons.length > 0 && (
           <Section title={`Compare the ${data.model}`}>

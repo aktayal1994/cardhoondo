@@ -61,3 +61,16 @@ export async function runRecommendation(
   const catalogVariants = priceForCity(recommendationData.catalogVariants, cityPrices);
   return recommend({ answers, weights, topN, ...recommendationData, catalogVariants });
 }
+
+/**
+ * The same scoring for several sets of answers at once (New Delhi prices),
+ * loading the review data a single time. For pages that need many rankings
+ * together, where one data load per ranking is too slow.
+ */
+export async function runRecommendations(answersList: QuestionnaireAnswers[], topN = 3): Promise<RecommendOutput[]> {
+  const recommendationData = await fetchRecommendationData();
+  const catalogVariants = priceForCity(recommendationData.catalogVariants, null);
+  return answersList.map((answers) =>
+    recommend({ answers, weights: deriveWeightVector(answers), topN, ...recommendationData, catalogVariants }),
+  );
+}

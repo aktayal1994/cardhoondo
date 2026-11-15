@@ -511,3 +511,14 @@ GA for 3 Oct (first full day with GA on every visit): ~102 visitors, 90% Instagr
 - Checked against live data for every budget x parking answer: 20-25L "Very tight" went from Syros EV first to Creta Electric, Tekton, Duster; 5-10L and 10-15L lists unchanged apart from the Exter slipping one place at 10-15L.
 - Verified live: home 200; `/guides/best-car-under-20-lakh-family` (runs the real recommender) now lists Creta Electric, Duster, Curvv EV, Tekton, Basalt.
 - Deployed from this checkout, not from `Claude/web`, because another session had unfinished guide/home edits there.
+
+## 2026-11-15: more links and more cars on the "best car for X" guides
+
+- Why: `/guides/best-car-under-15-lakh-family` reached about 10th on Google six days after launch. Almost nothing on the site linked to the guides (only `/guides` and the guides themselves), each listed only 5 cars, and the search title had no year.
+- New `lib/guides/guidePicks.ts` holds the guide rankings (moved out of `RankedGuidePage.tsx`) so guide pages and car pages share them. `guideRanksForCar()` gives the guides a car is in the top 5 of; it loads the review data once for all guides (`runRecommendations()` in `lib/scoring/runRecommendation.ts`) and never throws.
+- `app/cars/[slug]/page.tsx`: new section "Where the <model> ranks in our shortlists" linking to each guide the car is on, with its rank.
+- `components/RankedGuidePage.tsx`: new "5 more that came close" list under the top 5 (ranks 6 to 10, one line each with price, best and worst point, link to the review).
+- `app/guides/[slug]/page.tsx`: search title now ends with the current year, e.g. "Best Car Under ₹15 Lakh for a Family (2026) | CarDhoondo".
+- `components/redesign/RedesignHome.tsx`: footer has a "Popular shortlists" column linking to five guides.
+- `next.config.mjs`: `staticPageGenerationTimeout: 180`. The first build failed because each car page ran eight separate rankings and passed the 60 second limit; fixed by the single data load above.
+- Verified live: the 15 lakh guide shows the new title and five more cars; `/cars/maruti-brezza` links to three guides; the home page links to five guides.

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { pageMetadata } from "../../../lib/seo";
+import { pageMetadata, withBrand } from "../../../lib/seo";
 import RankedGuidePage from "../../../components/RankedGuidePage";
 import { RANKED_GUIDES, findRankedGuide } from "../../../lib/guides/rankedGuides";
 
@@ -18,8 +18,10 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const guide = findRankedGuide((await params).slug);
   if (!guide) return {};
+  // The year tells a searcher the list is current; it rolls over by itself (the page re-renders daily).
+  const year = new Date().getFullYear();
   return pageMetadata({
-    title: guide.seoTitle,
+    title: withBrand(`${guide.seoTitle.replace(" | CarDhoondo", "")} (${year})`),
     description: guide.description,
     path: `/guides/${guide.slug}`,
     type: "article",
