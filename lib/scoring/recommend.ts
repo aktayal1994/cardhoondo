@@ -2,7 +2,7 @@
  * TypeScript port of scripts/recommend.py. Structural catalog filters
  * (q_budget/q_fuel/q_seating/q_transmission/q_brand_avoid) narrow the field,
  * scoreCar() runs across every surviving variant, a soft parking-tightness
- * penalty and fuel-recommendation nudge get applied, results are deduped to
+ * penalty, a budget-based size grading and a fuel-recommendation nudge get applied, results are deduped to
  * the best-scoring variant per car (never two variants of the same car on
  * the shortlist), survivors are ranked.
  *
@@ -54,19 +54,55 @@ function asList(answer: string | string[] | undefined): string[] {
   return Array.isArray(answer) ? answer : [answer];
 }
 
+function lengthMmOf(variant: CatalogVariant): number | null {
+  const lengthText = String(
+    (variant.spec_sections?.["Dimensions & Capacity"] as Record<string, unknown> | undefined)?.["Length"] ?? "",
+  );
+  const match = lengthText.match(/(\d+)/);
+  return match ? parseInt(match[1], 10) : null;
+}
+
+/** The selected budget band this variant's price sits in (budget is
+ * multi-select, so each variant is judged against its own band: ticking
+ * 5-10L and 10-15L never marks a 9 lakh hatchback as "too small"). */
+function budgetBandOf(variant: CatalogVariant, answers: QuestionnaireAnswers): string | null {
+  const price = variant.on_road_price ?? variant.ex_showroom_price;
+  if (price == null) return null;
+  for (const b of asList(answers["q_budget"])) {
+    const range = BUDGET_RANGES[b];
+    if (range && price >= range[0] && price < range[1]) return b;
+  }
+  return null;
+}
+
+/** Budget-based size grading: how much a car is marked down for being a
+ * class below what its budget band normally buys. 1.0 = no markdown. */
+export function segmentFitMultiplier(variant: CatalogVariant, answers: QuestionnaireAnswers): number {
+  const band = budgetBandOf(variant, answers);
+  const rule = band ? SEGMENT_SIZE_RULES[band] : undefined;
+  const lengthMm = lengthMmOf(variant);
+  if (!rule || lengthMm == null) return 1.0;
+  const shortMm = Math.max(0, rule.minLengthMm - lengthMm);
+  return Math.max(SEGMENT_PENALTY_FLOOR, 1.0 - (shortMm / 100) * SEGMENT_PENALTY_PER_100MM);
+}
+
 export function parkingPenaltyMultiplier(variant: CatalogVariant, answers: QuestionnaireAnswers): number {
   const tier = answers["q_parking_tightness"] as string | undefined;
   const rule = tier ? PARKING_LENGTH_RULES[tier] : null;
   if (!rule) return 1.0;
 
-  const lengthText = String(
-    (variant.spec_sections?.["Dimensions & Capacity"] as Record<string, unknown> | undefined)?.["Length"] ?? "",
-  );
-  const match = lengthText.match(/(\d+)/);
-  if (!match) return 1.0;
-  const lengthMm = parseInt(match[1], 10);
+  const lengthMm = lengthMmOf(variant);
+  if (lengthMm == null) return 1.0;
 
-  const overMm = Math.max(0, lengthMm - rule.thresholdMm);
+  // Parking goes hand in hand with budget: the length that counts as "too
+  // long" is never shorter than what the budget band normally buys, so a
+  // tight spot at 20-25 lakh steers to a 4.3-4.4m SUV over a 4.6m sedan
+  // instead of dropping back to sub-4m cars.
+  const band = budgetBandOf(variant, answers);
+  const budgetFreeMm = band ? SEGMENT_SIZE_RULES[band]?.parkingFreeLengthMm ?? 0 : 0;
+  const thresholdMm = Math.max(rule.thresholdMm, budgetFreeMm);
+
+  const overMm = Math.max(0, lengthMm - thresholdMm);
   // Three adults in the back outweighs a mild parking worry: halve the
   // length penalty so it doesn't push the shortlist back to sub-4m cars.
   const softener = threeInBack(answers) ? 0.5 : 1.0;
@@ -127,6 +163,25 @@ const BUDGET_RANGES: Record<string, [number, number]> = {
   "20-25L": [2_000_000, 2_500_000],
   ">25L": [2_500_000, 10 ** 9],
 };
+
+// Budget-based size grading (added 15 Nov 2026). The budget filter only
+// checks price, so the top trims of sub-4m cars (Syros EV at 21 lakh, Brezza
+// at 16 lakh) were winning 15-25 lakh searches on review score alone. Real
+// buyers at that money expect the next class up, so a car shorter than the
+// band's usual class is marked down by SEGMENT_PENALTY_PER_100MM for every
+// 100mm it falls short. Length is the class proxy: hatchbacks and sub-4m
+// SUVs/sedans are 3.7-4.0m, Creta-class SUVs 4.3-4.4m, sedans 4.5-4.6m.
+//   minLengthMm          below this the car is a class too small for the band
+//   parkingFreeLengthMm  with tight parking, cars up to this length carry no
+//                        parking penalty in this band (see parkingPenaltyMultiplier)
+const SEGMENT_SIZE_RULES: Record<string, { minLengthMm: number; parkingFreeLengthMm: number }> = {
+  "10-15L": { minLengthMm: 3900, parkingFreeLengthMm: 4000 },
+  "15-20L": { minLengthMm: 4200, parkingFreeLengthMm: 4350 },
+  "20-25L": { minLengthMm: 4300, parkingFreeLengthMm: 4400 },
+  ">25L": { minLengthMm: 4300, parkingFreeLengthMm: 4400 },
+};
+const SEGMENT_PENALTY_PER_100MM = 0.12;
+const SEGMENT_PENALTY_FLOOR = 0.5;
 
 export const BRAND_LIST = [
   "Citroen", "Force", "Honda", "Hyundai", "Jeep", "Kia", "MG", "Mahindra",
@@ -348,6 +403,8 @@ export interface RecommendCandidate {
   commute_fuel_nudge_multiplier: number;
   /** Absent on results computed before 24 Oct 2026. */
   rear_room_multiplier?: number;
+  /** Budget-based size grading. Absent on results computed before 15 Nov 2026. */
+  segment_fit_multiplier?: number;
   top_contributors: ScoreBreakdownItem[];
 }
 
@@ -439,7 +496,8 @@ export function recommend(input: RecommendInput): RecommendOutput {
       const parkingMult = parkingPenaltyMultiplier(variant, answers);
       const commuteMult = commuteFuelNudgeMultiplier(variant, answers);
       const rearMult = rearRoomMultiplier(variant, answers);
-      const adjustedScore = result.composite_score * parkingMult * commuteMult * rearMult;
+      const segmentMult = segmentFitMultiplier(variant, answers);
+      const adjustedScore = result.composite_score * parkingMult * commuteMult * rearMult * segmentMult;
 
       candidates.push({
         car_id: carId,
@@ -457,6 +515,7 @@ export function recommend(input: RecommendInput): RecommendOutput {
         parking_penalty_multiplier: parkingMult,
         commute_fuel_nudge_multiplier: commuteMult,
         rear_room_multiplier: rearMult,
+        segment_fit_multiplier: segmentMult,
         top_contributors: result.breakdown.slice(0, 5),
       });
     }

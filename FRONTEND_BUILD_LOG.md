@@ -503,3 +503,11 @@ GA for 3 Oct (first full day with GA on every visit): ~102 visitors, 90% Instagr
 - Found in Vercel request logs: Edge browsers on Windows (mostly India) were requesting `/favicon.ico` about 450-590 times a minute, about 348,000 requests in 13 hours, most of them "has it changed?" re-checks. Cause not confirmed. The Hobby plan includes about 1M requests a month.
 - `next.config.mjs`: `headers()` rule sets `Cache-Control: public, max-age=604800, stale-while-revalidate=86400` on `/favicon.ico` (was `max-age=0, must-revalidate`).
 - Verified live: the icon returns the new header; home 200; www still redirects to the apex. Effect on request volume not measured yet.
+
+## 2026-11-15: size of car now follows the budget
+
+- Problem: the budget filter only checks price, so top trims of sub-4m cars (Syros EV at 21 lakh, Brezza at 16 lakh) topped 15-25 lakh searches, and "Very tight" parking pushed every budget back to sub-4m cars.
+- `lib/scoring/recommend.ts`: new `SEGMENT_SIZE_RULES` per budget band. `segmentFitMultiplier()` marks a car down 12% per 100 mm it is shorter than the band's usual class (3900 mm at 10-15L, 4200 mm at 15-20L, 4300 mm at 20-25L and above; floor 0.5; nothing under 10L). `parkingPenaltyMultiplier()` now starts its length penalty no lower than 4000 / 4350 / 4400 mm for those bands, so a tight spot at 20-25L favours a 4.3-4.4 m SUV over a 4.6 m sedan. Each variant is judged against the selected band its own price sits in. Stored per car as `segment_fit_multiplier`.
+- Checked against live data for every budget x parking answer: 20-25L "Very tight" went from Syros EV first to Creta Electric, Tekton, Duster; 5-10L and 10-15L lists unchanged apart from the Exter slipping one place at 10-15L.
+- Verified live: home 200; `/guides/best-car-under-20-lakh-family` (runs the real recommender) now lists Creta Electric, Duster, Curvv EV, Tekton, Basalt.
+- Deployed from this checkout, not from `Claude/web`, because another session had unfinished guide/home edits there.
