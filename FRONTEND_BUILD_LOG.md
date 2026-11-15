@@ -497,3 +497,9 @@ GA for 3 Oct (first full day with GA on every visit): ~102 visitors, 90% Instagr
 - Inner pages: denim title band (`.page-band`) on car reviews, car pages, comparisons, guides list and legal pages; shared-results page and Google button restyled; main buttons are 8px-radius.
 - `LandingScreen.tsx`, `NightDriveScene.tsx`, `HomePageClient.tsx` and the old font files are unused but kept.
 - Verified live: home (desktop + 375px), cars, a car page, guides, quotation, privacy, questionnaire step 1 all 200 and in the new look. Not viewed on screen after the change: results, saved searches, account, shared links, sign-in sheet.
+
+## 2026-11-15: let browsers keep the tab icon for a week
+
+- Found in Vercel request logs: Edge browsers on Windows (mostly India) were requesting `/favicon.ico` about 450-590 times a minute, about 348,000 requests in 13 hours, most of them "has it changed?" re-checks. Cause not confirmed. The Hobby plan includes about 1M requests a month.
+- `next.config.mjs`: `headers()` rule sets `Cache-Control: public, max-age=604800, stale-while-revalidate=86400` on `/favicon.ico` (was `max-age=0, must-revalidate`).
+- Verified live: the icon returns the new header; home 200; www still redirects to the apex. Effect on request volume not measured yet.

@@ -13,6 +13,16 @@ const nextConfig = {
       },
     ];
   },
+  async headers() {
+    return [
+      // Edge browsers were re-checking the tab icon hundreds of times a minute (15 Nov 2026), which eats the
+      // hosting plan's request allowance. Letting browsers keep it for a week removes the repeat checks.
+      {
+        source: "/favicon.ico",
+        headers: [{ key: "Cache-Control", value: "public, max-age=604800, stale-while-revalidate=86400" }],
+      },
+    ];
+  },
 };
 
 export default nextConfig;
