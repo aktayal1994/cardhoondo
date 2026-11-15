@@ -522,3 +522,11 @@ GA for 3 Oct (first full day with GA on every visit): ~102 visitors, 90% Instagr
 - `components/redesign/RedesignHome.tsx`: footer has a "Popular shortlists" column linking to five guides.
 - `next.config.mjs`: `staticPageGenerationTimeout: 180`. The first build failed because each car page ran eight separate rankings and passed the 60 second limit; fixed by the single data load above.
 - Verified live: the 15 lakh guide shows the new title and five more cars; `/cars/maruti-brezza` links to three guides; the home page links to five guides.
+
+## 2026-11-15: four more "best car for X" guides
+
+- `lib/guides/rankedGuides.ts`: added `best-diesel-car-under-20-lakh`, `best-7-seater-car-under-25-lakh`, `best-car-for-family-of-5-under-15-lakh`, `best-petrol-car-under-20-lakh` (12 ranked guides in all).
+- Chosen by running about 40 candidate profiles through the live recommender and keeping only those with 5+ published cars and a top five at least two cars different from every existing guide. Dropped for repeating an existing list: mileage, highway, automatic and electric at other budgets, safest under 10 lakh, bad roads, hills, elderly parents. Dropped for too few cars: 7 seater under 15 lakh (4), electric under 15 lakh (2), under 5 lakh (2).
+- The diesel guide first showed highway mileage and safety, which 4 of its 5 cars have too few reviews for; swapped for highway stability and build quality.
+- Seen while testing, not fixed: an "under 5 lakh" search ranks the Skoda Kodiaq second, which points to a missing or wrong price on one of its variants.
+- Verified live: all four pages return 200 with five cars and five "came close" cars each; sitemap and `/guides` list 12.
