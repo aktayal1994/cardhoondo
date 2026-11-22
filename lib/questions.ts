@@ -129,7 +129,7 @@ export const QUESTIONS: QuestionDef[] = [
     id: "q_budget_range",
     section: "core_requirements",
     prompt: "What is your budget?",
-    explainer: "Drag both ends. We'll only show cars whose on-road price sits in this range.",
+    explainer: "Drag both ends or type the amounts. We'll only show cars whose on-road price sits in this range.",
     icon: Wallet,
     type: "range",
     required: true,

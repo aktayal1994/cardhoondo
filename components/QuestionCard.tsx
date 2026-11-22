@@ -33,7 +33,7 @@ interface QuestionCardProps {
 
 /** Pick-mode tag under the question, so nobody has to guess. */
 function pickTag(q: QuestionDef): string {
-  if (q.type === "range") return "Drag to set";
+  if (q.type === "range") return "Drag or type";
   if (q.type === "single") return "Pick one";
   if (q.type === "multi2") return "Pick exactly 2";
   if (q.maxSelect) return `Pick up to ${q.maxSelect}`;
@@ -491,10 +491,32 @@ function BudgetSlider({
           onChange={(e) => update(lo, Math.max(Number(e.target.value), lo + MIN_GAP_STEPS))}
         />
       </div>
-      <div className="mt-1 flex justify-between text-xs text-ink-faint">
-        <span>₹{BUDGET_SLIDER_MIN} lakh</span>
-        <span>₹{BUDGET_SLIDER_TOP} lakh+</span>
+      <div className="mt-2 flex items-end justify-between gap-4">
+        <BudgetBox
+          label="Min"
+          lakh={BUDGET_STOPS[lo]}
+          suffix="lakh"
+          onCommit={(lakh) => {
+            const i = Math.min(stopIndex(lakh), hi - MIN_GAP_STEPS);
+            update(Math.max(0, i), hi);
+            return BUDGET_STOPS[Math.max(0, i)];
+          }}
+        />
+        <BudgetBox
+          label="Max"
+          lakh={BUDGET_STOPS[hi]}
+          suffix={hi === last ? "lakh+" : "lakh"}
+          alignRight
+          onCommit={(lakh) => {
+            const i = Math.max(stopIndex(lakh), lo + MIN_GAP_STEPS);
+            update(lo, Math.min(last, i));
+            return BUDGET_STOPS[Math.min(last, i)];
+          }}
+        />
       </div>
+      <p className="mt-1 text-xs text-ink-faint">
+        Any amount from ₹{BUDGET_SLIDER_MIN} to ₹{BUDGET_SLIDER_TOP} lakh.
+      </p>
 
       <p className="mt-3 min-h-5 text-sm text-ink-soft">
         {carCount == null
@@ -514,5 +536,59 @@ function BudgetSlider({
         </button>
       )}
     </div>
+  );
+}
+
+/** Typed end of the budget range. Accepts any number; on Enter or leaving the box it is kept
+ * within ₹3 to 25 lakh, snapped to the slider's steps and kept below/above the other end. */
+function BudgetBox({
+  label,
+  lakh,
+  suffix,
+  alignRight = false,
+  onCommit,
+}: {
+  label: string;
+  lakh: number;
+  suffix: string;
+  alignRight?: boolean;
+  onCommit: (lakh: number) => number;
+}) {
+  const [draft, setDraft] = useState<string | null>(null);
+
+  function commit() {
+    if (draft == null) return;
+    const typed = parseFloat(draft.replace(/[^0-9.]/g, ""));
+    if (Number.isFinite(typed)) {
+      const clamped = Math.min(BUDGET_SLIDER_TOP, Math.max(BUDGET_SLIDER_MIN, typed));
+      onCommit(clamped);
+    }
+    setDraft(null);
+  }
+
+  return (
+    <label className={`flex flex-col gap-1 ${alignRight ? "items-end" : ""}`}>
+      <span className="text-xs font-medium text-ink-soft">{label}</span>
+      <span className="flex items-center gap-1.5 rounded-lg border border-border bg-paper-raised px-2.5 py-1.5 focus-within:border-accent-rust">
+        <span className="text-sm text-ink-soft">₹</span>
+        <input
+          type="text"
+          inputMode="decimal"
+          aria-label={`${label} budget in lakh`}
+          value={draft ?? String(lakh)}
+          onFocus={(e) => {
+            setDraft(String(lakh));
+            e.target.select();
+          }}
+          onChange={(e) => setDraft(e.target.value)}
+          onBlur={commit}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") (e.target as HTMLInputElement).blur();
+          }}
+          className="w-12 bg-transparent text-right text-sm font-semibold text-ink outline-none"
+        />
+        <span className="text-sm text-ink-soft">{suffix}</span>
+      </span>
+    </label>
   );
 }

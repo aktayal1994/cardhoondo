@@ -549,3 +549,8 @@ Founder-led rework of the questions (decisions: docs/questionnaire_v4_decisions.
 - Brand traits (the themes boosted for a loved brand) no longer use parking (size, not brand personality), and a theme must beat the all-car average by 0.15 to count. Mahindra, Force and BYD now get only the small own-brand nudge.
 - The results page shows "You like Toyota, so we leaned towards cars known for reliability and a good service network, whatever the brand." (`brand_love` on the recommend output.)
 - Verified: typecheck, both screens at 375px with no horizontal scroll and no console errors, recommender output for Toyota / Mahindra / Toyota+VW. The results line itself was not seen on screen (a local submission writes to the production DB).
+
+## 22 Nov 2026: budget slider gets typed Min / Max boxes
+- Under the slider, "Min ₹[ ] lakh" and "Max ₹[ ] lakh" boxes. Any number is accepted; on Enter or leaving the box it is kept within ₹3 to 25 lakh, snapped to the slider's steps (₹50,000 up to 20 lakh, then ₹1 lakh) and kept below/above the other end; 25 shows as "lakh+".
+- Tag "Drag or type", explainer "Drag both ends or type the amounts...".
+- Verified at 375px: 6.2 -> ₹6 lakh, 40 -> ₹25 lakh+, typing 10 and tapping Continue directly saves ₹10 to ₹15 lakh. Deployed from this checkout (not Claude/web) because Claude/web holds another session's unfinished "decide" feature.
