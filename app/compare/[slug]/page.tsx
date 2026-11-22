@@ -224,6 +224,12 @@ export default async function ComparisonPage({ params }: Params) {
               Find my car <ArrowRight className="h-4 w-4" />
             </Link>
             <Link
+              href={`/decide?cars=${a.carId},${b.carId}`}
+              className="inline-flex items-center gap-2 rounded-full border border-border px-6 py-3 text-sm font-semibold text-ink transition hover:border-accent-rust/50"
+            >
+              Which one suits you? {A} or {B}
+            </Link>
+            <Link
               href="/quotation"
               className="inline-flex items-center gap-2 rounded-full border border-border px-6 py-3 text-sm font-semibold text-ink transition hover:border-accent-rust/50"
             >

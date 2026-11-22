@@ -240,6 +240,18 @@ function VerdictDot({ good, pop = false }: { good: boolean; pop?: boolean }) {
   );
 }
 
+/** The second, lighter door beside Find my car: for buyers who already have cars in mind. */
+function DecideLink({ className = "" }: { className?: string }) {
+  return (
+    <p className={`flex ${className}`}>
+      <Link href="/decide" className="inline-flex items-center gap-1.5 text-[15px] font-semibold text-[var(--rd-denim)] underline-offset-4 hover:underline">
+        Already have cars in mind? Compare them
+        <ArrowRight className="h-4 w-4" strokeWidth={2.25} />
+      </Link>
+    </p>
+  );
+}
+
 function Hero({ onStart }: { onStart: Start }) {
   return (
     <section id="top" className="relative">
@@ -260,6 +272,7 @@ function Hero({ onStart }: { onStart: Start }) {
                 <ArrowRight className="h-[18px] w-[18px]" strokeWidth={2.25} />
               </button>
               <p className="mt-2 text-center text-sm text-ink-soft">11 questions, about 3 minutes</p>
+              <DecideLink className="mt-4 justify-center" />
             </div>
             <p className="mt-6 flex items-center gap-2 text-[15px] font-medium">
               <Check className="h-[18px] w-[18px]" strokeWidth={2.5} />
@@ -325,6 +338,7 @@ function Hero({ onStart }: { onStart: Start }) {
             <ArrowRight className="h-[18px] w-[18px]" strokeWidth={2.25} />
           </button>
         </div>
+        <DecideLink className="mt-4 hidden justify-center sm:flex" />
       </div>
     </section>
   );

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { BookOpen, Car, HelpCircle, Menu, ReceiptIndianRupee, Search, ShieldCheck, X } from "lucide-react";
+import { BookOpen, Car, HelpCircle, Menu, ReceiptIndianRupee, Scale, Search, ShieldCheck, X } from "lucide-react";
 import { JOURNEY } from "../lib/journey";
 
 const SOON = JOURNEY.flatMap((s) => s.tools).filter((t) => t.href === null);
@@ -15,6 +15,7 @@ const SOON = JOURNEY.flatMap((s) => s.tools).filter((t) => t.href === null);
  * analytics; elsewhere it is a plain link to the questionnaire.
  */
 const ITEMS = [
+  { href: "/decide", icon: Scale, title: "Compare my cars", sub: "Already have cars in mind? See which suits you" },
   { href: "/quotation", icon: ReceiptIndianRupee, title: "Check a dealer quote", sub: "See where you can save on the quote a dealer gave you" },
   { href: "/cars", icon: Car, title: "Car reviews", sub: "What owners and experts say, car by car" },
   { href: "/guides", icon: BookOpen, title: "Buying guides", sub: "Plain-language help for first-time buyers" },

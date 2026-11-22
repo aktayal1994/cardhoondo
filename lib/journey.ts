@@ -1,4 +1,4 @@
-import { ClipboardCheck, Gauge, ReceiptIndianRupee, Search } from "lucide-react";
+import { ClipboardCheck, Gauge, ReceiptIndianRupee, Scale, Search } from "lucide-react";
 
 /**
  * The car buying journey, stage by stage, and the CarDhoondo tool for each.
@@ -41,6 +41,13 @@ export const JOURNEY: JourneyStage[] = [
         href: "/questionnaire/core-requirements",
         icon: Search,
         hero: true,
+      },
+      {
+        id: "decide",
+        title: "Compare my cars",
+        sub: "Already have cars in mind? Add them and see which one suits how you drive.",
+        href: "/decide",
+        icon: Scale,
       },
       {
         id: "test_drive",

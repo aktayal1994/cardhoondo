@@ -11,6 +11,8 @@ import { getSupabaseServerClient } from "../supabaseClient";
 export interface CatalogOptionRow {
   car_id: string;
   brand: string;
+  /** Model name (added for the "decide between" picker). */
+  model: string;
   price: number | null;
   fuel: string | null;
   seats: string | null;
@@ -35,7 +37,7 @@ async function load(): Promise<CatalogOptionRow[]> {
     fetchAll<any>((from, to) =>
       supabase
         .from("variants")
-        .select("id, car_id, on_road_price, ex_showroom_price, seating_capacity, fuel_type, spec_sections, cars(brand, on_sale)")
+        .select("id, car_id, on_road_price, ex_showroom_price, seating_capacity, fuel_type, spec_sections, cars(brand, model, on_sale)")
         .order("id")
         .range(from, to),
     ),
@@ -49,6 +51,7 @@ async function load(): Promise<CatalogOptionRow[]> {
     .map((v) => ({
       car_id: v.car_id,
       brand: v.cars?.brand ?? "",
+      model: v.cars?.model ?? "",
       price: v.on_road_price ?? v.ex_showroom_price ?? null,
       fuel: v.fuel_type ?? null,
       seats: v.seating_capacity ?? null,
@@ -56,7 +59,7 @@ async function load(): Promise<CatalogOptionRow[]> {
     }));
 }
 
-export const fetchCatalogOptions = unstable_cache(load, ["catalog-options-v1"], {
+export const fetchCatalogOptions = unstable_cache(load, ["catalog-options-v2"], {
   revalidate: 86400,
   tags: ["car-pages"],
 });

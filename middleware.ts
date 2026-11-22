@@ -36,6 +36,8 @@ const GROUPS: Group[] = [
   // Tightest limit: this is the one route that spends money (Gemini call) per request.
   // 15 rather than 8 since every hidden car asks for a new summary.
   { key: "writeup", limit: 15, match: (p) => p === "/api/writeup" },
+  // "Compare my cars" (/decide): one scoring run over the picked cars, nothing stored.
+  { key: "decide", limit: 30, match: (p) => p === "/api/decide" },
   { key: "car-detail", limit: 40, match: (p) => p === "/api/car-detail" },
   { key: "feedback", limit: 20, match: (p) => p === "/api/feedback" },
   { key: "share", limit: 20, match: (p) => p === "/api/share" },
@@ -112,6 +114,7 @@ export const config = {
     "/api/recommend/hide",
     "/api/writeup",
     "/api/car-detail",
+    "/api/decide",
     "/api/feedback",
     "/api/share",
     "/api/quotation",

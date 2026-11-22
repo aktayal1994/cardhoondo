@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, BookOpen, Car, ChevronRight, GitCompareArrows, ShieldCheck, Sparkles } from "lucide-react";
+import { ArrowRight, BookOpen, Car, ChevronRight, GitCompareArrows, Scale, ShieldCheck, Sparkles } from "lucide-react";
 import { useMe } from "../lib/auth/useMe";
 import { BRAND_LOGOS } from "../lib/brandLogos";
 import { JOURNEY, type JourneyTool } from "../lib/journey";
@@ -50,6 +50,10 @@ export default function AppHome({
       <h1 className="mt-1 text-[28px] font-bold leading-tight tracking-[-0.01em] text-ink">Which car should you buy?</h1>
 
       <FindCard onStart={onStart} claims={stats.claims} />
+
+      <div className="mt-3 grid grid-cols-2">
+        <Tile href="/decide" icon={Scale} title="Already have cars in mind?" sub="Add them and see which suits how you drive" wide />
+      </div>
 
       <div className="mt-4 flex gap-2 overflow-x-auto no-scrollbar">
         <TrustPill icon={ShieldCheck} text="No dealer commissions" />
