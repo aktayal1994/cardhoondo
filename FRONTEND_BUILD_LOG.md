@@ -565,3 +565,7 @@ Founder-led rework of the questions (decisions: docs/questionnaire_v4_decisions.
 ## 22 Nov 2026 — Compare my cars card at the top of review pages
 - New `components/DecideCta.tsx`: a card right under the title band of every on-sale car review page ("Deciding between the Baleno and another car?", button "Compare with another car" pre-picking the car, plus up to 3 one-tap "vs <rival>" chips from its published head-to-heads) and every head-to-head page ("Creta or Seltos: which one suits you?", both cars pre-picked). The old links at the bottom of those pages were removed (the top card replaces them).
 - Verified live on /cars/maruti-baleno, /cars/tata-nexon and /compare/hyundai-creta-vs-kia-seltos; checked on phone and desktop width locally.
+
+## 22 Nov 2026 — Compare my cars card is now a photo poster
+- `DecideCta` on review and head-to-head pages is now a denim poster: the home page showroom photo (couple unsure, own AI image, no badges) with a thought bubble naming the matchup ("Baleno or Swift?", or "<model> or another car?" when a car has no published rival; "Creta or Seltos?" on head-to-heads), then the title, button and rival chips. Photo on top on phones, on the left from `sm` up. The bubble's dots lead to the couple, not to a car.
+- Verified live on /cars/maruti-baleno and /compare/hyundai-creta-vs-kia-seltos; checked phone (375 px, no sideways scroll) and desktop locally.

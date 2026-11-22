@@ -121,6 +121,7 @@ export default async function CarPage({ params }: Params) {
 
         {data.onSale && (
           <DecideCta
+            question={comparisons.length > 0 ? `${data.model} or ${(comparisons[0].a.carId === data.carId ? comparisons[0].b : comparisons[0].a).model}?` : `${data.model} or another car?`}
             title={`Deciding between the ${data.model} and another car?`}
             sub="Add the cars you're considering, answer 8 quick questions, and see which one suits how you drive."
             carIds={[data.carId]}

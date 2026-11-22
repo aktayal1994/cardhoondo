@@ -136,6 +136,7 @@ export default async function ComparisonPage({ params }: Params) {
         </div>
 
         <DecideCta
+          question={`${A} or ${B}?`}
           title={`${A} or ${B}: which one suits you?`}
           sub="The page below says what reviewers think. Answer 8 quick questions about how you drive and we'll tell you which fits you better."
           carIds={[a.carId, b.carId]}
