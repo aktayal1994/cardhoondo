@@ -1,75 +1,54 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
-import { isAnswerComplete, type QuestionDef } from "../lib/questions";
+import { Check, Info, X } from "lucide-react";
+import {
+  BRANDS_SHOWN_FIRST,
+  formatBudgetRange,
+  isAnswerComplete,
+  type QuestionDef,
+  type QuestionOption,
+} from "../lib/questions";
 import type { QuestionnaireAnswers } from "../lib/scoring/questionnaireWeights";
+import { BUDGET_SLIDER_MIN, BUDGET_SLIDER_TOP } from "../lib/scoring/recommend";
 import { BRAND_LOGOS } from "../lib/brandLogos";
+import { countCars, matchingRows, useCatalogOptions } from "../lib/useCatalogOptions";
 
 interface QuestionCardProps {
   question: QuestionDef;
   value: string | string[] | undefined;
-  /** The full in-progress answer set -- needed to resolve a
-   * conditionalLabel (e.g. frustration's refuelling/charging swap), which
-   * depends on a *different* question's answer (q_fuel), not just this
-   * question's own value. */
+  /** The full in-progress answer set (conditional labels, the brand-skip
+   * list and the budget count depend on other questions' answers). */
   answers: QuestionnaireAnswers;
-  /** Fired on every pick, with the full new value (partial for multi2 mid-selection).
-   * Parent uses isAnswerComplete() (see lib/questions.ts) to decide whether to
-   * auto-advance -- this callback itself carries no "done" signal. */
+  /** Fired on every pick with the full new value. */
   onChange: (value: string | string[]) => void;
-  /** Only used for "multiAny" -- picking one option doesn't mean "done
-   * picking" the way it does for single-select, so there's no safe moment
-   * to auto-advance. Parent passes this to advance/close-edit explicitly
-   * once the user taps the Continue button rendered below. */
-  onConfirm?: () => void;
+  /** Multi-choice and the budget slider wait for the Continue button. The
+   * slider passes its value, since its starting position is only saved when
+   * the user confirms it. */
+  onConfirm?: (value?: string | string[]) => void;
   /** Compact styling for edit-in-place reopen, vs. the full chat-flow card. */
   compact?: boolean;
 }
 
+/** Pick-mode tag under the question, so nobody has to guess. */
+function pickTag(q: QuestionDef): string {
+  if (q.type === "range") return "Drag to set";
+  if (q.type === "single") return "Pick one";
+  if (q.type === "multi2") return "Pick exactly 2";
+  if (q.maxSelect) return `Pick up to ${q.maxSelect}`;
+  return "Pick one or more";
+}
+
 export default function QuestionCard({ question, value, answers, onChange, onConfirm, compact }: QuestionCardProps) {
   const Icon = question.icon;
-  const isMulti2 = question.type === "multi2";
-  const isMultiAny = question.type === "multiAny";
-  const selected: string[] = Array.isArray(value) ? value : value ? [value] : [];
   const [reaction, setReaction] = useState<string | null>(null);
+  const [infoOpen, setInfoOpen] = useState(false);
 
   useEffect(() => {
     setReaction(null);
+    setInfoOpen(false);
   }, [question.id]);
-
-  function pick(optionValue: string) {
-    const option = question.options.find((o) => o.value === optionValue);
-    const reactionText = option?.conditionalLabel?.(answers) ? option.microcopy : option?.microcopy ?? null;
-
-    if (isMulti2) {
-      // toggle, cap at 2 (oldest drops off if a 3rd is tapped)
-      let next: string[];
-      if (selected.includes(optionValue)) {
-        next = selected.filter((v) => v !== optionValue);
-      } else if (selected.length >= 2) {
-        next = [selected[1], optionValue];
-      } else {
-        next = [...selected, optionValue];
-      }
-      setReaction(reactionText);
-      onChange(next);
-      return;
-    }
-
-    if (isMultiAny) {
-      // toggle, no cap
-      const next = selected.includes(optionValue)
-        ? selected.filter((v) => v !== optionValue)
-        : [...selected, optionValue];
-      setReaction(reactionText);
-      onChange(next);
-      return;
-    }
-
-    setReaction(reactionText);
-    onChange(optionValue);
-  }
 
   return (
     <div className={compact ? "" : "animate-fade-up-blur"}>
@@ -77,56 +56,59 @@ export default function QuestionCard({ question, value, answers, onChange, onCon
         <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-border bg-charcoal-800/70">
           <Icon className="h-4.5 w-4.5 text-accent-rust-soft" strokeWidth={1.75} />
         </div>
-        <div>
+        <div className="min-w-0">
           <h2 className={compact ? "font-display text-base font-semibold text-ink" : "font-display text-xl font-semibold text-ink"}>
             {question.prompt}
-            {isMulti2 && <span className="ml-2 text-sm font-normal text-ink-faint">(pick 2)</span>}
-            {isMultiAny && <span className="ml-2 text-sm font-normal text-ink-faint">(pick any)</span>}
-            {!question.required && <span className="ml-2 text-sm font-normal text-ink-faint">(optional)</span>}
+            {question.info && (
+              <button
+                type="button"
+                onClick={() => setInfoOpen((o) => !o)}
+                aria-expanded={infoOpen}
+                aria-label="What does this mean?"
+                className="ml-2 inline-flex h-6 w-6 translate-y-0.5 items-center justify-center rounded-full text-accent-rust transition hover:bg-charcoal-800"
+              >
+                <Info className="h-4.5 w-4.5" strokeWidth={2} />
+              </button>
+            )}
           </h2>
           <p className="mt-1 text-sm text-ink-soft">{question.explainer}</p>
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            <span className="rounded-md bg-wash px-2 py-0.5 text-xs font-semibold text-accent-rust">{pickTag(question)}</span>
+            {!question.required && <span className="text-xs text-ink-faint">Optional</span>}
+          </div>
         </div>
       </div>
 
-      <div className="mt-4 ml-12 flex flex-wrap gap-2">
-        {question.options.map((option) => {
-          const isSelected = selected.includes(option.value);
-          const label = option.conditionalLabel?.(answers) ?? option.label;
-          const OptionIcon = option.conditionalIcon?.(answers) ?? option.icon;
-          const logoSrc = question.id === "q_brand_avoid" ? BRAND_LOGOS[option.value] : undefined;
-          return (
-            <button
-              key={option.value}
-              type="button"
-              onClick={() => pick(option.value)}
-              aria-pressed={isSelected}
-              className={`flex items-center gap-2 rounded-full border px-4 py-2.5 text-sm font-medium transition active:scale-95 ${
-                isSelected
-                  ? "border-accent-rust bg-accent-rust text-charcoal-950 shadow-glow-sm"
-                  : "border-border bg-paper-raised text-ink hover:border-accent-rust/50 hover:bg-charcoal-800/60"
-              }`}
-            >
-              {logoSrc ? (
-                <span
-                  className={`flex h-5 w-5 shrink-0 items-center justify-center overflow-hidden rounded-full ${
-                    isSelected ? "bg-charcoal-950" : "bg-paper"
-                  }`}
-                >
-                  <Image src={logoSrc} alt="" width={20} height={20} className="h-full w-full object-contain p-0.5" />
-                </span>
-              ) : (
-                OptionIcon && (
-                  <OptionIcon
-                    className={`h-4 w-4 shrink-0 ${isSelected ? "text-charcoal-950" : "text-ink-soft"}`}
-                    strokeWidth={1.75}
-                  />
-                )
-              )}
-              {label}
-            </button>
-          );
-        })}
-      </div>
+      {infoOpen && question.info && (
+        <div className="animate-fade-up relative mt-3 ml-12 rounded-[14px] border border-border bg-wash p-4 pr-10 text-sm leading-relaxed text-ink">
+          <button
+            type="button"
+            onClick={() => setInfoOpen(false)}
+            aria-label="Close"
+            className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full text-ink-soft hover:bg-white"
+          >
+            <X className="h-4 w-4" strokeWidth={2} />
+          </button>
+          {question.info.map((p) => (
+            <p key={p} className="mt-2 first:mt-0">
+              {p}
+            </p>
+          ))}
+        </div>
+      )}
+
+      {question.type === "range" ? (
+        <BudgetSlider value={value} answers={answers} onChange={onChange} onConfirm={onConfirm} />
+      ) : (
+        <ChoiceList
+          question={question}
+          value={value}
+          answers={answers}
+          onChange={onChange}
+          onConfirm={onConfirm}
+          onReaction={setReaction}
+        />
+      )}
 
       {reaction && (
         <p key={reaction} className="animate-fade-up mt-3 ml-12 flex items-center gap-1.5 text-sm text-ink-soft">
@@ -134,15 +116,342 @@ export default function QuestionCard({ question, value, answers, onChange, onCon
           {reaction}
         </p>
       )}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Choice chips: tick boxes for multiple choice, circles for single choice,
+// the "neither/none" option below an "or" divider, and locking.
+// ---------------------------------------------------------------------------
+
+function ChoiceList({
+  question,
+  value,
+  answers,
+  onChange,
+  onConfirm,
+  onReaction,
+}: {
+  question: QuestionDef;
+  value: string | string[] | undefined;
+  answers: QuestionnaireAnswers;
+  onChange: (value: string | string[]) => void;
+  onConfirm?: (value?: string | string[]) => void;
+  onReaction: (text: string | null) => void;
+}) {
+  const isSingle = question.type === "single";
+  const isMulti2 = question.type === "multi2";
+  const isMultiAny = question.type === "multiAny";
+  const selected: string[] = Array.isArray(value) ? value : value ? [value] : [];
+  const exclusive = question.exclusiveValue;
+  const exclusivePicked = !!exclusive && selected.includes(exclusive);
+  const normalPicked = selected.filter((v) => v !== exclusive);
+  const atCap = !!question.maxSelect && normalPicked.length >= question.maxSelect;
+
+  const [shakeKey, setShakeKey] = useState<{ value: string; n: number } | null>(null);
+  const [hint, setHint] = useState<string | null>(null);
+  const [showAllBrands, setShowAllBrands] = useState(false);
+  const catalog = useCatalogOptions();
+
+  useEffect(() => {
+    setHint(null);
+    setShowAllBrands(false);
+  }, [question.id]);
+
+  // Brand-skip screen: only brands with a car that fits the answers so far,
+  // minus brands the user said they love.
+  const options: QuestionOption[] = useMemo(() => {
+    if (question.brandMode !== "avoid") return question.options;
+    const loved = new Set(
+      (Array.isArray(answers["q_brand_love"]) ? answers["q_brand_love"] : []).map((b) => b.toLowerCase()),
+    );
+    let opts = question.options.filter((o) => !loved.has(o.value.toLowerCase()) || selected.includes(o.value));
+    if (catalog) {
+      const fitting = new Set(matchingRows(catalog, answers).map((r) => r.brand.toLowerCase()));
+      if (fitting.size > 0) opts = opts.filter((o) => fitting.has(o.value.toLowerCase()) || selected.includes(o.value));
+    }
+    return opts;
+  }, [question, answers, catalog, selected]);
+
+  const normalOptions = options.filter((o) => o.value !== exclusive);
+  const exclusiveOption = exclusive ? options.find((o) => o.value === exclusive) : undefined;
+  const collapsible = question.brandMode === "love" && !showAllBrands && normalOptions.length > BRANDS_SHOWN_FIRST;
+  const visibleNormal = collapsible
+    ? normalOptions.filter((o, i) => i < BRANDS_SHOWN_FIRST || selected.includes(o.value))
+    : normalOptions;
+
+  function lockedReason(optionValue: string): string | null {
+    if (selected.includes(optionValue) || isSingle) return null;
+    const exclusiveLabel = exclusiveOption?.label ?? "";
+    if (optionValue === exclusive && normalPicked.length > 0) return `Untick your picks to choose "${exclusiveLabel}"`;
+    if (optionValue !== exclusive && exclusivePicked) return `Untick "${exclusiveLabel}" to pick specific ones`;
+    if (optionValue !== exclusive && atCap) return `You've picked ${question.maxSelect}. Untick one to choose another`;
+    return null;
+  }
+
+  function pick(optionValue: string) {
+    const locked = lockedReason(optionValue);
+    if (locked) {
+      setHint(locked);
+      setShakeKey((k) => ({ value: optionValue, n: (k?.n ?? 0) + 1 }));
+      return;
+    }
+    setHint(null);
+    const option = options.find((o) => o.value === optionValue);
+    const wasSelected = selected.includes(optionValue);
+    onReaction(wasSelected ? null : option?.microcopy ?? null);
+
+    if (isMulti2) {
+      let next: string[];
+      if (wasSelected) next = selected.filter((v) => v !== optionValue);
+      else if (selected.length >= 2) next = [selected[1], optionValue];
+      else next = [...selected, optionValue];
+      onChange(next);
+      return;
+    }
+    if (isMultiAny) {
+      onChange(wasSelected ? selected.filter((v) => v !== optionValue) : [...selected, optionValue]);
+      return;
+    }
+    onChange(optionValue);
+  }
+
+  function renderChip(option: QuestionOption) {
+    const isSelected = selected.includes(option.value);
+    const locked = !!lockedReason(option.value);
+    const label = option.conditionalLabel?.(answers) ?? option.label;
+    const logoSrc = question.brandMode ? BRAND_LOGOS[option.value] : undefined;
+    const shaking = shakeKey?.value === option.value;
+    return (
+      <button
+        key={`${option.value}-${shaking ? shakeKey?.n : 0}`}
+        type="button"
+        onClick={() => pick(option.value)}
+        aria-pressed={isSelected}
+        aria-disabled={locked}
+        className={`flex items-center gap-2.5 rounded-full border px-4 py-2.5 text-left text-sm font-medium transition active:scale-95 ${
+          shaking ? "animate-shake" : ""
+        } ${
+          isSelected
+            ? "border-accent-rust bg-accent-rust text-charcoal-950 shadow-glow-sm"
+            : locked
+              ? "cursor-not-allowed border-border bg-charcoal-900 text-ink-faint opacity-50"
+              : "border-border bg-paper-raised text-ink hover:border-accent-rust/50 hover:bg-charcoal-800/60"
+        }`}
+      >
+        <SelectMark kind={isSingle ? "radio" : "check"} on={isSelected} />
+        {logoSrc && (
+          <span className="flex h-5 w-5 shrink-0 items-center justify-center overflow-hidden rounded-full bg-paper">
+            <Image src={logoSrc} alt="" width={20} height={20} className="h-full w-full object-contain p-0.5" />
+          </span>
+        )}
+        <span>
+          <span className="block">{label}</span>
+          {option.sublabel && (
+            <span className={`block text-xs font-normal ${isSelected ? "text-charcoal-950/85" : "text-ink-soft"}`}>
+              {option.sublabel}
+            </span>
+          )}
+        </span>
+      </button>
+    );
+  }
+
+  const confirmLabel = (() => {
+    if (normalPicked.length === 0 && !exclusivePicked) return question.required ? "Pick at least one" : "Skip";
+    if (exclusivePicked) return "Continue";
+    return `Continue with ${normalPicked.length} selected`;
+  })();
+
+  return (
+    <div className="ml-12">
+      <div className="mt-4 flex flex-wrap gap-2">{visibleNormal.map(renderChip)}</div>
+
+      {collapsible && (
+        <button
+          type="button"
+          onClick={() => setShowAllBrands(true)}
+          className="mt-3 block text-sm font-medium text-accent-rust underline decoration-dotted underline-offset-4"
+        >
+          Show all brands
+        </button>
+      )}
+
+      {exclusiveOption && (
+        <>
+          <div className="my-3 flex items-center gap-3 text-xs font-semibold uppercase tracking-wide text-ink-faint">
+            <span className="h-px flex-1 bg-border" />
+            or
+            <span className="h-px flex-1 bg-border" />
+          </div>
+          <div className="flex flex-wrap gap-2">{renderChip(exclusiveOption)}</div>
+        </>
+      )}
+
+      {hint && (
+        <p role="status" className="animate-fade-up mt-3 text-sm font-medium text-accent-rust">
+          {hint}
+        </p>
+      )}
+
+      {isMulti2 && selected.length < 2 && (
+        <p className="mt-3 text-sm text-ink-soft">{selected.length} of 2 picked</p>
+      )}
 
       {isMultiAny && onConfirm && (
         <button
           type="button"
-          onClick={onConfirm}
+          onClick={() => onConfirm()}
           disabled={!isAnswerComplete(question, value)}
-          className="ml-12 mt-4 rounded-lg bg-accent-rust px-6 py-2.5 text-sm font-semibold text-charcoal-950 shadow-glow-sm transition hover:brightness-110 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 disabled:shadow-none"
+          className="mt-4 block rounded-lg bg-accent-rust px-6 py-2.5 text-sm font-semibold text-charcoal-950 shadow-glow-sm transition hover:brightness-110 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 disabled:shadow-none"
         >
-          {selected.length > 0 ? "Continue" : "Continue, no preference"}
+          {confirmLabel}
+        </button>
+      )}
+    </div>
+  );
+}
+
+/** Tick box (multiple choice) or radio circle (single choice). */
+function SelectMark({ kind, on }: { kind: "check" | "radio"; on: boolean }) {
+  if (kind === "radio") {
+    return (
+      <span
+        aria-hidden
+        className={`flex h-4.5 w-4.5 shrink-0 items-center justify-center rounded-full border-2 ${
+          on ? "border-charcoal-950" : "border-ink-faint"
+        }`}
+      >
+        {on && <span className="h-2 w-2 rounded-full bg-charcoal-950" />}
+      </span>
+    );
+  }
+  return (
+    <span
+      aria-hidden
+      className={`flex h-4.5 w-4.5 shrink-0 items-center justify-center rounded-[5px] border-2 ${
+        on ? "border-charcoal-950 bg-charcoal-950" : "border-ink-faint"
+      }`}
+    >
+      {on && <Check className="h-3 w-3 text-accent-rust" strokeWidth={3.5} />}
+    </span>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Budget slider: two handles, Rs 3 lakh to Rs 25 lakh+. Rs 50,000 steps up to
+// Rs 20 lakh, Rs 1 lakh steps above. Starts at 8 to 15 lakh; saved only when
+// the user moves a handle or presses Continue.
+// ---------------------------------------------------------------------------
+
+const BUDGET_STOPS: number[] = (() => {
+  const stops: number[] = [];
+  for (let v = BUDGET_SLIDER_MIN; v <= 20; v += 0.5) stops.push(v);
+  for (let v = 21; v <= BUDGET_SLIDER_TOP; v += 1) stops.push(v);
+  return stops;
+})();
+const DEFAULT_RANGE: [number, number] = [8, 15];
+// Handles can't cross; keep at least one step between them.
+const MIN_GAP_STEPS = 1;
+
+function stopIndex(lakh: number): number {
+  let best = 0;
+  BUDGET_STOPS.forEach((s, i) => {
+    if (Math.abs(s - lakh) < Math.abs(BUDGET_STOPS[best] - lakh)) best = i;
+  });
+  return best;
+}
+
+function toAnswer(lo: number, hi: number): string[] {
+  return [String(BUDGET_STOPS[lo]), String(BUDGET_STOPS[hi])];
+}
+
+function BudgetSlider({
+  value,
+  answers,
+  onChange,
+  onConfirm,
+}: {
+  value: string | string[] | undefined;
+  answers: QuestionnaireAnswers;
+  onChange: (value: string | string[]) => void;
+  onConfirm?: (value?: string | string[]) => void;
+}) {
+  const initial = Array.isArray(value) && value.length === 2 ? value.map(parseFloat) : DEFAULT_RANGE;
+  const [lo, setLo] = useState(stopIndex(initial[0]));
+  const [hi, setHi] = useState(stopIndex(initial[1]));
+  const catalog = useCatalogOptions();
+  const last = BUDGET_STOPS.length - 1;
+  const current = toAnswer(lo, hi);
+
+  const carCount = useMemo(() => {
+    if (!catalog) return null;
+    return countCars(matchingRows(catalog, { ...answers, q_budget_range: current }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [catalog, lo, hi]);
+
+  function update(nextLo: number, nextHi: number) {
+    setLo(nextLo);
+    setHi(nextHi);
+    onChange(toAnswer(nextLo, nextHi));
+  }
+
+  const pct = (i: number) => (i / last) * 100;
+
+  return (
+    <div className="ml-12 mt-5 max-w-md">
+      <p className="font-display text-lg font-semibold text-ink">{formatBudgetRange(current)}, on-road</p>
+
+      <div className="relative mt-4 h-9">
+        <div className="absolute inset-x-0 top-1/2 h-1.5 -translate-y-1/2 rounded-full bg-charcoal-700" />
+        <div
+          className="absolute top-1/2 h-1.5 -translate-y-1/2 rounded-full bg-accent-rust"
+          style={{ left: `${pct(lo)}%`, right: `${100 - pct(hi)}%` }}
+        />
+        <input
+          type="range"
+          className="dual-range"
+          min={0}
+          max={last}
+          step={1}
+          value={lo}
+          aria-label="Lowest budget"
+          aria-valuetext={`₹${BUDGET_STOPS[lo]} lakh`}
+          onChange={(e) => update(Math.min(Number(e.target.value), hi - MIN_GAP_STEPS), hi)}
+        />
+        <input
+          type="range"
+          className="dual-range"
+          min={0}
+          max={last}
+          step={1}
+          value={hi}
+          aria-label="Highest budget"
+          aria-valuetext={hi === last ? `₹${BUDGET_STOPS[hi]} lakh or more` : `₹${BUDGET_STOPS[hi]} lakh`}
+          onChange={(e) => update(lo, Math.max(Number(e.target.value), lo + MIN_GAP_STEPS))}
+        />
+      </div>
+      <div className="mt-1 flex justify-between text-xs text-ink-faint">
+        <span>₹{BUDGET_SLIDER_MIN} lakh</span>
+        <span>₹{BUDGET_SLIDER_TOP} lakh+</span>
+      </div>
+
+      <p className="mt-3 min-h-5 text-sm text-ink-soft">
+        {carCount == null
+          ? " "
+          : carCount === 0
+            ? "No cars fit this range yet. Try widening it."
+            : `${carCount} ${carCount === 1 ? "car fits" : "cars fit"} this range`}
+      </p>
+
+      {onConfirm && (
+        <button
+          type="button"
+          onClick={() => onConfirm(current)}
+          className="mt-4 rounded-lg bg-accent-rust px-6 py-2.5 text-sm font-semibold text-charcoal-950 shadow-glow-sm transition hover:brightness-110 active:scale-95"
+        >
+          Continue
         </button>
       )}
     </div>

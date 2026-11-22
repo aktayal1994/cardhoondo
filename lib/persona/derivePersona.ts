@@ -58,6 +58,16 @@ const BUDGET_BOUNDS: Record<string, [number, number]> = {
   ">25L": [25, Infinity],
 };
 
+/** v4 slider answer: ["8", "15"] in lakh; the top stop (25) means "and above". */
+function sliderBudgetChip(answers: QuestionnaireAnswers): string | null {
+  const v = asArray(answers["q_budget_range"]);
+  if (v.length !== 2) return null;
+  const lo = v[0].replace(/\.0$/, "");
+  const hi = v[1].replace(/\.0$/, "");
+  if (parseFloat(hi) >= 25) return `₹${lo}L+`;
+  return `₹${lo}–${hi}L`;
+}
+
 function budgetChip(selected: string[]): string {
   const idxs = BUDGET_ORDER.map((b, i) => (selected.includes(b) ? i : -1)).filter((i) => i >= 0);
   if (idxs.length === 0) return "Any budget";
@@ -137,6 +147,27 @@ const PRIORITY_CHIP_ORDER: [string, string][] = [
   ["Power and acceleration", "Power"],
 ];
 
+// v4 priorities ("What would you hate to compromise on?"), mapped onto the
+// same chip labels and title adjectives as the v3 values.
+const V4_PRIORITY_TO_V3: Record<string, string> = {
+  "Comfortable ride": "Ride quality and handling",
+  "Safety and solid build": "Safety and build quality",
+  "Good mileage": "Fuel efficiency",
+  "Strong performance": "Power and acceleration",
+  "Features and tech": "Features and tech",
+  "Trouble-free, cheap to own": "Low running costs",
+};
+
+function pickedPriorities(answers: QuestionnaireAnswers): { picked: string[]; space: boolean; balanced: boolean } {
+  const v4 = asArray(answers["q_priorities"]);
+  if (v4.length === 0) return { picked: asArray(answers["q_top2_priorities"]), space: false, balanced: false };
+  return {
+    picked: v4.map((p) => V4_PRIORITY_TO_V3[p]).filter(Boolean),
+    space: v4.includes("Space for people and luggage"),
+    balanced: v4.includes("Balanced, no strong focus"),
+  };
+}
+
 function prioritiesChip(picked: string[]): string {
   const labels = PRIORITY_CHIP_ORDER.filter(([v]) => picked.includes(v)).map(([, label]) => label);
   return labels.length ? labels.join(" + ") : "Priorities not set";
@@ -173,7 +204,14 @@ function setting(answers: QuestionnaireAnswers): string {
 }
 
 function noun(answers: QuestionnaireAnswers): string {
-  const who = asArray(answers["q_who_rides"]);
+  const care = asArray(answers["q_extra_care"]);
+  const who = care.length
+    ? care.includes("No (only adults)")
+      ? answers["q_seating"] === "1-2 people"
+        ? ["Partner"]
+        : ["Other adults or friends"]
+      : care
+    : asArray(answers["q_who_rides"]);
   let n: string;
   if (who.includes("Young kids") && who.includes("Elderly parents")) n = "Joint Family";
   else if (who.includes("Young kids") || who.includes("Elderly parents")) n = "Family";
@@ -189,17 +227,19 @@ function noun(answers: QuestionnaireAnswers): string {
 // ---------------------------------------------------------------------------
 
 export function derivePersona(answers: QuestionnaireAnswers): Persona {
-  const picked = asArray(answers["q_top2_priorities"]);
-  const title = ["The", adjective(picked), setting(answers), noun(answers)].filter(Boolean).join(" ");
+  const { picked, space, balanced } = pickedPriorities(answers);
+  const adj = picked.length ? adjective(picked) : space ? "Space-first" : "Balanced";
+  const title = ["The", adj, setting(answers), noun(answers)].filter(Boolean).join(" ");
+  const priorityText = [prioritiesChip(picked), space ? "Space" : ""].filter((t) => t && t !== "Priorities not set").join(" + ");
 
   const attrs: PersonaAttrs = {
-    budget: budgetChip(asArray(answers["q_budget"])),
+    budget: sliderBudgetChip(answers) ?? budgetChip(asArray(answers["q_budget"])),
     fuelTrans: fuelTransChip(answers),
     seating: seatingChip(answers),
-    priorities: prioritiesChip(picked),
+    priorities: balanced ? "Balanced" : priorityText || "Priorities not set",
     parking: typeof answers["q_parking_tightness"] === "string" ? (answers["q_parking_tightness"] as string) : null,
     commute: typeof answers["q_daily_commute"] === "string" ? (answers["q_daily_commute"] as string) : null,
-    who: asArray(answers["q_who_rides"]).join(", "),
+    who: (asArray(answers["q_extra_care"]).length ? asArray(answers["q_extra_care"]) : asArray(answers["q_who_rides"])).join(", "),
     drive: typeof answers["q_drive_type"] === "string" ? (answers["q_drive_type"] as string) : null,
     brandAvoid: asArray(answers["q_brand_avoid"]).length,
   };

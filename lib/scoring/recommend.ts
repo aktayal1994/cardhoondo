@@ -16,7 +16,12 @@
  */
 import { scoreCar } from "./scoreRecommendation";
 import type { BrandFacetScoreRow, CatalogVariant, FacetScoreRow, ScoreBreakdownItem } from "./types";
-import type { QuestionnaireAnswers } from "./questionnaireWeights";
+import {
+  FACET_THEME_MAP,
+  MAX_FACET_WEIGHT,
+  isV4Answers,
+  type QuestionnaireAnswers,
+} from "./questionnaireWeights";
 
 // scoreCar() already dampens the composite by coverage ratio, but a car with
 // next to no review data (e.g. 2 claims from a single comparison video) can
@@ -54,20 +59,46 @@ function asList(answer: string | string[] | undefined): string[] {
   return Array.isArray(answer) ? answer : [answer];
 }
 
-function lengthMmOf(variant: CatalogVariant): number | null {
-  const lengthText = String(
-    (variant.spec_sections?.["Dimensions & Capacity"] as Record<string, unknown> | undefined)?.["Length"] ?? "",
-  );
-  const match = lengthText.match(/(\d+)/);
+function specNumber(variant: CatalogVariant, section: string, key: string): number | null {
+  const text = String((variant.spec_sections?.[section] as Record<string, unknown> | undefined)?.[key] ?? "");
+  const match = text.match(/(\d+)/);
   return match ? parseInt(match[1], 10) : null;
 }
 
-/** The selected budget band this variant's price sits in (budget is
- * multi-select, so each variant is judged against its own band: ticking
- * 5-10L and 10-15L never marks a 9 lakh hatchback as "too small"). */
+function lengthMmOf(variant: CatalogVariant): number | null {
+  return specNumber(variant, "Dimensions & Capacity", "Length");
+}
+
+// ---------------------------------------------------------------------------
+// Budget slider (v4): q_budget_range = [min lakh, max lakh] as strings. The
+// top stop (BUDGET_SLIDER_TOP) means "and above", so it has no upper limit.
+// ---------------------------------------------------------------------------
+export const BUDGET_SLIDER_MIN = 3;
+export const BUDGET_SLIDER_TOP = 25;
+
+export function budgetRangeRupees(answers: QuestionnaireAnswers): [number, number] | null {
+  const raw = asList(answers["q_budget_range"]);
+  if (raw.length !== 2) return null;
+  const lo = parseFloat(raw[0]);
+  const hi = parseFloat(raw[1]);
+  if (!Number.isFinite(lo) || !Number.isFinite(hi)) return null;
+  const min = lo <= BUDGET_SLIDER_MIN ? 0 : lo * 100_000;
+  const max = hi >= BUDGET_SLIDER_TOP ? Infinity : hi * 100_000;
+  return [min, max];
+}
+
+/** The budget band this variant's price sits in, used by the size grading
+ * and the budget-linked parking limits. v3 answers: one of the selected
+ * bands (multi-select, so each variant is judged against its own band:
+ * ticking 5-10L and 10-15L never marks a 9 lakh hatchback as "too small").
+ * v4 slider: the fixed band the price falls in. */
 function budgetBandOf(variant: CatalogVariant, answers: QuestionnaireAnswers): string | null {
   const price = variant.on_road_price ?? variant.ex_showroom_price;
   if (price == null) return null;
+  if (budgetRangeRupees(answers)) {
+    for (const [b, [lo, hi]] of Object.entries(BUDGET_RANGES)) if (price >= lo && price < hi) return b;
+    return null;
+  }
   for (const b of asList(answers["q_budget"])) {
     const range = BUDGET_RANGES[b];
     if (range && price >= range[0] && price < range[1]) return b;
@@ -107,7 +138,180 @@ export function parkingPenaltyMultiplier(variant: CatalogVariant, answers: Quest
   // length penalty so it doesn't push the shortlist back to sub-4m cars.
   const softener = threeInBack(answers) ? 0.5 : 1.0;
   const penalty = (overMm / 100) * rule.penaltyPer100mm * softener;
-  return Math.max(PARKING_PENALTY_FLOOR, 1.0 - penalty);
+  const lengthMult = Math.max(PARKING_PENALTY_FLOOR, 1.0 - penalty);
+  if (!isV4Answers(answers)) return lengthMult;
+  return Math.max(PARKING_PENALTY_FLOOR, lengthMult * parkingWidthMultiplier(variant, answers, tier!, band));
+}
+
+// Width check for tight parking (v4). Narrow lanes and society gates are
+// about width as much as length. Catalog widths (Nov 2026): 1490-1922 mm,
+// compact SUVs 1790-1800, big 7-seat SUVs 1850-1920. Widths over 2000 mm are
+// treated as a data error (one EV's figure includes mirrors).
+const PARKING_WIDTH_RULES: Record<string, { thresholdMm: number; penaltyPer100mm: number } | null> = {
+  "Very tight": { thresholdMm: 1750, penaltyPer100mm: 0.12 },
+  "Somewhat tight": { thresholdMm: 1820, penaltyPer100mm: 0.05 },
+  "Not tight": null,
+};
+// Like length: never mark a car down for being as wide as its budget band normally is.
+const BUDGET_FREE_WIDTH_MM: Record<string, number> = {
+  "10-15L": 1790,
+  "15-20L": 1800,
+  "20-25L": 1850,
+  ">25L": 1850,
+};
+
+function parkingWidthMultiplier(
+  variant: CatalogVariant,
+  answers: QuestionnaireAnswers,
+  tier: string,
+  band: string | null,
+): number {
+  const rule = PARKING_WIDTH_RULES[tier];
+  const widthMm = specNumber(variant, "Dimensions & Capacity", "Width");
+  if (!rule || widthMm == null || widthMm > 2000) return 1.0;
+  const thresholdMm = Math.max(rule.thresholdMm, band ? BUDGET_FREE_WIDTH_MM[band] ?? 0 : 0);
+  const overMm = Math.max(0, widthMm - thresholdMm);
+  const softener = threeInBack(answers) ? 0.5 : 1.0;
+  return 1.0 - (overMm / 100) * rule.penaltyPer100mm * softener;
+}
+
+// ---------------------------------------------------------------------------
+// Who needs extra care (v4, q_extra_care)
+// ---------------------------------------------------------------------------
+// Elderly parents: getting in and out. No review topic covers it and the
+// catalog has no body type, but every car has its real height. Low sedans
+// (1475-1510 mm) are a long way down; very tall body-on-frame SUVs (Thar,
+// Gurkha, Scorpio, 1850-2100 mm) are a climb up. Soft, never a filter.
+const EASY_ENTRY = {
+  lowMm: 1550,
+  lowPenaltyPer25mm: 0.05,
+  lowFloor: 0.8,
+  highMm: 1850,
+  highPenaltyPer50mm: 0.05,
+  highFloor: 0.85,
+};
+
+function childSafetyStars(variant: CatalogVariant): number | null {
+  const safety = variant.spec_sections?.["Safety"] as Record<string, unknown> | undefined;
+  const raw = safety?.["Bharat NCAP Child Safety Rating"] ?? safety?.["Global NCAP Child Safety Rating"];
+  const match = String(raw ?? "").match(/(\d)/);
+  return match ? parseInt(match[1], 10) : null;
+}
+
+export function careMultiplier(variant: CatalogVariant, answers: QuestionnaireAnswers): number {
+  const care = asList(answers["q_extra_care"]);
+  let mult = 1.0;
+  if (care.includes("Elderly parents")) {
+    const h = specNumber(variant, "Dimensions & Capacity", "Height");
+    if (h != null && h < EASY_ENTRY.lowMm) {
+      mult *= Math.max(EASY_ENTRY.lowFloor, 1 - ((EASY_ENTRY.lowMm - h) / 25) * EASY_ENTRY.lowPenaltyPer25mm);
+    } else if (h != null && h > EASY_ENTRY.highMm) {
+      mult *= Math.max(EASY_ENTRY.highFloor, 1 - ((h - EASY_ENTRY.highMm) / 50) * EASY_ENTRY.highPenaltyPer50mm);
+    }
+  }
+  if (care.includes("Young kids")) {
+    // Official child-occupant crash rating, where tested. Untested is neutral:
+    // a missing rating does not mean an unsafe car.
+    const stars = childSafetyStars(variant);
+    if (stars === 5) mult *= 1.05;
+    else if (stars != null && stars <= 3) mult *= 0.92;
+  }
+  return mult;
+}
+
+// ---------------------------------------------------------------------------
+// Electric range vs daily distance (v4). Real-world range is roughly 70% of
+// the claimed figure; a short-range EV is marked down for long daily drives.
+// ---------------------------------------------------------------------------
+const EV_MIN_CLAIMED_RANGE_KM: Record<string, number> = {
+  "50-100km": 300,
+  "100km+ or highly variable": 400,
+};
+
+export function evRangeMultiplier(variant: CatalogVariant, answers: QuestionnaireAnswers): number {
+  if (!isV4Answers(answers)) return 1.0;
+  if ((variant.fuel_type ?? "").toLowerCase() !== "electric") return 1.0;
+  const need = EV_MIN_CLAIMED_RANGE_KM[String(answers["q_daily_commute"] ?? "")];
+  const range = specNumber(variant, "Engine & Transmission", "Range");
+  if (!need || range == null) return 1.0;
+  const shortKm = Math.max(0, need - range);
+  return Math.max(0.7, 1 - (shortKm / 50) * 0.1);
+}
+
+// ---------------------------------------------------------------------------
+// Brands you love (v4, q_brand_love). We don't just favour that brand: we read
+// what reviews of that brand's cars praise MORE than reviews of cars in
+// general, and give those themes extra weight. So a VW fan who needs a 7
+// seater sees 7 seaters that are strong where VW stands out. The loved
+// brand's own cars get a small extra nudge too. Built from every car's
+// model-level facet scores (brand_facet_scores only covers a few brands).
+// ---------------------------------------------------------------------------
+const BRAND_LOVE_THEME_BOOST = 1.3;
+const BRAND_LOVE_OWN_CARS = 1.05;
+const BRAND_LOVE_MIN_CLAIMS = 15;
+const BRAND_LOVE_SKIP_THEMES = new Set(["resale_value"]);
+
+function brandSlug(displayBrand: string): string {
+  return displayBrand.trim().toLowerCase().replace(/\s+/g, "_");
+}
+
+type ThemeAgg = Map<string, { sum: number; n: number }>;
+
+function addRows(agg: ThemeAgg, rows: FacetScoreRow[]) {
+  for (const r of rows) {
+    if (r.granularity !== "model" || BRAND_LOVE_SKIP_THEMES.has(r.theme)) continue;
+    const a = agg.get(r.theme) ?? { sum: 0, n: 0 };
+    a.sum += r.score * r.claim_count;
+    a.n += r.claim_count;
+    agg.set(r.theme, a);
+  }
+}
+
+/** Each loved brand's two most distinctive strengths: themes where its cars'
+ * reviews score highest above the all-car average. */
+export function lovedBrandThemes(
+  answers: QuestionnaireAnswers,
+  facetScoresByCar: Record<string, FacetScoreRow[]>,
+): string[] {
+  const loved = asList(answers["q_brand_love"]).map(brandSlug);
+  if (loved.length === 0) return [];
+  const all: ThemeAgg = new Map();
+  for (const rows of Object.values(facetScoresByCar)) addRows(all, rows);
+
+  const themes = new Set<string>();
+  for (const brand of loved) {
+    const mine: ThemeAgg = new Map();
+    for (const [carId, rows] of Object.entries(facetScoresByCar)) {
+      if (brandOf(carId) === brand) addRows(mine, rows);
+    }
+    const ranked = [...mine.entries()]
+      .filter(([theme, a]) => a.n >= BRAND_LOVE_MIN_CLAIMS && all.has(theme))
+      .map(([theme, a]) => {
+        const g = all.get(theme)!;
+        return { theme, lift: a.sum / a.n - g.sum / g.n };
+      })
+      .filter((t) => t.lift > 0)
+      .sort((a, b) => b.lift - a.lift)
+      .slice(0, 2);
+    for (const t of ranked) themes.add(t.theme);
+  }
+  return [...themes];
+}
+
+function applyBrandLoveWeights(weights: Record<string, number>, themes: string[]): Record<string, number> {
+  if (themes.length === 0) return weights;
+  const next = { ...weights };
+  for (const [facet, theme] of Object.entries(FACET_THEME_MAP)) {
+    if (themes.includes(theme) && facet in next) {
+      next[facet] = Math.min(MAX_FACET_WEIGHT, next[facet] * BRAND_LOVE_THEME_BOOST);
+    }
+  }
+  return next;
+}
+
+function brandLoveMultiplier(variant: CatalogVariant, answers: QuestionnaireAnswers): number {
+  const loved = new Set(asList(answers["q_brand_love"]).map((b) => b.trim().toLowerCase()));
+  return loved.has(variant.brand.trim().toLowerCase()) ? BRAND_LOVE_OWN_CARS : 1.0;
 }
 
 // Rear-seat size check for "5 people" (q_seating, three in the back). The
@@ -185,7 +389,7 @@ const SEGMENT_PENALTY_FLOOR = 0.5;
 
 export const BRAND_LIST = [
   "Citroen", "Force", "Honda", "Hyundai", "Jeep", "Kia", "MG", "Mahindra",
-  "Maruti", "Nissan", "Renault", "Skoda", "Tata", "Toyota", "VinFast", "Volkswagen",
+  "Maruti", "Nissan", "Renault", "Skoda", "Tata", "Toyota", "VinFast", "Volkswagen", "BYD",
 ];
 
 /**
@@ -232,9 +436,20 @@ export function passesStructuralFilters(
   variant: CatalogVariant,
   answers: QuestionnaireAnswers,
 ): { ok: boolean; reason: string } {
+  // q_budget_range (v4 slider): on-road price between the two handles.
+  const range = budgetRangeRupees(answers);
+  if (range) {
+    const price = variant.on_road_price ?? variant.ex_showroom_price;
+    if (price == null) return { ok: false, reason: "no price data" };
+    if (price < range[0] || price > range[1]) {
+      return { ok: false, reason: `on-road price ${price.toLocaleString()} outside the budget slider range` };
+    }
+  }
+
   // q_budget: multi-select, OR-matched -- a variant passes if its price
   // falls in ANY selected band (was single-select in v2).
-  const validBands = asList(answers["q_budget"]).filter((b) => b in BUDGET_RANGES);
+  // A v4 slider answer replaces any leftover v3 band answer.
+  const validBands = range ? [] : asList(answers["q_budget"]).filter((b) => b in BUDGET_RANGES);
   if (validBands.length > 0) {
     const price = variant.on_road_price ?? variant.ex_showroom_price;
     if (price == null) return { ok: false, reason: "no price data" };
@@ -360,7 +575,7 @@ function pickVariantAmongTies(
   answers: QuestionnaireAnswers,
 ): RecommendCandidate {
   if (tied.length === 1) return tied[0];
-  const priorities = asList(answers["q_top2_priorities"]);
+  const priorities = asList(answers[isV4Answers(answers) ? "q_priorities" : "q_top2_priorities"]);
   const info = tied.map((c) => {
     const v = variantByKey.get(`${c.car_id}::${c.variant_id}`);
     return {
@@ -376,7 +591,11 @@ function pickVariantAmongTies(
   if (priorities.includes("Features and tech")) {
     return pick((a, b) => b.features - a.features || a.price - b.price);
   }
-  if (priorities.includes("Safety and build quality")) {
+  if (
+    priorities.includes("Safety and build quality") ||
+    priorities.includes("Safety and solid build") ||
+    asList(answers["q_extra_care"]).includes("Young kids")
+  ) {
     return pick((a, b) => b.safety - a.safety || b.features - a.features || a.price - b.price);
   }
   const maxFeatures = Math.max(...info.map((i) => i.features));
@@ -405,6 +624,12 @@ export interface RecommendCandidate {
   rear_room_multiplier?: number;
   /** Budget-based size grading. Absent on results computed before 15 Nov 2026. */
   segment_fit_multiplier?: number;
+  /** v4 (22 Nov 2026): easy entry for parents, child crash rating for kids. */
+  care_multiplier?: number;
+  /** v4: EV claimed range vs daily distance. */
+  ev_range_multiplier?: number;
+  /** v4: small nudge for a brand the user loves. */
+  brand_love_multiplier?: number;
   top_contributors: ScoreBreakdownItem[];
 }
 
@@ -446,7 +671,8 @@ export interface RecommendInput {
 }
 
 export function recommend(input: RecommendInput): RecommendOutput {
-  const { answers, weights, catalogVariants, facetScoresByCar, brandFacetScoresByBrand } = input;
+  const { answers, catalogVariants, facetScoresByCar, brandFacetScoresByBrand } = input;
+  const weights = applyBrandLoveWeights(input.weights, lovedBrandThemes(answers, facetScoresByCar));
   const topN = input.topN ?? 3;
 
   const carIds = Array.from(new Set(catalogVariants.map((v) => v.car_id))).sort();
@@ -497,7 +723,11 @@ export function recommend(input: RecommendInput): RecommendOutput {
       const commuteMult = commuteFuelNudgeMultiplier(variant, answers);
       const rearMult = rearRoomMultiplier(variant, answers);
       const segmentMult = segmentFitMultiplier(variant, answers);
-      const adjustedScore = result.composite_score * parkingMult * commuteMult * rearMult * segmentMult;
+      const careMult = careMultiplier(variant, answers);
+      const evRangeMult = evRangeMultiplier(variant, answers);
+      const loveMult = brandLoveMultiplier(variant, answers);
+      const adjustedScore =
+        result.composite_score * parkingMult * commuteMult * rearMult * segmentMult * careMult * evRangeMult * loveMult;
 
       candidates.push({
         car_id: carId,
@@ -516,6 +746,9 @@ export function recommend(input: RecommendInput): RecommendOutput {
         commute_fuel_nudge_multiplier: commuteMult,
         rear_room_multiplier: rearMult,
         segment_fit_multiplier: segmentMult,
+        care_multiplier: careMult,
+        ev_range_multiplier: evRangeMult,
+        brand_love_multiplier: loveMult,
         top_contributors: result.breakdown.slice(0, 5),
       });
     }

@@ -71,6 +71,12 @@ const BUDGET_BANDS: Record<string, [number, number]> = {
 };
 
 function budgetRange(answers: QuestionnaireAnswers): { min: number; max: number } | null {
+  const slider = answers.q_budget_range;
+  if (Array.isArray(slider) && slider.length === 2) {
+    const min = parseFloat(slider[0]);
+    const max = parseFloat(slider[1]);
+    if (Number.isFinite(min) && Number.isFinite(max)) return { min, max: max >= 25 ? 35 : max };
+  }
   const raw = answers.q_budget;
   const bands = (Array.isArray(raw) ? raw : raw ? [raw] : []).map((b) => BUDGET_BANDS[b]).filter(Boolean);
   if (bands.length === 0) return null;

@@ -530,3 +530,15 @@ GA for 3 Oct (first full day with GA on every visit): ~102 visitors, 90% Instagr
 - The diesel guide first showed highway mileage and safety, which 4 of its 5 cars have too few reviews for; swapped for highway stability and build quality.
 - Seen while testing, not fixed: an "under 5 lakh" search ranks the Skoda Kodiaq second, which points to a missing or wrong price on one of its variants.
 - Verified live: all four pages return 200 with five cars and five "came close" cars each; sitemap and `/guides` list 12.
+
+## 22 Nov 2026: Questionnaire v4
+
+Founder-led rework of the questions (decisions: docs/questionnaire_v4_decisions.md in the working copy). 10 questions instead of 11.
+- Budget is a two-handle slider (3 to 25 lakh+, half-lakh steps to 20L) with a live "N cars fit" line from the new `/api/catalog-options`.
+- Headcount + "Anyone needing extra care?" (kids: safety weight and child crash rating; parents: car height for easy entry; only adults: more back-seat weight). "Who rides" and "frustration" removed.
+- Daily distance now also weighs long-drive comfort and EV claimed range. Parking checks width as well as length.
+- Priorities: "What would you hate to compromise on?", pick 1 to 3, info panel, new options (trouble-free ownership, space) and "Balanced".
+- New "Brands you love" (boosts themes where that brand's cars beat the average); "brands to skip" lists only brands that fit; best-known brands first.
+- Tick boxes for multiple choice, circles for single choice, "or" divider with locking for none-type options.
+- New answer ids, so old saved searches and the guides score exactly as before.
+- Build fix: guide pages share one data load (fetchRecommendationData) and the build uses one worker; three builds had failed on Supabase statement timeouts.

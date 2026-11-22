@@ -7,6 +7,7 @@ import {
   questionsInSection,
   isAnswerComplete,
   isQuestionVisible,
+  needsConfirm,
   summarizeAnswer,
   type QuestionDef,
   type SectionId,
@@ -119,7 +120,7 @@ export default function StepQuestionForm({
   function commitActive(question: QuestionDef, value: string | string[]) {
     const nextAnswers = { ...answers, [question.id]: value };
     setAnswers(nextAnswers);
-    if (question.type !== "multiAny" && isAnswerComplete(question, value)) {
+    if (!needsConfirm(question) && isAnswerComplete(question, value)) {
       window.setTimeout(() => {
         // Computed from the closed-over progressIndex rather than a
         // functional setState updater -- calling finishIfDone (which can
@@ -136,10 +137,14 @@ export default function StepQuestionForm({
     }
   }
 
-  function confirmMultiAny() {
+  function confirmMultiAny(question: QuestionDef, value?: string | string[]) {
+    // The budget slider hands over its value on Continue (its starting
+    // position isn't saved until confirmed).
+    const nextAnswers = value !== undefined ? { ...answers, [question.id]: value } : answers;
+    if (value !== undefined) setAnswers(nextAnswers);
     const next = progressIndex + 1;
     setProgressIndex(next);
-    if (next >= questions.length) finishIfDone(answers, skipped);
+    if (next >= questions.length) finishIfDone(nextAnswers, skipped);
   }
 
   function commitEdit(question: QuestionDef, value: string | string[]) {
@@ -150,7 +155,7 @@ export default function StepQuestionForm({
       next.delete(question.id);
       return next;
     });
-    if (question.type !== "multiAny" && isAnswerComplete(question, value)) {
+    if (!needsConfirm(question) && isAnswerComplete(question, value)) {
       window.setTimeout(() => setEditingId(null), 550);
     }
   }
@@ -220,7 +225,14 @@ export default function StepQuestionForm({
                       value={answers[q.id]}
                       answers={answers}
                       onChange={(v) => commitEdit(q, v)}
-                      onConfirm={q.type === "multiAny" ? () => setEditingId(null) : undefined}
+                      onConfirm={
+                        needsConfirm(q)
+                          ? (v) => {
+                              if (v !== undefined) commitEdit(q, v);
+                              setEditingId(null);
+                            }
+                          : undefined
+                      }
                       compact
                     />
                   </div>
@@ -261,15 +273,15 @@ export default function StepQuestionForm({
                   value={answers[active.id]}
                   answers={answers}
                   onChange={(v) => commitActive(active, v)}
-                  onConfirm={active.type === "multiAny" ? () => confirmMultiAny() : undefined}
+                  onConfirm={needsConfirm(active) ? (v) => confirmMultiAny(active, v) : undefined}
                 />
-                {!active.required && active.type !== "multiAny" && (
+                {!active.required && !needsConfirm(active) && (
                   <button
                     type="button"
                     onClick={() => skipActive(active)}
                     className="ml-12 mt-3 text-sm text-ink-faint underline decoration-dotted underline-offset-4 hover:text-ink-soft"
                   >
-                    Skip — I don't have a preference
+                    Skip, no preference
                   </button>
                 )}
               </motion.div>

@@ -32,7 +32,24 @@ async function fetchAllRows<T>(
   }
 }
 
-export async function fetchRecommendationData(): Promise<RecommendationData> {
+// One load shared by everything that asks within a few minutes in the same
+// server process. During a build every guide page asks at once; without this
+// each one pulled the full review tables in parallel and Supabase cancelled
+// queries with a statement timeout (failed production builds, 22 Nov 2026).
+const SHARE_MS = 5 * 60 * 1000;
+let shared: { at: number; promise: Promise<RecommendationData> } | null = null;
+
+export function fetchRecommendationData(): Promise<RecommendationData> {
+  if (shared && Date.now() - shared.at < SHARE_MS) return shared.promise;
+  const promise = loadRecommendationData();
+  shared = { at: Date.now(), promise };
+  promise.catch(() => {
+    if (shared?.promise === promise) shared = null;
+  });
+  return promise;
+}
+
+async function loadRecommendationData(): Promise<RecommendationData> {
   const supabase = getSupabaseServerClient();
 
   const variantRows = await fetchAllRows<any>((from, to) =>

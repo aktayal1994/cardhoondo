@@ -2,6 +2,9 @@
 const nextConfig = {
   // Car pages share one ranking calculation during a build; the default 60 seconds was once too short for it.
   staticPageGenerationTimeout: 180,
+  // One build worker: parallel prerendering of the guide pages made Supabase cancel queries with a statement
+  // timeout (three failed production builds on 22 Nov 2026; same fix as the Cloudflare build notes).
+  experimental: { cpus: 1 },
   async redirects() {
     return [
       // One canonical address. Sign-in stores a short-lived cookie on the address it starts on and Google

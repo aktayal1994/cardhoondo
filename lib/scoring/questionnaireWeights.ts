@@ -171,6 +171,109 @@ export const WEIGHT_RULES: Record<string, Record<string, Rule[]>> = {
 
 export type QuestionnaireAnswers = Record<string, string | string[]>;
 
+// ---------------------------------------------------------------------------
+// Questionnaire v4 (22 Nov 2026, docs/questionnaire_v4_decisions.md)
+// ---------------------------------------------------------------------------
+// New answers use NEW question ids (q_budget_range, q_extra_care,
+// q_priorities, q_brand_love), so every answer saved before v4 (and every
+// guide in lib/guides, which still uses the v3 ids) scores exactly as it did.
+// The extra v4-only rules below (commute comfort, adults in the back) are
+// switched on only when the answers are v4.
+
+export const PRIORITY_THEMES: Record<string, [string, number][]> = {
+  // [theme, share of the per-pick multiplier]
+  "Comfortable ride": [["ride_quality", 1]],
+  "Safety and solid build": [["safety_build_quality", 1]],
+  "Good mileage": [["mileage_efficiency", 1]],
+  "Strong performance": [["power_drivability", 1]],
+  "Features and tech": [["feature_tech", 1]],
+  "Trouble-free, cheap to own": [
+    ["reliability", 1],
+    ["service_cost", 0.8],
+    ["after_sales_dealer", 0.6],
+  ],
+  "Space for people and luggage": [["cabin_space", 1]],
+};
+export const PRIORITY_BALANCED = "Balanced, no strong focus";
+export const CARE_ONLY_ADULTS = "No (only adults)";
+
+const V3_ONLY_QUESTIONS = new Set(["q_budget", "q_who_rides", "q_top2_priorities", "q_frustration"]);
+
+export function isV4Answers(answers: QuestionnaireAnswers): boolean {
+  return "q_priorities" in answers || "q_budget_range" in answers || "q_extra_care" in answers;
+}
+
+function listOf(answer: string | string[] | undefined): string[] {
+  if (answer == null) return [];
+  return Array.isArray(answer) ? answer : [answer];
+}
+
+function multiplyTarget(weights: Record<string, number>, target: string, multiplier: number) {
+  if (target in FACET_THEME_MAP) {
+    weights[target] *= multiplier;
+    return;
+  }
+  for (const [facet, theme] of Object.entries(FACET_THEME_MAP)) {
+    if (theme === target) weights[facet] *= multiplier;
+  }
+}
+
+// q_extra_care: kids push safety as hard as a top priority; parents keep the
+// v3 "Elderly parents" weights (their height check lives in recommend.ts).
+const EXTRA_CARE_RULES: Record<string, Rule[]> = {
+  "Young kids": [["safety_build_quality", 2.5], ["rear_legroom_kneeroom", 1.3]],
+  "Elderly parents": [
+    ["safety_build_quality", 1.5],
+    ["rear_legroom_kneeroom", 1.5],
+    ["seat_cushioning_support", 1.3],
+  ],
+};
+
+// Long daily distance: comfort counts for more whatever the fuel.
+const COMMUTE_COMFORT_RULES: Record<string, Rule[]> = {
+  "50-100km": [["seat_cushioning_support", 1.3], ["nvh_refinement", 1.2]],
+  "100km+ or highly variable": [
+    ["seat_cushioning_support", 1.5],
+    ["nvh_refinement", 1.3],
+    ["highway_mileage_actual", 1.3],
+  ],
+};
+
+function applyV4Rules(weights: Record<string, number>, answers: QuestionnaireAnswers) {
+  // Priorities: pick 1-3. With 3 picks each counts a little less so the
+  // result stays focused. "Balanced" adds nothing on purpose.
+  const picks = listOf(answers["q_priorities"]).filter((p) => p in PRIORITY_THEMES);
+  const perPick = picks.length >= 3 ? 2.0 : 2.5;
+  for (const p of picks) {
+    for (const [theme, share] of PRIORITY_THEMES[p]) multiplyTarget(weights, theme, 1 + (perPick - 1) * share);
+  }
+
+  const care = listOf(answers["q_extra_care"]);
+  for (const c of care) for (const [t, m] of EXTRA_CARE_RULES[c] ?? []) multiplyTarget(weights, t, m);
+
+  // Only adults: grown-ups ride in the back, so back seat and third row
+  // matter more than the headcount alone says.
+  if (care.includes(CARE_ONLY_ADULTS)) {
+    const seats = answers["q_seating"];
+    if (seats === "6-7 people") {
+      multiplyTarget(weights, "third_row_usability", 1.25); // 2.0x -> 2.5x
+      multiplyTarget(weights, "rear_legroom_kneeroom", 1.5);
+    } else if (seats === "3-4 people") {
+      multiplyTarget(weights, "rear_legroom_kneeroom", 1.23); // 1.3x -> 1.6x
+    }
+  }
+
+  const commute = answers["q_daily_commute"];
+  if (typeof commute === "string") {
+    for (const [t, m] of COMMUTE_COMFORT_RULES[commute] ?? []) multiplyTarget(weights, t, m);
+    // Electric only, long days: how far real range falls short of the claim matters more.
+    const fuels = listOf(answers["q_fuel"]);
+    if (fuels.length === 1 && fuels[0] === "Electric" && commute in COMMUTE_COMFORT_RULES) {
+      multiplyTarget(weights, "mileage_vs_claimed_gap", 1.5);
+    }
+  }
+}
+
 /**
  * answers: {question_id: answer}, e.g. {q_top2_priorities: ["Ride quality
  * and handling", "Safety and build quality"]}. q_top2_priorities (pick
@@ -186,7 +289,10 @@ export function deriveWeightVector(answers: QuestionnaireAnswers): Record<string
   const weights: Record<string, number> = {};
   for (const facet of ALL_FACETS) weights[facet] = 1.0;
 
+  const v4 = isV4Answers(answers);
   for (const [questionId, answer] of Object.entries(answers)) {
+    // v4 replaced these; a leftover v3 answer in the same set must not count twice.
+    if (v4 && V3_ONLY_QUESTIONS.has(questionId)) continue;
     const ruleSet = WEIGHT_RULES[questionId];
     if (!ruleSet) continue;
     const selected = Array.isArray(answer) ? answer : [answer];
@@ -204,6 +310,8 @@ export function deriveWeightVector(answers: QuestionnaireAnswers): Record<string
       }
     }
   }
+
+  if (v4) applyV4Rules(weights, answers);
 
   for (const facet of Object.keys(weights)) {
     weights[facet] = Math.max(MIN_FACET_WEIGHT, Math.min(MAX_FACET_WEIGHT, weights[facet]));
