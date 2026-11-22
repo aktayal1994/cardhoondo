@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowRight } from "lucide-react";
 import Breadcrumbs from "../../../components/Breadcrumbs";
+import DecideCta from "../../../components/DecideCta";
 import { GuideFooter, GuideNav } from "../../../components/GuideLayout";
 import { fetchCarPageData, fetchFeaturedCarSummaries } from "../../../lib/data/fetchCarPage";
 import { fetchPublishedComparisons } from "../../../lib/data/fetchComparisons";
@@ -117,6 +118,19 @@ export default async function CarPage({ params }: Params) {
           )}
         </p>
         </div>
+
+        {data.onSale && (
+          <DecideCta
+            title={`Deciding between the ${data.model} and another car?`}
+            sub="Add the cars you're considering, answer 8 quick questions, and see which one suits how you drive."
+            carIds={[data.carId]}
+            button="Compare with another car"
+            rivals={comparisons
+              .map((c) => (c.a.carId === data.carId ? c.b : c.a))
+              .slice(0, 3)
+              .map((r) => ({ carId: r.carId, model: r.model }))}
+          />
+        )}
 
         {!data.onSale && (
           <p className="mt-6 rounded-2xl border border-accent-rust/40 px-5 py-4 text-ink-soft">
@@ -247,12 +261,6 @@ export default async function CarPage({ params }: Params) {
               className="inline-flex items-center gap-2 rounded-lg bg-accent-rust px-6 py-3 text-sm font-semibold text-stage shadow-sm transition hover:brightness-105 active:scale-[0.98]"
             >
               Find my car <ArrowRight className="h-4 w-4" />
-            </Link>
-            <Link
-              href={`/decide?cars=${data.carId}`}
-              className="inline-flex items-center gap-2 rounded-full border border-border px-6 py-3 text-sm font-semibold text-ink transition hover:border-accent-rust/50"
-            >
-              Deciding between the {name} and another car?
             </Link>
             <Link
               href={`/quotation?car=${data.carId}`}

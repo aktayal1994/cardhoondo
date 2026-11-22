@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowRight } from "lucide-react";
 import Breadcrumbs from "../../../components/Breadcrumbs";
+import DecideCta from "../../../components/DecideCta";
 import { GuideFooter, GuideNav } from "../../../components/GuideLayout";
 import { fetchCarPageData } from "../../../lib/data/fetchCarPage";
 import type { CarFacetSummary, CarPageData, CarQuote } from "../../../lib/data/fetchCarPage";
@@ -134,6 +135,13 @@ export default async function ComparisonPage({ params }: Params) {
         </p>
         </div>
 
+        <DecideCta
+          title={`${A} or ${B}: which one suits you?`}
+          sub="The page below says what reviewers think. Answer 8 quick questions about how you drive and we'll tell you which fits you better."
+          carIds={[a.carId, b.carId]}
+          button="See which suits me"
+        />
+
         <p className="mt-6 text-lg leading-relaxed text-ink-soft">
           {summary} {levelNames.length > 0 && `On ${joinList(levelNames)} there is little to separate them. `}
           {priceLine}
@@ -222,12 +230,6 @@ export default async function ComparisonPage({ params }: Params) {
               className="inline-flex items-center gap-2 rounded-lg bg-accent-rust px-6 py-3 text-sm font-semibold text-stage shadow-sm transition hover:brightness-105 active:scale-[0.98]"
             >
               Find my car <ArrowRight className="h-4 w-4" />
-            </Link>
-            <Link
-              href={`/decide?cars=${a.carId},${b.carId}`}
-              className="inline-flex items-center gap-2 rounded-full border border-border px-6 py-3 text-sm font-semibold text-ink transition hover:border-accent-rust/50"
-            >
-              Which one suits you? {A} or {B}
             </Link>
             <Link
               href="/quotation"

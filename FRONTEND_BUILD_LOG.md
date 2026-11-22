@@ -561,3 +561,7 @@ Founder-led rework of the questions (decisions: docs/questionnaire_v4_decisions.
 - Code: `lib/decide/runDecision.ts`, `lib/decide/types.ts`, `app/api/decide/route.ts` (rate limit 30/10 min), `components/DecideFlow.tsx`, `app/decide/page.tsx`. `fetchCatalogOptions` now carries the model name (cache key v2).
 - Entry points: home hero ("Already have cars in mind? Compare them"), phone home card, phone menu, journey "Exploring" stage, every car review page (car pre-picked) and head-to-head page (both pre-picked). Added to the sitemap.
 - Verified live: /decide 200, links on home, car and compare pages, sitemap entry, API ranks Baleno/Punch/Swift.
+
+## 22 Nov 2026 — Compare my cars card at the top of review pages
+- New `components/DecideCta.tsx`: a card right under the title band of every on-sale car review page ("Deciding between the Baleno and another car?", button "Compare with another car" pre-picking the car, plus up to 3 one-tap "vs <rival>" chips from its published head-to-heads) and every head-to-head page ("Creta or Seltos: which one suits you?", both cars pre-picked). The old links at the bottom of those pages were removed (the top card replaces them).
+- Verified live on /cars/maruti-baleno, /cars/tata-nexon and /compare/hyundai-creta-vs-kia-seltos; checked on phone and desktop width locally.
