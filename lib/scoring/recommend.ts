@@ -19,9 +19,36 @@ import type { BrandFacetScoreRow, CatalogVariant, FacetScoreRow, ScoreBreakdownI
 import {
   FACET_THEME_MAP,
   MAX_FACET_WEIGHT,
+  PRIORITY_FUN,
   isV4Answers,
   type QuestionnaireAnswers,
 } from "./questionnaireWeights";
+import { specKey, specScoresFor, specWeights, type SpecScores } from "./specScores";
+
+// Priority-led weighting (v4, 22 Nov 2026). The composite averages ~51 review
+// topics, so with every topic at full weight the most broadly praised car won
+// its budget band whatever the user picked (a 2,000-search simulation: changing
+// only the priorities changed just 20% of the top 3). Topics the user's
+// answers did not lift now count at 30%, so their priorities lead (about 40%
+// of the top 3 then changes) while broad complaints still matter.
+export const NON_PRIORITY_WEIGHT_SHARE = 0.3;
+
+function priorityLedWeights(weights: Record<string, number>): Record<string, number> {
+  const out: Record<string, number> = {};
+  for (const [f, w] of Object.entries(weights)) out[f] = w > 1 ? w : w * NON_PRIORITY_WEIGHT_SHARE;
+  return out;
+}
+
+// Cars whose only reviews so far come from their launch period: first-drive
+// reviews are friendly and no owner has lived with the car yet, so the same
+// number of claims counts as less evidence. Remove a car once it has owner
+// reviews from 6+ months after launch. (22 Nov 2026: Duster and Tekton were in
+// a quarter of all top 3s on launch reviews alone.)
+export const LAUNCH_REVIEWS_ONLY = new Set([
+  "renault_duster", "nissan_tekton", "hyundai_bayon", "kia_sorento",
+  "kia_syros_ev", "maruti_e_vitara", "mg_hector_tomahawk", "mg_hector_ev",
+]);
+const LAUNCH_EVIDENCE_FACTOR = 0.6;
 
 // scoreCar() already dampens the composite by coverage ratio, but a car with
 // next to no review data (e.g. 2 claims from a single comparison video) can
@@ -636,6 +663,9 @@ export interface RecommendCandidate {
   /** v4: small nudge for a brand the user loves. */
   brand_love_multiplier?: number;
   top_contributors: ScoreBreakdownItem[];
+  /** v4 (22 Nov 2026): paper-spec scores that joined this variant's score
+   * (specScores.ts), already scaled. Absent on v3 answers and older results. */
+  spec_scores?: SpecScores;
 }
 
 /** Answer key holding the car_ids a user hid from their results ("Not for
@@ -681,7 +711,19 @@ export interface RecommendInput {
 export function recommend(input: RecommendInput): RecommendOutput {
   const { answers, catalogVariants, facetScoresByCar, brandFacetScoresByBrand } = input;
   const loveThemes = lovedBrandThemes(answers, facetScoresByCar);
-  const weights = applyBrandLoveWeights(input.weights, loveThemes);
+  // v4 only (22 Nov 2026): specs, priority-led weights and the launch-review
+  // discount. v3 answers (old saved searches, the guides) score as before.
+  const v4 = isV4Answers(answers);
+  const weights = v4
+    ? priorityLedWeights(applyBrandLoveWeights(input.weights, loveThemes))
+    : applyBrandLoveWeights(input.weights, loveThemes);
+  const specs = v4 ? specScoresFor(catalogVariants) : null;
+  const specW = v4
+    ? specWeights(weights, FACET_THEME_MAP, {
+        youngKids: asList(answers["q_extra_care"]).includes("Young kids"),
+        funToDrive: asList(answers["q_priorities"]).includes(PRIORITY_FUN),
+      })
+    : null;
   const topN = input.topN ?? 3;
 
   const carIds = Array.from(new Set(catalogVariants.map((v) => v.car_id))).sort();
@@ -698,11 +740,15 @@ export function recommend(input: RecommendInput): RecommendOutput {
       hiddenCars.push({ car_id: carId, brand: v.brand, car_model: v.car_model });
       continue;
     }
-    const facetScores = facetScoresByCar[carId];
-    if (!facetScores || facetScores.length === 0) {
+    const rawFacetScores = facetScoresByCar[carId];
+    if (!rawFacetScores || rawFacetScores.length === 0) {
       noReviewData.push(carId);
       continue;
     }
+    const facetScores =
+      v4 && LAUNCH_REVIEWS_ONLY.has(carId)
+        ? rawFacetScores.map((r) => ({ ...r, claim_count: r.claim_count * LAUNCH_EVIDENCE_FACTOR }))
+        : rawFacetScores;
 
     const variants = catalogVariants.filter((v) => v.car_id === carId);
     for (const variant of variants) {
@@ -713,7 +759,11 @@ export function recommend(input: RecommendInput): RecommendOutput {
       }
       const powertrainId = derivePowertrainId(carId, variant);
       const brandFacetScores = brandFacetScoresByBrand[brandOf(carId)] ?? null;
-      const result = scoreCar(facetScores, weights, powertrainId, variant.variant_id, brandFacetScores);
+      const variantSpecs = specs?.get(specKey(carId, variant.variant_id)) ?? {};
+      const specList = specW
+        ? (Object.entries(variantSpecs) as [keyof SpecScores, number][]).map(([k, score]) => ({ score, weight: specW[k] ?? 0 }))
+        : [];
+      const result = scoreCar(facetScores, weights, powertrainId, variant.variant_id, brandFacetScores, specList);
 
       if (result.facets_with_data < MIN_FACETS_FOR_ELIGIBILITY) {
         excluded.push({
@@ -758,6 +808,7 @@ export function recommend(input: RecommendInput): RecommendOutput {
         care_multiplier: careMult,
         ev_range_multiplier: evRangeMult,
         brand_love_multiplier: loveMult,
+        ...(v4 ? { spec_scores: variantSpecs } : {}),
         top_contributors: result.breakdown.slice(0, 5),
       });
     }

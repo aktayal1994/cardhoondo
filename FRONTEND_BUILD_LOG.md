@@ -569,3 +569,11 @@ Founder-led rework of the questions (decisions: docs/questionnaire_v4_decisions.
 ## 22 Nov 2026 — Compare my cars card is now a photo poster
 - `DecideCta` on review and head-to-head pages is now a denim poster: the home page showroom photo (couple unsure, own AI image, no badges) with a thought bubble naming the matchup ("Baleno or Swift?", or "<model> or another car?" when a car has no published rival; "Creta or Seltos?" on head-to-heads), then the title, button and rival chips. Photo on top on phones, on the left from `sm` up. The bubble's dots lead to the couple, not to a car.
 - Verified live on /cars/maruti-baleno and /compare/hyundai-creta-vs-kia-seltos; checked phone (375 px, no sideways scroll) and desktop locally.
+
+## 22 Nov 2026 — Recommendations blend paper specs with reviews; "Fun to drive" priority
+- Why: a 3,000-search simulation showed one or two cars owning each budget band (Duster in 39% of ₹18L+ top 3s on launch-period reviews alone), priorities changing only 20% of results, and Virtus/Kushaq/Taigun/Slavia at about 0%.
+- `lib/scoring/specScores.ts` (new): per-variant spec scores (crash stars, airbags/ESC/AEB, power and torque per tonne, running cost per km, feature count, wheelbase/boot/width, and a lighter-lower body score for Fun to drive), blended inside their review themes (safety 60% spec, others 50%). Crash stars come from `lib/scoring/ncapRatings.json`, a checked Bharat NCAP + 2022-protocol Global NCAP table (46 of 89 cars tested), never CarDekho's NCAP fields. Global NCAP counts fully, Bharat NCAP alone half a star lower, untested = 2.5 stars.
+- `recommend.ts`: v4 answers only. Topics not lifted by the user's answers count at 30% (priority-led), launch-review-only cars (Duster, Tekton, Bayon, Sorento, Syros EV, e Vitara, Hector Tomahawk/EV) count their claims at 60%. v3 answers and the guides score exactly as before.
+- New priority "Fun to drive" (handling, overtaking, engine refinement, turbo lag, braking); persona chip "Fun to drive", title "Driver-focused".
+- Result in simulation on the real code: priorities now change 35% of the top 3; Kushaq 16%, Virtus 6%, Taigun 5%, Slavia 5% of searches; Duster 3%, Tekton 1%.
+- Verified: typecheck, persona tests, option renders and selects locally; deployed and the option is in the live JS.

@@ -145,6 +145,7 @@ const PRIORITY_CHIP_ORDER: [string, string][] = [
   ["Low running costs", "Running costs"],
   ["Features and tech", "Tech"],
   ["Power and acceleration", "Power"],
+  ["Fun to drive", "Fun to drive"],
 ];
 
 // v4 priorities ("What would you hate to compromise on?"), mapped onto the
@@ -156,6 +157,7 @@ const V4_PRIORITY_TO_V3: Record<string, string> = {
   "Strong performance": "Power and acceleration",
   "Features and tech": "Features and tech",
   "Trouble-free, cheap to own": "Low running costs",
+  "Fun to drive": "Fun to drive",
 };
 
 function pickedPriorities(answers: QuestionnaireAnswers): { picked: string[]; space: boolean; balanced: boolean } {
@@ -181,6 +183,7 @@ const ADJECTIVE_PRECEDENCE: [string, string][] = [
   ["Fuel efficiency", "Mileage-minded"],
   ["Features and tech", "Tech-forward"],
   ["Power and acceleration", "Performance-minded"],
+  ["Fun to drive", "Driver-focused"],
 ];
 
 function adjective(picked: string[]): string {

@@ -193,7 +193,18 @@ export const PRIORITY_THEMES: Record<string, [string, number][]> = {
     ["after_sales_dealer", 0.6],
   ],
   "Space for people and luggage": [["cabin_space", 1]],
+  // Added 22 Nov 2026: handling and engine feel, which no other answer
+  // asked for (handling only counted under "Comfortable ride"). Facet-level
+  // targets on purpose; a lighter, lower body adds a spec score (specScores.ts).
+  "Fun to drive": [
+    ["handling_cornering", 1.5],
+    ["highway_overtaking", 1],
+    ["engine_refinement", 0.6],
+    ["turbo_lag", 0.6],
+    ["braking_performance", 0.6],
+  ],
 };
+export const PRIORITY_FUN = "Fun to drive";
 export const PRIORITY_BALANCED = "Balanced, no strong focus";
 export const CARE_ONLY_ADULTS = "No (only adults)";
 

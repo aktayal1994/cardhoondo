@@ -96,11 +96,20 @@ export function scoreCar(
   powertrainId: string | null,
   variantId: string | null,
   brandFacetScores: BrandFacetScoreRow[] | null = null,
+  /** Paper-spec scores with their weights (specScores.ts). They join the
+   * weighted average like a fully confident facet, but never the coverage
+   * count or the breakdown, which describe review evidence only. */
+  specs: { score: number; weight: number }[] = [],
 ): ScoreResult {
   const breakdown: ScoreBreakdownItem[] = [];
   let evidenceCoverage = 0;
   let weightedSum = 0;
   let totalWeight = 0;
+  for (const s of specs) {
+    if (!(s.weight > 0)) continue;
+    weightedSum += s.score * s.weight;
+    totalWeight += s.weight;
+  }
 
   for (const [facet, theme] of Object.entries(FACET_THEME_MAP)) {
     const data = resolveFacetData(facetScores, facet, powertrainId, variantId, brandFacetScores);

@@ -270,6 +270,7 @@ export const QUESTIONS: QuestionDef[] = [
       { value: "Safety and solid build", label: "Safety and solid build", icon: ShieldCheck, microcopy: "Safety and solid build, locked in." },
       { value: "Good mileage", label: "Good mileage", icon: Leaf, microcopy: "Good mileage, locked in." },
       { value: "Strong performance", label: "Strong performance", icon: Rocket, microcopy: "Strong performance, locked in." },
+      { value: "Fun to drive", label: "Fun to drive", icon: Navigation, microcopy: "Fun to drive, locked in. Handling and engine feel just moved up." },
       { value: "Features and tech", label: "Features and tech", icon: Cpu, microcopy: "Features and tech, locked in." },
       { value: "Trouble-free, cheap to own", label: "Trouble-free, cheap to own", icon: PiggyBank, microcopy: "Trouble-free ownership, locked in." },
       { value: "Space for people and luggage", label: "Space for people and luggage", icon: Users, microcopy: "Space for people and luggage, locked in." },
