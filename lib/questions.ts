@@ -279,8 +279,8 @@ export const QUESTIONS: QuestionDef[] = [
   {
     id: "q_brand_love",
     section: "what_matters",
-    prompt: "Any brands you love?",
-    explainer: "We'll learn what you like about them and look for it in cars that fit your needs, whatever the badge.",
+    prompt: "Any brands you'd love to own?",
+    explainer: "We'll give them a nudge. You'll still see the best cars from every brand.",
     icon: Heart,
     type: "multiAny",
     required: false,
@@ -289,14 +289,14 @@ export const QUESTIONS: QuestionDef[] = [
     options: ORDERED_BRANDS.map((brand) => ({
       value: brand,
       label: brand,
-      microcopy: `Noted. We'll look for what you like about ${brand}.`,
+      microcopy: `Noted. ${brand} gets a nudge.`,
     })),
   },
   {
     id: "q_brand_avoid",
     section: "what_matters",
-    prompt: "Any brands you'd rather skip?",
-    explainer: "We'll leave these off your shortlist entirely. Only brands with a car that fits you are shown.",
+    prompt: "Any brands you'd never buy?",
+    explainer: "We won't show their cars at all. Only brands with a car that fits you are listed.",
     icon: Ban,
     type: "multiAny",
     required: false,

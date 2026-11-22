@@ -176,7 +176,7 @@ function ChoiceList({
 
   const normalOptions = options.filter((o) => o.value !== exclusive);
   const exclusiveOption = exclusive ? options.find((o) => o.value === exclusive) : undefined;
-  const collapsible = question.brandMode === "love" && !showAllBrands && normalOptions.length > BRANDS_SHOWN_FIRST;
+  const collapsible = !!question.brandMode && !showAllBrands && normalOptions.length > BRANDS_SHOWN_FIRST;
   const visibleNormal = collapsible
     ? normalOptions.filter((o, i) => i < BRANDS_SHOWN_FIRST || selected.includes(o.value))
     : normalOptions;
@@ -258,6 +258,58 @@ function ChoiceList({
     );
   }
 
+  // Brand screens look different on purpose: "love" is a grid of brand cards (a soft nudge),
+  // "avoid" is a plain tick list (a hard filter), so the two never read as the same question.
+  function renderBrandOption(option: QuestionOption) {
+    const isSelected = selected.includes(option.value);
+    const locked = !!lockedReason(option.value);
+    const logoSrc = BRAND_LOGOS[option.value];
+    const shaking = shakeKey?.value === option.value;
+    const logo = logoSrc && (
+      <span className="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full bg-paper">
+        <Image src={logoSrc} alt="" width={28} height={28} className="h-full w-full object-contain p-0.5" />
+      </span>
+    );
+    if (question.brandMode === "love") {
+      return (
+        <button
+          key={`${option.value}-${shaking ? shakeKey?.n : 0}`}
+          type="button"
+          onClick={() => pick(option.value)}
+          aria-pressed={isSelected}
+          aria-disabled={locked}
+          className={`flex min-h-14 items-center gap-2.5 rounded-xl border px-3 py-2.5 text-left text-sm font-semibold transition active:scale-95 ${
+            shaking ? "animate-shake" : ""
+          } ${
+            isSelected
+              ? "border-2 border-accent-rust bg-accent-rust/10 text-ink"
+              : locked
+                ? "cursor-not-allowed border-border bg-charcoal-900 text-ink-faint opacity-50"
+                : "border-border bg-paper-raised text-ink hover:border-accent-rust/50"
+          }`}
+        >
+          {logo}
+          <span className="flex-1">{option.label}</span>
+          {isSelected && <Check aria-hidden className="h-4 w-4 shrink-0 text-accent-rust" />}
+        </button>
+      );
+    }
+    return (
+      <button
+        key={`${option.value}-${shaking ? shakeKey?.n : 0}`}
+        type="button"
+        onClick={() => pick(option.value)}
+        aria-pressed={isSelected}
+        className={`flex w-full items-center gap-3 border-b border-border px-1 py-2.5 text-left text-sm font-medium text-ink transition last:border-b-0 hover:bg-charcoal-800/40 ${
+          shaking ? "animate-shake" : ""
+        }`}
+      >
+        <SelectMark kind="check" on={isSelected} plain />
+        <span>{option.label}</span>
+      </button>
+    );
+  }
+
   const confirmLabel = (() => {
     if (normalPicked.length === 0 && !exclusivePicked) return question.required ? "Pick at least one" : "Skip";
     if (exclusivePicked) return "Continue";
@@ -266,7 +318,13 @@ function ChoiceList({
 
   return (
     <div className="ml-12">
-      <div className="mt-4 flex flex-wrap gap-2">{visibleNormal.map(renderChip)}</div>
+      {question.brandMode === "love" ? (
+        <div className="mt-4 grid max-w-md grid-cols-2 gap-2">{visibleNormal.map(renderBrandOption)}</div>
+      ) : question.brandMode === "avoid" ? (
+        <div className="mt-3 max-w-md">{visibleNormal.map(renderBrandOption)}</div>
+      ) : (
+        <div className="mt-4 flex flex-wrap gap-2">{visibleNormal.map(renderChip)}</div>
+      )}
 
       {collapsible && (
         <button
@@ -314,7 +372,8 @@ function ChoiceList({
 }
 
 /** Tick box (multiple choice) or radio circle (single choice). */
-function SelectMark({ kind, on }: { kind: "check" | "radio"; on: boolean }) {
+/** `plain` = drawn on a white row rather than a filled chip, so the ticked box fills with denim. */
+function SelectMark({ kind, on, plain = false }: { kind: "check" | "radio"; on: boolean; plain?: boolean }) {
   if (kind === "radio") {
     return (
       <span
@@ -331,10 +390,10 @@ function SelectMark({ kind, on }: { kind: "check" | "radio"; on: boolean }) {
     <span
       aria-hidden
       className={`flex h-4.5 w-4.5 shrink-0 items-center justify-center rounded-[5px] border-2 ${
-        on ? "border-charcoal-950 bg-charcoal-950" : "border-ink-faint"
+        on ? (plain ? "border-accent-rust bg-accent-rust" : "border-charcoal-950 bg-charcoal-950") : "border-ink-faint"
       }`}
     >
-      {on && <Check className="h-3 w-3 text-accent-rust" strokeWidth={3.5} />}
+      {on && <Check className={`h-3 w-3 ${plain ? "text-charcoal-950" : "text-accent-rust"}`} strokeWidth={3.5} />}
     </span>
   );
 }

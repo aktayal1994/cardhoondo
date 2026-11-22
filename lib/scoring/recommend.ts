@@ -249,7 +249,12 @@ export function evRangeMultiplier(variant: CatalogVariant, answers: Questionnair
 const BRAND_LOVE_THEME_BOOST = 1.3;
 const BRAND_LOVE_OWN_CARS = 1.05;
 const BRAND_LOVE_MIN_CLAIMS = 15;
-const BRAND_LOVE_SKIP_THEMES = new Set(["resale_value"]);
+// Parking is about a car's size, not a brand's personality (and the parking
+// question already covers it); it topped four brands on thin evidence.
+const BRAND_LOVE_SKIP_THEMES = new Set(["resale_value", "parking_maneuverability"]);
+// A theme counts as a brand's strength only if its reviews clearly beat the
+// all-car average (score points on the -2..+2 scale), so near-ties don't count.
+const BRAND_LOVE_MIN_LIFT = 0.15;
 
 function brandSlug(displayBrand: string): string {
   return displayBrand.trim().toLowerCase().replace(/\s+/g, "_");
@@ -290,7 +295,7 @@ export function lovedBrandThemes(
         const g = all.get(theme)!;
         return { theme, lift: a.sum / a.n - g.sum / g.n };
       })
-      .filter((t) => t.lift > 0)
+      .filter((t) => t.lift >= BRAND_LOVE_MIN_LIFT)
       .sort((a, b) => b.lift - a.lift)
       .slice(0, 2);
     for (const t of ranked) themes.add(t.theme);
@@ -655,6 +660,9 @@ export interface RecommendOutput {
   /** Cars the user hid from this search, so the page can offer them back
    * (absent on results computed before 24 Oct 2026). */
   hidden_cars?: HiddenCar[];
+  /** Brands the user said they'd love to own (v4) and the review themes we
+   * leaned towards because of them, so the results page can say so. */
+  brand_love?: { brands: string[]; themes: string[] };
 }
 
 export interface RecommendInput {
@@ -672,7 +680,8 @@ export interface RecommendInput {
 
 export function recommend(input: RecommendInput): RecommendOutput {
   const { answers, catalogVariants, facetScoresByCar, brandFacetScoresByBrand } = input;
-  const weights = applyBrandLoveWeights(input.weights, lovedBrandThemes(answers, facetScoresByCar));
+  const loveThemes = lovedBrandThemes(answers, facetScoresByCar);
+  const weights = applyBrandLoveWeights(input.weights, loveThemes);
   const topN = input.topN ?? 3;
 
   const carIds = Array.from(new Set(catalogVariants.map((v) => v.car_id))).sort();
@@ -791,5 +800,8 @@ export function recommend(input: RecommendInput): RecommendOutput {
     exclusion_sample: excluded.slice(0, 10),
     weight_vector_top5: weightVectorTop5,
     hidden_cars: hiddenCars,
+    ...(asList(answers["q_brand_love"]).length > 0
+      ? { brand_love: { brands: asList(answers["q_brand_love"]), themes: loveThemes } }
+      : {}),
   };
 }

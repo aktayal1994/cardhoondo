@@ -542,3 +542,10 @@ Founder-led rework of the questions (decisions: docs/questionnaire_v4_decisions.
 - Tick boxes for multiple choice, circles for single choice, "or" divider with locking for none-type options.
 - New answer ids, so old saved searches and the guides score exactly as before.
 - Build fix: guide pages share one data load (fetchRecommendationData) and the build uses one worker; three builds had failed on Supabase statement timeouts.
+
+## 22 Nov 2026: brand questions reworked (love vs skip)
+- "Any brands you'd love to own?" is now a two-column grid of brand cards with the copy "We'll give them a nudge. You'll still see the best cars from every brand."
+- "Any brands you'd never buy?" is a plain tick list ("We won't show their cars at all"), 8 brands first plus "Show all brands", so the two questions no longer look the same. The ticked box fills with denim on white rows.
+- Brand traits (the themes boosted for a loved brand) no longer use parking (size, not brand personality), and a theme must beat the all-car average by 0.15 to count. Mahindra, Force and BYD now get only the small own-brand nudge.
+- The results page shows "You like Toyota, so we leaned towards cars known for reliability and a good service network, whatever the brand." (`brand_love` on the recommend output.)
+- Verified: typecheck, both screens at 375px with no horizontal scroll and no console errors, recommender output for Toyota / Mahindra / Toyota+VW. The results line itself was not seen on screen (a local submission writes to the production DB).

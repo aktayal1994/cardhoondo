@@ -2,7 +2,7 @@
 
 import { motion } from "motion/react";
 import Link from "next/link";
-import { CheckCircle2, MinusCircle, Scale as ScaleIcon, IndianRupee, ArrowLeftRight, Undo2 } from "lucide-react";
+import { CheckCircle2, MinusCircle, Scale as ScaleIcon, IndianRupee, ArrowLeftRight, Undo2, Heart } from "lucide-react";
 import { ALL_FACETS } from "../lib/scoring/questionnaireWeights";
 import type { RecommendOutput, RecommendCandidate, HiddenCar } from "../lib/scoring/recommend";
 import type { WriteupOutput, WriteupCarOutput, WriteupFacetEntry } from "../lib/llm/writeup";
@@ -32,6 +32,35 @@ interface ResultsScreenProps {
 }
 
 const TOTAL_FACETS = ALL_FACETS.length;
+
+// How each review theme reads after "cars known for ...".
+const LOVE_THEME_PHRASES: Record<string, string> = {
+  ride_quality: "ride comfort",
+  mileage_efficiency: "good mileage",
+  reliability: "reliability",
+  service_cost: "low service costs",
+  after_sales_dealer: "a good service network",
+  safety_build_quality: "safety and solid build",
+  power_drivability: "strong engines",
+  feature_tech: "features",
+  cabin_space: "space",
+  visibility_ergonomics: "being easy to drive",
+};
+
+function joinWithAnd(items: string[]): string {
+  if (items.length <= 1) return items.join("");
+  return `${items.slice(0, -1).join(", ")} and ${items[items.length - 1]}`;
+}
+
+/** "You like Toyota, so we leaned towards cars known for reliability and a good service network." */
+function brandLoveSentence({ brands, themes }: { brands: string[]; themes: string[] }): string {
+  const who = joinWithAnd(brands);
+  const phrases = themes.map((t) => LOVE_THEME_PHRASES[t]).filter(Boolean);
+  if (phrases.length === 0) {
+    return `You like ${who}, so ${brands.length === 1 ? "its" : "their"} cars got a small nudge.`;
+  }
+  return `You like ${who}, so we leaned towards cars known for ${joinWithAnd(phrases)}, whatever the brand.`;
+}
 
 function carModelLabel(c: RecommendCandidate) {
   return `${c.brand} ${c.car_model}`;
@@ -127,6 +156,13 @@ export default function ResultsScreen({
       <FeedbackPrompt recommendationResultId={recommendationResultId} />
 
       {hiddenStrip}
+
+      {recommendOutput.brand_love && (
+        <p className="mt-8 flex items-start gap-2 text-sm text-ink-soft">
+          <Heart className="mt-0.5 h-4 w-4 shrink-0 text-accent-rust-soft" strokeWidth={1.75} />
+          <span>{brandLoveSentence(recommendOutput.brand_love)}</span>
+        </p>
+      )}
 
       {/* Phones can't hover for the button's tooltip, so say what it does up front. */}
       {shortlist.length > 0 && hiddenCars.length === 0 && (
