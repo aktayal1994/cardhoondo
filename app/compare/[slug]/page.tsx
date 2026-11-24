@@ -1,17 +1,18 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { ArrowRight } from "lucide-react";
 import Breadcrumbs from "../../../components/Breadcrumbs";
 import DecideCta from "../../../components/DecideCta";
 import { GuideFooter, GuideNav } from "../../../components/GuideLayout";
 import { fetchCarPageData } from "../../../lib/data/fetchCarPage";
 import type { CarFacetSummary, CarPageData, CarQuote } from "../../../lib/data/fetchCarPage";
-import { fetchPublishedComparisons } from "../../../lib/data/fetchComparisons";
+import { fetchPublishedComparisons, fetchPublishedTrios } from "../../../lib/data/fetchComparisons";
+import TrioComparison, { trioName } from "../../../components/TrioComparison";
 import { SITE_URL, carIdToSlug } from "../../../lib/cars/featured";
-import { pairForSlug } from "../../../lib/cars/comparisons";
+import { canonicalComparisonSlug, pairForSlug, trioForSlug } from "../../../lib/cars/comparisons";
 import { capitalize, formatLakh, fuelLabel, joinList, priceRangeText } from "../../../lib/cars/format";
-import { comparisonDescription, comparisonTitle } from "../../../lib/cars/seo";
+import { comparisonDescription, comparisonTitle, trioDescription, trioTitle } from "../../../lib/cars/seo";
 import { pageMetadata } from "../../../lib/seo";
 import { facetLabel, facetLabelInline } from "../../../lib/cars/labels";
 import { verdictPhrase, verdictTone } from "../../../lib/verdict";
@@ -31,8 +32,16 @@ const CLEAR_GAP = 0.3;
 const MAX_AHEAD = 4;
 
 export async function generateStaticParams() {
-  const pairs = await fetchPublishedComparisons();
-  return pairs.map((p) => ({ slug: p.slug }));
+  const [pairs, trios] = await Promise.all([fetchPublishedComparisons(), fetchPublishedTrios()]);
+  return [...pairs.map((p) => ({ slug: p.slug })), ...trios.map((t) => ({ slug: t.slug }))];
+}
+
+async function loadTrio(slug: string): Promise<CarPageData[] | null> {
+  if (!trioForSlug(slug)) return null;
+  const trio = (await fetchPublishedTrios()).find((t) => t.slug === slug);
+  if (!trio) return null;
+  const cars = await Promise.all(trio.cars.map((c) => fetchCarPageData(c.carId)));
+  return cars.every(Boolean) ? (cars as CarPageData[]) : null;
 }
 
 type Params = { params: Promise<{ slug: string }> };
@@ -48,6 +57,15 @@ async function loadPair(slug: string): Promise<[CarPageData, CarPageData] | null
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { slug } = await params;
+  const trio = await loadTrio(slug);
+  if (trio) {
+    return pageMetadata({
+      title: trioTitle(trioName(trio)),
+      description: trioDescription(trio.map((c) => c.model), trio.reduce((s, c) => s + c.sourceCount, 0)),
+      path: `/compare/${slug}`,
+      type: "article",
+    });
+  }
   const pair = await loadPair(slug);
   if (!pair) return {};
   const [a, b] = pair;
@@ -68,8 +86,19 @@ interface AreaRow {
 
 export default async function ComparisonPage({ params }: Params) {
   const { slug } = await params;
+  const trio = await loadTrio(slug);
+  if (trio) {
+    const ids = new Set(trio.map((c) => c.carId));
+    const pairs = (await fetchPublishedComparisons()).filter((p) => ids.has(p.a.carId) && ids.has(p.b.carId));
+    return <TrioComparison slug={slug} cars={trio} pairs={pairs} />;
+  }
   const pair = await loadPair(slug);
-  if (!pair) notFound();
+  if (!pair) {
+    // "seltos-vs-creta" -> "creta-vs-seltos": one URL per matchup.
+    const canon = canonicalComparisonSlug(slug);
+    if (canon) permanentRedirect(`/compare/${canon}`);
+    notFound();
+  }
   const [a, b] = pair;
   const A = a.model;
   const B = b.model;

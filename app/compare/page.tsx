@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Breadcrumbs from "../../components/Breadcrumbs";
 import { GuideFooter, GuideNav } from "../../components/GuideLayout";
-import { fetchPublishedComparisons } from "../../lib/data/fetchComparisons";
+import { fetchPublishedComparisons, fetchPublishedTrios } from "../../lib/data/fetchComparisons";
 import { priceRangeText } from "../../lib/cars/format";
 import { pageMetadata } from "../../lib/seo";
 
@@ -16,7 +16,7 @@ export const metadata: Metadata = pageMetadata({
 });
 
 export default async function ComparisonsIndex() {
-  const pairs = await fetchPublishedComparisons();
+  const [pairs, trios] = await Promise.all([fetchPublishedComparisons(), fetchPublishedTrios()]);
 
   return (
     <main className="min-h-screen bg-paper">
@@ -30,6 +30,26 @@ export default async function ComparisonsIndex() {
           reviewers actually said, with their own words. No sponsored picks.
         </p>
         </div>
+
+        {trios.length > 0 && (
+          <>
+            <h2 className="mt-10 font-display text-2xl font-bold text-ink">Three cars at once</h2>
+            <ul className="mt-4 grid gap-3 sm:grid-cols-2">
+              {trios.map((t) => (
+                <li key={t.slug}>
+                  <Link
+                    href={`/compare/${t.slug}`}
+                    className="block h-full rounded-2xl border border-border bg-paper-raised px-4 py-3 transition hover:border-accent-rust/50"
+                  >
+                    <span className="font-display text-base font-bold text-ink">{t.cars.map((c) => c.model).join(" vs ")}</span>
+                    <span className="mt-0.5 block text-xs text-ink-faint">Which one leads where</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+            <h2 className="mt-10 font-display text-2xl font-bold text-ink">Two cars, head to head</h2>
+          </>
+        )}
 
         <ul className="mt-8 grid gap-3 sm:grid-cols-2">
           {pairs.map((p) => (

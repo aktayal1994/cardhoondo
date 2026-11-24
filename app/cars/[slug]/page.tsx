@@ -6,8 +6,10 @@ import Breadcrumbs from "../../../components/Breadcrumbs";
 import DecideCta from "../../../components/DecideCta";
 import { GuideFooter, GuideNav } from "../../../components/GuideLayout";
 import { fetchCarPageData, fetchFeaturedCarSummaries } from "../../../lib/data/fetchCarPage";
-import { fetchPublishedComparisons } from "../../../lib/data/fetchComparisons";
+import { fetchPublishedComparisons, fetchPublishedTrios } from "../../../lib/data/fetchComparisons";
 import { guideRanksForCar } from "../../../lib/guides/guidePicks";
+import { availableTopics, fetchCarTopics } from "../../../lib/data/fetchCarTopics";
+import { topicLinkLabel, topicPath } from "../../../components/CarTopicPage";
 import type { CarFacetSummary, CarPageData, FeaturedCarSummary } from "../../../lib/data/fetchCarPage";
 import { SITE_URL, carIdToSlug, slugToCarId } from "../../../lib/cars/featured";
 import { capitalize, formatLakh, formatLongDate, fuelLabel, joinList, priceRangeText } from "../../../lib/cars/format";
@@ -58,12 +60,15 @@ export default async function CarPage({ params }: Params) {
   const { slug } = await params;
   const carId = await publishedCarId(slug);
   if (!carId) notFound();
-  const [data, featured, allComparisons, guideRanks] = await Promise.all([
+  const [data, featured, allComparisons, guideRanks, topics] = await Promise.all([
     fetchCarPageData(carId),
     fetchFeaturedCarSummaries(),
     fetchPublishedComparisons(),
     guideRanksForCar(carId),
+    fetchCarTopics(carId),
   ]);
+  const trios = (await fetchPublishedTrios()).filter((t) => t.cars.some((c) => c.carId === carId));
+  const topicKinds = topics ? availableTopics(topics) : [];
   if (!data) notFound();
 
   const { name } = data;
@@ -158,6 +163,20 @@ export default async function CarPage({ params }: Params) {
           ) : null}{" "}
           Here is the full picture, with the actual words reviewers used.
         </p>
+
+        {topicKinds.length > 0 && (
+          <nav aria-label={`More on the ${data.model}`} className="mt-6 flex flex-wrap gap-2">
+            {topicKinds.map((k) => (
+              <Link
+                key={k}
+                href={topicPath(data.carId, k)}
+                className="rounded-full border border-border bg-paper-raised px-4 py-2 text-sm font-semibold text-ink transition hover:border-accent-rust/50"
+              >
+                {topicLinkLabel(k, data.model, topics!.isEv)}
+              </Link>
+            ))}
+          </nav>
+        )}
 
         <dl className="mt-8 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-border bg-border sm:grid-cols-4">
           <Fact label="Ex-showroom price" value={price ?? "Not listed"} />
@@ -304,7 +323,7 @@ export default async function CarPage({ params }: Params) {
           </Section>
         )}
 
-        {comparisons.length > 0 && (
+        {(comparisons.length > 0 || trios.length > 0) && (
           <Section title={`Compare the ${data.model}`}>
             <ul className="grid gap-3 sm:grid-cols-2">
               {comparisons.map((c) => {
@@ -323,6 +342,17 @@ export default async function CarPage({ params }: Params) {
                   </li>
                 );
               })}
+              {trios.map((t) => (
+                <li key={t.slug}>
+                  <Link
+                    href={`/compare/${t.slug}`}
+                    className="block rounded-2xl border border-border bg-paper-raised px-4 py-3 transition hover:border-accent-rust/50"
+                  >
+                    <span className="font-display text-base font-bold text-ink">{t.cars.map((c) => c.model).join(" vs ")}</span>
+                    <span className="mt-0.5 block text-xs text-ink-faint">Three cars side by side</span>
+                  </Link>
+                </li>
+              ))}
             </ul>
           </Section>
         )}

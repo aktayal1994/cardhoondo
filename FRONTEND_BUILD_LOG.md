@@ -577,3 +577,9 @@ Founder-led rework of the questions (decisions: docs/questionnaire_v4_decisions.
 - New priority "Fun to drive" (handling, overtaking, engine refinement, turbo lag, braking); persona chip "Fun to drive", title "Driver-focused".
 - Result in simulation on the real code: priorities now change 35% of the top 3; Kushaq 16%, Virtus 6%, Taigun 5%, Slavia 5% of searches; Duster 3%, Tekton 1%.
 - Verified: typecheck, persona tests, option renders and selects locally; deployed and the option is in the live JS.
+
+## 24 Nov 2026 — Owner-topic pages, 120 more head-to-heads, three-way comparisons
+- New `/cars/<slug>/problems`, `/cars/<slug>/pros`, `/cars/<slug>/mileage` (real range for EVs): every remark in real reviews on that topic, owners first, with source link, version and ownership length. Built in `lib/data/fetchCarTopics.ts` + `components/CarTopicPage.tsx`; a page exists only when it clears its evidence bar (3+ areas and 8+ quotes; mileage 5+ quotes from 3+ reviews). Live: 78 problems, 79 pros, 21 mileage. Creta and Nexon have no mileage page yet (2 and 1 mileage claims). Linked as chips on each review page.
+- Comparisons: `RIVAL_PAIRS` (120 pairs from catalog rivals: same body type, EV with EV, similar price and length, checked by hand) and `COMPARISON_TRIOS` (35 three-way pages, `components/TrioComparison.tsx`) in `lib/cars/comparisons.ts`. Reversed slugs 308 to the canonical one. Trios listed on /compare and on review pages.
+- Quotes from sponsored videos (title has "Branded Content"/"sponsored") are no longer shown anywhere; their 29 claims still count in scores.
+- Sitemap 138 -> 465 URLs. Verified live with curl.

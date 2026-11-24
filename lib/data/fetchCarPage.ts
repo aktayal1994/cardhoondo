@@ -125,7 +125,7 @@ export const fetchFeaturedCarSummaries = unstable_cache(
     }
     return out;
   },
-  ["published-car-summaries-v2"],
+  ["published-car-summaries-v3"],
   { revalidate: CAR_DATA_TTL_SECONDS, tags: ["car-pages"] },
 );
 
@@ -137,7 +137,7 @@ const AMBIGUOUS_MODEL_WORDS = new Set(["city", "punch", "safari", "swift", "venu
  * videos often mention rivals in the same breath, and a sentence like "the
  * Taigun stopped shortest, unlike the Seltos" is not clean evidence about
  * either car, so such quotes are never shown (the claim still counts). */
-function mentionsOtherCar(text: string, ownModel: string, allModels: string[]): boolean {
+export function mentionsOtherCar(text: string, ownModel: string, allModels: string[]): boolean {
   const own = ownModel.toLowerCase();
   const lower = text.toLowerCase();
   for (const m of allModels) {
@@ -154,7 +154,7 @@ function mentionsOtherCar(text: string, ownModel: string, allModels: string[]): 
  * review data is too thin to publish (see isPublishable). Cached per car. */
 export const fetchCarPageData = unstable_cache(
   (carId: string): Promise<CarPageData | null> => loadCarPageData(carId),
-  ["car-page-data-v2"],
+  ["car-page-data-v3"],
   { revalidate: CAR_DATA_TTL_SECONDS, tags: ["car-pages"] },
 );
 
@@ -218,7 +218,7 @@ export async function loadCarPageData(carId: string): Promise<CarPageData | null
       .filter((c) => c.facet === facet && c.sentiment === sentiment)
       .map((c) => ({ c, text: cleanQuote(c.evidence_quote) }))
       // "spillover" marks a claim about this car pulled from another car's video.
-      .filter(({ c }) => !/spillover/i.test(String(c.source_title ?? "")))
+      .filter(({ c }) => !/spillover|branded content|sponsored|paid partnership/i.test(String(c.source_title ?? "")))
       .filter(({ text }) => text.length >= QUOTE_MIN_CHARS && text.length <= QUOTE_MAX_CHARS && !usedQuotes.has(text))
       .filter(({ text }) => !mentionsOtherCar(text, String(car.model), allModels))
       // The longest fitting quote says the most; ties keep source order.
@@ -299,12 +299,12 @@ export async function loadCarPageData(carId: string): Promise<CarPageData | null
 }
 
 /** Strips the pipeline's own annotations, e.g. "(MG Astor video - ...)". */
-function cleanTitle(raw: unknown): string | null {
+export function cleanTitle(raw: unknown): string | null {
   const title = String(raw ?? "").replace(/\s*\([^)]*spillover[^)]*\)\s*$/i, "").trim();
   return title || null;
 }
 
-function cleanQuote(raw: unknown): string {
+export function cleanQuote(raw: unknown): string {
   return String(raw ?? "")
     .replace(/\s+/g, " ")
     .trim()

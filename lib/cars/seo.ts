@@ -59,3 +59,79 @@ export function comparisonDescription(modelA: string, modelB: string, sources: n
     MAX_DESCRIPTION_CHARS,
   );
 }
+
+/** Titles for the owner-topic pages (/cars/<slug>/problems | pros | mileage). */
+export function topicTitle(kind: "problems" | "pros" | "mileage", name: string, model: string, isEv: boolean): string {
+  const m = isEv ? "Real Range" : "Real Mileage";
+  const sets = {
+    problems: [
+      `${name} Problems: What Owners Report | CarDhoondo`,
+      `${name} Problems: What Owners Report`,
+      `${name} Problems and Complaints`,
+      `${model} Problems: What Owners Report`,
+    ],
+    pros: [
+      `${name} Pros: What Owners Love | CarDhoondo`,
+      `${name} Pros: What Owners Love`,
+      `${name} Pros and Good Points`,
+      `${model} Pros: What Owners Love`,
+    ],
+    mileage: [
+      `${name} ${m}: What Owners Get | CarDhoondo`,
+      `${name} ${m}: What Owners Get`,
+      `${name} ${m}`,
+      `${model} ${m}: What Owners Get`,
+    ],
+  } as const;
+  return firstFitting([...sets[kind]], MAX_TITLE_CHARS);
+}
+
+export function topicDescription(
+  kind: "problems" | "pros" | "mileage",
+  model: string,
+  count: number,
+  sources: number,
+  areas: string[],
+  isEv: boolean,
+): string {
+  const list = areas.slice(0, 3).join(", ");
+  const cands =
+    kind === "problems"
+      ? [
+          `Common ${model} problems from ${count} critical remarks in real owner and expert reviews${list ? `: ${list}` : ""}, in their own words.`,
+          `Common ${model} problems from ${count} remarks in owner and expert reviews, in their own words.`,
+          `Common ${model} problems, from real owner and expert reviews.`,
+        ]
+      : kind === "pros"
+        ? [
+            `What owners and experts like about the ${model}, from ${count} remarks in real reviews${list ? `: ${list}` : ""}, in their own words.`,
+            `What owners and experts like about the ${model}, from ${count} remarks in real reviews.`,
+            `What owners and experts like about the ${model}.`,
+          ]
+        : [
+            `${model} ${isEv ? "real-world range" : "real mileage"} in the city and on the highway, from ${count} remarks in ${sources} owner and expert reviews, by ${isEv ? "version" : "fuel"}.`,
+            `${model} ${isEv ? "real-world range" : "real mileage"} from ${count} remarks in ${sources} owner and expert reviews.`,
+            `${model} ${isEv ? "real-world range" : "real mileage"} from owner and expert reviews.`,
+          ];
+  return firstFitting(cands, MAX_DESCRIPTION_CHARS);
+}
+
+/** e.g. "Creta vs Seltos vs Hyryder: Owner Verdict | CarDhoondo". */
+export function trioTitle(models: string): string {
+  return firstFitting(
+    [`${models}: Owner Verdict | CarDhoondo`, `${models}: Which Is Best?`, `${models} | CarDhoondo`, models],
+    MAX_TITLE_CHARS,
+  );
+}
+
+export function trioDescription(models: string[], sources: number): string {
+  const [a, b, c] = models;
+  return firstFitting(
+    [
+      `${a}, ${b} or ${c}? See which one leads on mileage, comfort, space and more, from ${sources} owner and expert reviews, with prices.`,
+      `${a}, ${b} or ${c}? Which one leads where, from ${sources} owner and expert reviews.`,
+      `${a} vs ${b} vs ${c}: which one leads where, from real reviews.`,
+    ],
+    MAX_DESCRIPTION_CHARS,
+  );
+}

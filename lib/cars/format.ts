@@ -16,9 +16,9 @@ export function priceRangeText(min: number | null, max: number | null): string |
 }
 
 /** "A", "A and B", "A, B and C". */
-export function joinList(items: string[]): string {
+export function joinList(items: string[], word: "and" | "or" = "and"): string {
   if (items.length <= 1) return items[0] ?? "";
-  return `${items.slice(0, -1).join(", ")} and ${items[items.length - 1]}`;
+  return `${items.slice(0, -1).join(", ")} ${word} ${items[items.length - 1]}`;
 }
 
 export function capitalize(s: string): string {

@@ -1,9 +1,10 @@
 import type { MetadataRoute } from "next";
 import { SITE_URL, carIdToSlug } from "../lib/cars/featured";
 import { fetchFeaturedCarSummaries } from "../lib/data/fetchCarPage";
-import { fetchPublishedComparisons } from "../lib/data/fetchComparisons";
+import { fetchPublishedComparisons, fetchPublishedTrios } from "../lib/data/fetchComparisons";
 import type { FeaturedCarSummary } from "../lib/data/fetchCarPage";
 import { RANKED_GUIDES } from "../lib/guides/rankedGuides";
+import { fetchTopicAvailability } from "../lib/data/fetchCarTopics";
 
 // Real last-change dates only: a lastmod that is just "now" on every URL teaches
 // Google to ignore the field. Guides carry the date of their last content edit;
@@ -27,6 +28,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // caching a sitemap with every car page missing for a day.
   const cars: FeaturedCarSummary[] = await fetchFeaturedCarSummaries();
   const comparisons = await fetchPublishedComparisons();
+  const topics = await fetchTopicAvailability();
+  const trios = await fetchPublishedTrios();
   // A comparison changes whenever either car's scores are regenerated.
   const newer = (x: string | null, y: string | null) => (x && (!y || x > y) ? x : y);
   const newestCar = cars.reduce<string | null>((m, c) => (c.updatedAt && (!m || c.updatedAt > m) ? c.updatedAt : m), null);
@@ -40,6 +43,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "monthly" as const,
       priority: 0.8,
     })),
+    ...topics.flatMap((t) =>
+      t.topics.map((k) => ({
+        url: `${SITE_URL}/cars/${carIdToSlug(t.carId)}/${k}`,
+        ...(t.updatedAt ? { lastModified: t.updatedAt } : {}),
+        changeFrequency: "monthly" as const,
+        priority: 0.7,
+      })),
+    ),
     { url: `${SITE_URL}/compare`, ...(newestCar ? { lastModified: newestCar } : {}), changeFrequency: "weekly", priority: 0.8 },
     ...comparisons.map((c) => {
       const lastModified = newer(c.a.updatedAt, c.b.updatedAt);
@@ -48,6 +59,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         ...(lastModified ? { lastModified } : {}),
         changeFrequency: "monthly" as const,
         priority: 0.7,
+      };
+    }),
+    ...trios.map((t) => {
+      const lastModified = t.cars.reduce<string | null>((m, c) => newer(c.updatedAt, m), null);
+      return {
+        url: `${SITE_URL}/compare/${t.slug}`,
+        ...(lastModified ? { lastModified } : {}),
+        changeFrequency: "monthly" as const,
+        priority: 0.6,
       };
     }),
     { url: `${SITE_URL}/guides`, changeFrequency: "monthly", priority: 0.8 },
