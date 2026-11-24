@@ -17,7 +17,7 @@ const GUIDES: { slug: string; lastModified: string }[] = [
   { slug: "dealer-tricks-first-car", lastModified: "2026-09-26" },
   // Data-driven shortlists: dated by when the guide went live, since their
   // cars' own pages carry the daily score changes.
-  ...RANKED_GUIDES.map((g) => ({ slug: g.slug, lastModified: g.published })),
+  ...RANKED_GUIDES.map((g) => ({ slug: g.slug, lastModified: g.updated ?? g.published })),
 ];
 
 export const revalidate = 86400;

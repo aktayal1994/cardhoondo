@@ -586,6 +586,6 @@ Founder-led rework of the questions (decisions: docs/questionnaire_v4_decisions.
 
 ## 24 Nov 2026 — Guides moved to v4 scoring, 8 new guides, price sanity fix
 - All "best car for X" guides now run on questionnaire v4 answers (`BASE_ANSWERS` in `lib/guides/rankedGuides.ts`): budget slider, extra care, priorities, so they get spec scores, checked crash ratings and priority-led weights like real visitors. Lists changed a lot (Kushaq, Victoris, Slavia, Verna now lead the ₹15-20 lakh family lists). `updated` date feeds the sitemap.
-- 8 new guides (20 total): under ₹6 lakh, hatchback under ₹10 lakh, sedan under ₹15 lakh, SUV under ₹20 lakh, MPV, highway driving under ₹15 lakh, long drives under ₹25 lakh, elderly parents under ₹15 lakh. Body-type guides use `bodies` + new `lib/cars/bodyTypes.ts` to narrow the real ranking.
+- 8 new guides (20 total): under ₹6 lakh, hatchback under ₹10 lakh, sedan under ₹15 lakh, SUV under ₹20 lakh, MPV, highway driving under ₹15 lakh, long drives under ₹25 lakh, elderly parents under ₹15 lakh. Body-type guides use `bodies` + new `lib/cars/guideBodyTypes.ts` to narrow the real ranking.
 - Bug fixed: a duplicate Kodiaq row ("Selection L&amp;K", on-road price ₹46) was shown to ₹3-6 lakh budgets. `fetchRecommendationData` now drops any variant priced under ₹1 lakh. The bad row is still in the `variants` table.
 - Verified live with curl.

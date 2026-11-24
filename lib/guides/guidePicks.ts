@@ -5,6 +5,7 @@ import type { QuestionnaireAnswers } from "../scoring/questionnaireWeights";
 import { fetchCarPageData, fetchFeaturedCarSummaries, type CarPageData } from "../data/fetchCarPage";
 import { carDisplayName, isPublishable } from "../cars/featured";
 import { BASE_ANSWERS, RANKED_GUIDES, type RankedGuide } from "./rankedGuides";
+import { GUIDE_BODY_TYPE } from "../cars/guideBodyTypes";
 
 /**
  * The cars each "best car for X" guide shows, computed once here so the guide
@@ -15,6 +16,12 @@ export const CARS_SHOWN = 5;
 /** Listed briefly under the main five, so the page covers the cars people expect to see. */
 export const CLOSE_SHOWN = 5;
 const RANKED_FETCHED = 25;
+/** Body-type guides narrow the ranking afterwards, so they need a deeper list. */
+const RANKED_FETCHED_BODY = 120;
+
+function fitsBody(guide: RankedGuide, carId: string): boolean {
+  return !guide.bodies || guide.bodies.includes(GUIDE_BODY_TYPE[carId]);
+}
 
 export type RankedCar = Pick<
   RecommendCandidate,
@@ -34,8 +41,11 @@ function fetchRanking(guide: RankedGuide): Promise<RankedCar[]> {
   const answers = { ...BASE_ANSWERS, ...guide.answers } as QuestionnaireAnswers;
   return unstable_cache(
     async (): Promise<RankedCar[]> => {
-      const result = await runRecommendation(answers, RANKED_FETCHED);
-      return result.all_ranked_cars.slice(0, RANKED_FETCHED).map((c) => ({
+      const result = await runRecommendation(answers, guide.bodies ? RANKED_FETCHED_BODY : RANKED_FETCHED);
+      return result.all_ranked_cars
+        .filter((c) => fitsBody(guide, c.car_id))
+        .slice(0, RANKED_FETCHED)
+        .map((c) => ({
         car_id: c.car_id,
         variant_id: c.variant_id,
         price_on_road: c.price_on_road,
@@ -43,7 +53,7 @@ function fetchRanking(guide: RankedGuide): Promise<RankedCar[]> {
         price_basis: c.price_basis,
       }));
     },
-    ["ranked-guide-v3", guide.slug, JSON.stringify(answers)],
+    ["ranked-guide-v4", guide.slug, JSON.stringify(answers), (guide.bodies ?? []).join(",")],
     { revalidate: 86400, tags: ["car-pages"] },
   )();
 }
@@ -76,7 +86,7 @@ const fetchGuideRanksByCar = unstable_cache(
     const [results, featured] = await Promise.all([
       runRecommendations(
         RANKED_GUIDES.map((g) => ({ ...BASE_ANSWERS, ...g.answers }) as QuestionnaireAnswers),
-        RANKED_FETCHED,
+        RANKED_FETCHED_BODY,
       ),
       fetchFeaturedCarSummaries(),
     ]);
@@ -84,14 +94,16 @@ const fetchGuideRanksByCar = unstable_cache(
     const listed = new Set(featured.filter((c) => c.onSale).map((c) => c.carId));
     const out: Record<string, GuideRank[]> = {};
     RANKED_GUIDES.forEach((guide, g) => {
-      const picks = results[g].all_ranked_cars.filter((c) => listed.has(c.car_id)).slice(0, CARS_SHOWN);
+      const picks = results[g].all_ranked_cars
+        .filter((c) => listed.has(c.car_id) && fitsBody(guide, c.car_id))
+        .slice(0, CARS_SHOWN);
       picks.forEach((c, i) => {
         (out[c.car_id] ??= []).push({ slug: guide.slug, title: guide.indexTitle, rank: i + 1 });
       });
     });
     return out;
   },
-  ["guide-ranks-by-car-v2"],
+  ["guide-ranks-by-car-v3"],
   { revalidate: 86400, tags: ["car-pages"] },
 );
 

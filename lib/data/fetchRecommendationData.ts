@@ -61,7 +61,15 @@ async function loadRecommendationData(): Promise<RecommendationData> {
   );
 
   // Discontinued models (cars.on_sale = false) can't be bought new, so they never reach the ranking.
-  const catalogVariants: CatalogVariant[] = variantRows.filter((v: any) => v.cars?.on_sale !== false).map((v: any) => ({
+  // No new car in India costs under ₹1 lakh: a price below that is a broken
+  // scrape (a duplicate Kodiaq row priced at ₹46 was being shown to ₹3-6 lakh
+  // budgets), so the variant is dropped rather than trusted.
+  const MIN_PLAUSIBLE_PRICE = 100_000;
+  const plausible = (p: unknown) => p == null || Number(p) >= MIN_PLAUSIBLE_PRICE;
+  const catalogVariants: CatalogVariant[] = variantRows
+    .filter((v: any) => v.cars?.on_sale !== false)
+    .filter((v: any) => plausible(v.on_road_price) && plausible(v.ex_showroom_price))
+    .map((v: any) => ({
     car_id: v.car_id,
     brand: v.cars?.brand ?? "",
     car_model: v.cars?.model ?? "",

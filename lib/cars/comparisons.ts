@@ -59,7 +59,7 @@ export const COMPARISON_PAIRS: [string, string][] = [
 
 /**
  * Rival pairs worked out from the catalog on 24 Nov 2026 and checked by hand:
- * same body type (lib/cars/bodyTypes.ts, with hatchback, micro SUV and compact
+ * same body type (lib/cars/guideBodyTypes.ts, with hatchback, micro SUV and compact
  * sedan grouped as small cars: sedan, compact SUV, mid-size
  * SUV, large SUV, MPV, off-roader), EV only with EV, starting price within
  * ~45% and length within 35 cm. Each car gets its closest 3-4 rivals, which
