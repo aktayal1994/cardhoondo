@@ -8,7 +8,7 @@ import { GuideFooter, GuideNav } from "../../../components/GuideLayout";
 import { fetchCarPageData, fetchFeaturedCarSummaries } from "../../../lib/data/fetchCarPage";
 import { fetchPublishedComparisons, fetchPublishedTrios } from "../../../lib/data/fetchComparisons";
 import { guideRanksForCar } from "../../../lib/guides/guidePicks";
-import { availableTopics, fetchCarTopics } from "../../../lib/data/fetchCarTopics";
+import { availableTopics, fetchCarTopics, type CarTopics } from "../../../lib/data/fetchCarTopics";
 import { topicLinkLabel, topicPath } from "../../../components/CarTopicPage";
 import type { CarFacetSummary, CarPageData, FeaturedCarSummary } from "../../../lib/data/fetchCarPage";
 import { SITE_URL, carIdToSlug, slugToCarId } from "../../../lib/cars/featured";
@@ -51,8 +51,14 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const data = carId ? await fetchCarPageData(carId) : null;
   if (!data) return {};
 
-  const title = carPageTitle(data.name);
-  const description = carPageDescription(data.name, data.claimCount, data.sourceCount, priceRangeText(data.priceMin, data.priceMax));
+  const title = carPageTitle(data.name, data.model);
+  const description = carPageDescription(
+    data.name,
+    data.sourceCount,
+    priceRangeText(data.priceMin, data.priceMax),
+    data.likes.slice(0, 2).map((f) => facetLabelInline(f.facet)),
+    data.shortfalls.filter((f) => f.score < 0).slice(0, 2).map((f) => facetLabelInline(f.facet)),
+  );
   return pageMetadata({ title, description, path: `/cars/${slug}`, type: "article" });
 }
 
@@ -80,7 +86,7 @@ export default async function CarPage({ params }: Params) {
   const related = pickRelated(data, featured);
   const comparisons = allComparisons.filter((c) => c.a.carId === data.carId || c.b.carId === data.carId);
 
-  const faqs = buildFaqs(data, { price, fuels, gearboxes, topLikes, topComplaints });
+  const faqs = buildFaqs(data, { price, fuels, gearboxes, topLikes, topComplaints }, topics, comparisons[0] ? (comparisons[0].a.carId === data.carId ? comparisons[0].b.model : comparisons[0].a.model) : null);
 
   const pageLd = {
     "@context": "https://schema.org",
@@ -272,7 +278,7 @@ export default async function CarPage({ params }: Params) {
 
         <Section title={`Is the ${name} right for you?`}>
           <p>
-            A car that reviewers love can still be wrong for your roads, family and budget. Answer 11 quick questions about how you
+            A car that reviewers love can still be wrong for your roads, family and budget. Answer a few quick questions about how you
             actually drive and live, and we&rsquo;ll match you to the cars with the strongest evidence behind them.
           </p>
           <div className="mt-5 flex flex-wrap gap-3">
@@ -458,8 +464,10 @@ function FacetBlock({ f }: { f: CarFacetSummary }) {
 function buildFaqs(
   data: CarPageData,
   x: { price: string | null; fuels: string[]; gearboxes: string[]; topLikes: string[]; topComplaints: string[] },
+  topics: CarTopics | null,
+  rival: string | null,
 ): { q: string; a: string }[] {
-  const { name } = data;
+  const { name, model } = data;
   const faqs: { q: string; a: string }[] = [];
   if (x.price) {
     faqs.push({
@@ -485,9 +493,41 @@ function buildFaqs(
       a: `The most common criticism is about the ${name}'s ${joinList(x.topComplaints)}. Check the full list above to see how strongly reviewers agree.`,
     });
   }
+  // Question-style searches seen in Search Console (Nov 2026): "is <car> worth
+  // the price", "what mileage does <car> deliver", "strengths and weaknesses
+  // of <car>", "how many people can sit in <car>". Answered from the page's own data.
+  if (x.price && x.topLikes.length) {
+    const weak = x.topComplaints.length ? `its ${joinList(x.topComplaints)}` : null;
+    faqs.push({
+      q: `Is the ${name} worth the price?`,
+      a: `At ${x.price} ex-showroom, owners and experts rate the ${model} best for its ${joinList(x.topLikes)}${weak ? ` and criticise ${weak}` : ""}. It is worth it if those strengths matter more to you${weak ? " than those complaints" : ""}${rival ? `. Many buyers also look at the ${rival}, so compare the two before you decide` : ""}.`,
+    });
+  }
+  if (x.topLikes.length && x.topComplaints.length) {
+    faqs.push({
+      q: `What are the strengths and weaknesses of the ${name}?`,
+      a: `Strengths, according to owners and experts: ${joinList(x.topLikes)}. Weaknesses: ${joinList(x.topComplaints)}. The pros and problems pages for the ${model} have every remark in reviewers' own words.`,
+    });
+  }
+  const mileage = topics?.mileage;
+  if (mileage) {
+    const sample = mileage.groups.flatMap((g) => g.quotes).find((q) => /\d/.test(q.text) && q.text.length <= 160);
+    faqs.push({
+      q: topics!.isEv ? `What is the real range of the ${name}?` : `What mileage does the ${name} really give?`,
+      a: `We have ${mileage.quoteCount} real-world ${topics!.isEv ? "range" : "mileage"} reports from owners and testers${sample ? `. One ${sample.sourceType === "ownership" ? "owner" : "reviewer"}${sample.version ? ` (${sample.version})` : ""} said: "${sample.text}"` : ""}. The ${model} real ${topics!.isEv ? "range" : "mileage"} page lists them all by ${topics!.isEv ? "version" : "fuel"}, city and highway.`,
+    });
+  }
+  // Catalog seating is text like "5" or "5, 7"; keep the distinct numbers.
+  const seatNums = uniq(data.seating.flatMap((v) => v.split(/[^0-9]+/)).filter(Boolean)).sort((p, q) => Number(p) - Number(q));
+  if (seatNums.length) {
+    faqs.push({
+      q: `How many people can sit in the ${name}?`,
+      a: `The ${model} seats ${seatNums.join(" or ")}${seatNums.length > 1 ? ", depending on the variant" : ""}. Reviewers' verdicts on its back seat room are in the ratings above.`,
+    });
+  }
   faqs.push({
     q: `Is the ${name} the right car for me?`,
-    a: `It depends on how you drive and live. Answer CarDhoondo's 11 quick questions and we will match you to the cars with the strongest review evidence for your situation.`,
+    a: `It depends on how you drive and live. Answer CarDhoondo's quick questions and we will match you to the cars with the strongest review evidence for your situation.`,
   });
   return faqs;
 }

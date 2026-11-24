@@ -55,7 +55,7 @@ import { JOURNEY, type JourneyTool } from "../lib/journey";
 const FAQS = [
   {
     q: "How does CarDhoondo recommend a car?",
-    a: "You answer 11 quick questions about how you actually drive: road conditions, family size, budget, and what matters most to you. We match your answers against a database of facts extracted from real ownership and expert car reviews, and recommend the 2-3 cars with the strongest evidence behind them for your specific situation.",
+    a: "You answer 12 quick questions about how you actually drive: road conditions, family size, budget, and what matters most to you. We match your answers against a database of facts extracted from real ownership and expert car reviews, and recommend the 2-3 cars with the strongest evidence behind them for your specific situation.",
   },
   {
     q: "Is CarDhoondo really free? How do you make money?",
@@ -498,7 +498,7 @@ function Hero({ onStart, claims }: { onStart: (location: string) => void; claims
               visible in the server HTML before any JS runs -- see StaggerHeading `instant`. */}
           <div className="mt-8 flex flex-wrap items-center gap-4">
             <GlowButton onClick={() => onStart("hero")}>{PRIMARY_CTA}</GlowButton>
-            <p className="font-mono text-xs text-ink-faint">11 questions &middot; about 3 minutes</p>
+            <p className="font-mono text-xs text-ink-faint">12 questions &middot; about 3 minutes</p>
           </div>
         </div>
       </motion.div>
@@ -767,7 +767,7 @@ const STEPS = [
   {
     icon: ListChecks,
     title: "Tell us how you actually drive",
-    body: "11 quick questions grouped into core requirements, your everyday driving, and what matters to you. No jargon, about 3 minutes.",
+    body: "12 quick questions grouped into core requirements, your everyday driving, and what matters to you. No jargon, about 3 minutes.",
   },
   {
     icon: ScanSearch,

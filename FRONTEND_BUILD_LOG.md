@@ -601,3 +601,10 @@ Founder-led rework of the questions (decisions: docs/questionnaire_v4_decisions.
 - `/decide` now asks the budget slider first. It starts wide enough to hold every version of the picked cars (untouched = no effect); the count reads "X of your N cars have a version in this range".
 - Narrowing it picks the version of each car that fits and sets aside cars with none, with the reason "No version of it fits your budget (it costs Rs A to B lakh on-road in New Delhi)".
 - `/api/decide` validates the range answer. Verified live: Creta vs Seltos at 8-13 lakh ranks Creta E and sets the Seltos aside.
+
+## 24 Nov 2026 — Search titles and snippets from Search Console data
+- Search Console (3 months: 13.5k impressions, 62 clicks, 0.5% CTR, avg position 31.7) showed comparisons typed as "x vs y (which is better)" and question searches ("is fortuner worth the price", "what mileage does the jimny deliver", "strengths and weaknesses of ...").
+- Comparison titles now "<A> vs <B>: Which Is Better? (year)"; descriptions lead with who wins where. Car review titles "<car> Review (year): What Owners Really Say"; descriptions lead with what owners like and complain about. Trio titles carry the year.
+- Car pages get FAQs (with FAQ schema): worth the price, strengths and weaknesses, real mileage/range (with an owner quote, when the mileage page exists), seating.
+- "Fit & finish" label is now "Build quality" (searched phrase). "11 quick questions" updated to 12 everywhere visible (body type question added today).
+- Verified live with curl.

@@ -46,7 +46,7 @@ const FACET_LABELS: Record<string, string> = {
   crash_rating_perception: "Crash safety",
   airbag_adequacy: "Airbags",
   adas_reliability: "ADAS driver assistance",
-  fit_finish_quality: "Fit & finish",
+  fit_finish_quality: "Build quality",
   braking_performance: "Braking",
   city_drivability: "City drivability",
   highway_overtaking: "Highway overtaking",

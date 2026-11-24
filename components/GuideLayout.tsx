@@ -165,7 +165,7 @@ function BottomCta() {
         Still not sure? Tell us how you actually drive.
       </p>
       <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-stage-ink-soft">
-        11 quick questions, no signup — we&apos;ll match your answers against real ownership and expert
+        12 quick questions, no signup — we&apos;ll match your answers against real ownership and expert
         review evidence and hand you 2–3 cars that genuinely fit, not a list of fifty.
       </p>
       <Link

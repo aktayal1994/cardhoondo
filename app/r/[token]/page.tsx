@@ -117,7 +117,7 @@ export default async function SharedShortlistPage({ params }: Params) {
           <section className="mt-12 rounded-[14px] bg-stage p-6 text-white sm:p-8">
             <h2 className="font-display text-2xl font-bold sm:text-3xl">Your needs are different. So is your car.</h2>
             <p className="mt-2 max-w-xl text-sm font-medium sm:text-base">
-              Answer 11 quick questions about how you drive and who rides with you. Get 2 or 3 cars matched to you, each backed by real
+              Answer 12 quick questions about how you drive and who rides with you. Get 2 or 3 cars matched to you, each backed by real
               owner and expert reviews. Free, and no dealer will call you.
             </p>
             <div className="mt-5 flex flex-wrap items-center gap-3">

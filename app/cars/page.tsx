@@ -10,7 +10,7 @@ import { pageMetadata, withBrand } from "../../lib/seo";
 
 export const revalidate = 86400;
 
-const TITLE = "Car Reviews India: What Owners and Experts Say";
+const TITLE = "Car Reviews India: Honest Reviews From Real Owners";
 const DESCRIPTION =
   "Car reviews built from what real owners and expert reviewers say: strengths, common complaints, prices and engines. No sponsored picks.";
 
@@ -113,7 +113,7 @@ export default async function CarsIndexPage() {
         <section className="mt-14 rounded-2xl border border-border bg-stage p-8 text-center">
           <h2 className="font-display text-xl font-bold text-stage-ink">Not sure which of these fits you?</h2>
           <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-stage-ink-soft">
-            Answer 11 quick questions about how you drive and live, and get 2&ndash;3 cars matched to you, each backed by real
+            Answer 12 quick questions about how you drive and live, and get 2&ndash;3 cars matched to you, each backed by real
             review evidence.
           </p>
           <Link

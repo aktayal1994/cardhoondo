@@ -271,7 +271,7 @@ function Hero({ onStart }: { onStart: Start }) {
                 Find my car
                 <ArrowRight className="h-[18px] w-[18px]" strokeWidth={2.25} />
               </button>
-              <p className="mt-2 text-center text-sm text-ink-soft">11 questions, about 3 minutes</p>
+              <p className="mt-2 text-center text-sm text-ink-soft">12 questions, about 3 minutes</p>
               <DecideLink className="mt-4 justify-center" />
             </div>
             <p className="mt-6 flex items-center gap-2 text-[15px] font-medium">
@@ -319,7 +319,7 @@ function Hero({ onStart }: { onStart: Start }) {
           <dl className="grid flex-1 grid-cols-3 divide-x divide-border">
             {(
               [
-                ["Questions", "11 quick ones", ListChecks],
+                ["Questions", "12 quick ones", ListChecks],
                 ["Time", "About 3 minutes", Clock],
                 ["You get", "2 or 3 cars", CarFront],
               ] as [string, string, IconType][]
@@ -548,7 +548,7 @@ const STEPS = [
   {
     anim: "checklist" as StepAnimKind,
     title: "Tell us how you actually drive",
-    body: "11 quick questions about your must-haves, your everyday driving and what matters to you. No jargon, about 3 minutes.",
+    body: "12 quick questions about your must-haves, your everyday driving and what matters to you. No jargon, about 3 minutes.",
   },
   {
     anim: "scale" as StepAnimKind,
@@ -813,7 +813,7 @@ function Cars({ cars, comparisons, carsCount }: { cars: HomeCar[]; comparisons: 
 const FAQS = [
   {
     q: "How does CarDhoondo recommend a car?",
-    a: "You answer 11 quick questions about how you actually drive: road conditions, family size, budget, and what matters most to you. We match your answers against a database of facts extracted from real ownership and expert car reviews, and recommend the 2-3 cars with the strongest evidence behind them for your specific situation.",
+    a: "You answer 12 quick questions about how you actually drive: road conditions, family size, budget, and what matters most to you. We match your answers against a database of facts extracted from real ownership and expert car reviews, and recommend the 2-3 cars with the strongest evidence behind them for your specific situation.",
   },
   {
     q: "Is CarDhoondo really free? How do you make money?",

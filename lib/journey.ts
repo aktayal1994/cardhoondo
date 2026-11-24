@@ -37,7 +37,7 @@ export const JOURNEY: JourneyStage[] = [
       {
         id: "find",
         title: "Find my car",
-        sub: "11 quick questions. 2 or 3 cars that fit you, each backed by real owner and expert reviews.",
+        sub: "12 quick questions. 2 or 3 cars that fit you, each backed by real owner and expert reviews.",
         href: "/questionnaire/core-requirements",
         icon: Search,
         hero: true,

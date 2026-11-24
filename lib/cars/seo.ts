@@ -5,59 +5,95 @@ function firstFitting(candidates: string[], max: number): string {
   return candidates.find((c) => c.length <= max) ?? candidates[candidates.length - 1];
 }
 
-/** e.g. "Kia Seltos Review: Owner & Expert Verdict | CarDhoondo". */
-export function carPageTitle(name: string): string {
+/** The year in a title tells a searcher the page is current; it rolls over by itself (pages re-render daily). */
+function year(): number {
+  return new Date().getFullYear();
+}
+
+/** e.g. "Hyundai Exter Review (2026): What Owners Really Say". Search
+ * Console (Nov 2026) showed review searches typed as "<brand> <model> review". */
+export function carPageTitle(name: string, model: string): string {
+  const y = year();
   return firstFitting(
     [
-      `${name} Review: Owner & Expert Verdict | CarDhoondo`,
-      `${name} Review: What Owners Say | CarDhoondo`,
-      `${name} Review: What Owners Say`,
-      `${name} Review | CarDhoondo`,
+      `${name} Review (${y}): What Owners Really Say`,
+      `${name} Review (${y}): Owner Verdict`,
+      `${model} Review (${y}): What Owners Really Say`,
+      `${name} Review (${y})`,
       `${name} Review`,
     ],
     MAX_TITLE_CHARS,
   );
 }
 
-/** Factual summary from the page's own numbers; drops detail until it fits. */
-export function carPageDescription(name: string, claims: number, sources: number, price: string | null): string {
-  const base = `${name} review from ${claims} statements in ${sources} owner and expert reviews`;
+/** Leads with the verdict itself (what owners like and complain about), so the
+ * snippet answers the search before the click. Drops detail until it fits. */
+export function carPageDescription(
+  name: string,
+  sources: number,
+  price: string | null,
+  likes: string[],
+  complaints: string[],
+): string {
+  const like = likes.length ? `Owners like its ${joinTwo(likes)}` : null;
+  const dislike = complaints.length ? `complain about its ${joinTwo(complaints)}` : null;
+  const verdict = like && dislike ? `${like} and ${dislike}.` : like ? `${like}.` : dislike ? `Owners ${dislike}.` : "";
   return firstFitting(
     [
-      `${base}: what people like, common complaints${price ? ` and ex-showroom price ${price}` : ""}.`,
-      `${base}: what people like, common complaints${price ? ` and price ${price}` : ""}.`,
-      `${base}: what people like and common complaints.`,
-      `${name} review from ${sources} owner and expert reviews: likes and complaints.`,
+      `${name} review: ${verdict} From ${sources} owner and expert reviews${price ? `, price ${price}` : ""}.`,
+      `${name} review: ${verdict} From ${sources} owner and expert reviews.`,
+      `${name}: ${verdict} From ${sources} real reviews.`,
+      `${name} review from ${sources} owner and expert reviews: what people like and common complaints.`,
     ],
     MAX_DESCRIPTION_CHARS,
   );
 }
 
-/** e.g. "Hyundai Creta vs Kia Seltos: Owner Verdict | CarDhoondo". Pass nameB
- * as the bare model for same-brand pairs ("Maruti Suzuki Fronx vs Brezza"). */
+/** e.g. "Creta vs Seltos: Which Is Better? (2026) | CarDhoondo". People type
+ * comparisons as bare models, often with "which is better" (Search Console, Nov 2026). */
 export function comparisonTitle(nameA: string, nameB: string, modelA: string, modelB: string): string {
+  const y = year();
   return firstFitting(
     [
-      `${nameA} vs ${nameB}: Owner Verdict | CarDhoondo`,
-      `${nameA} vs ${nameB}: Which Is Better?`,
-      `${nameA} vs ${nameB} | CarDhoondo`,
-      `${nameA} vs ${nameB}`,
-      `${modelA} vs ${modelB}: Owner Verdict | CarDhoondo`,
-      `${modelA} vs ${modelB}`,
+      `${nameA} vs ${nameB}: Which Is Better? (${y})`,
+      `${modelA} vs ${modelB}: Which Is Better? (${y}) | CarDhoondo`,
+      `${modelA} vs ${modelB}: Which Is Better? (${y})`,
+      `${modelA} vs ${modelB} (${y})`,
     ],
     MAX_TITLE_CHARS,
   );
 }
 
-export function comparisonDescription(modelA: string, modelB: string, sources: number): string {
+/** Leads with who wins where, from the page's own verdicts. */
+export function comparisonDescription(
+  modelA: string,
+  modelB: string,
+  sources: number,
+  aWins: string[],
+  bWins: string[],
+): string {
+  const verdict =
+    aWins.length && bWins.length
+      ? `Owners rate the ${modelA} better for ${joinTwo(aWins)}, the ${modelB} for ${joinTwo(bWins)}.`
+      : aWins.length
+        ? `Owners rate the ${modelA} better for ${joinTwo(aWins)}; the ${modelB} is not clearly ahead anywhere.`
+        : bWins.length
+          ? `Owners rate the ${modelB} better for ${joinTwo(bWins)}; the ${modelA} is not clearly ahead anywhere.`
+          : `Owners rate the ${modelA} and ${modelB} about the same in every area.`;
   return firstFitting(
     [
-      `${modelA} or ${modelB}? See where each one wins on mileage, comfort, space and more, based on ${sources} owner and expert reviews, with prices.`,
-      `${modelA} or ${modelB}? Where each one wins, based on ${sources} owner and expert reviews, with prices.`,
-      `${modelA} vs ${modelB}: where each one wins, from ${sources} owner and expert reviews.`,
+      `${modelA} or ${modelB}? ${verdict} From ${sources} owner and expert reviews, with prices.`,
+      `${modelA} or ${modelB}? ${verdict} From ${sources} real reviews.`,
+      `${modelA} or ${modelB}? ${verdict}`,
+      `${modelA} or ${modelB}? Where each one wins, from ${sources} owner and expert reviews, with prices.`,
     ],
     MAX_DESCRIPTION_CHARS,
   );
+}
+
+function joinTwo(items: string[]): string {
+  const xs = items.slice(0, 2);
+  return xs.length === 2 ? `${xs[0]} and ${xs[1]}` : (xs[0] ?? "");
 }
 
 /** Titles for the owner-topic pages (/cars/<slug>/problems | pros | mileage). */
@@ -119,7 +155,7 @@ export function topicDescription(
 /** e.g. "Creta vs Seltos vs Hyryder: Owner Verdict | CarDhoondo". */
 export function trioTitle(models: string): string {
   return firstFitting(
-    [`${models}: Owner Verdict | CarDhoondo`, `${models}: Which Is Best?`, `${models} | CarDhoondo`, models],
+    [`${models}: Which Is Best? (${year()})`, `${models}: Which Is Best?`, `${models} | CarDhoondo`, models],
     MAX_TITLE_CHARS,
   );
 }

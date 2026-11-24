@@ -71,7 +71,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const [a, b] = pair;
   return pageMetadata({
     title: comparisonTitle(a.name, secondName(a, b), a.model, b.model),
-    description: comparisonDescription(a.model, b.model, a.sourceCount + b.sourceCount),
+    description: comparisonDescription(a.model, b.model, a.sourceCount + b.sourceCount, ...winsOf(a, b)),
     path: `/compare/${slug}`,
     type: "article",
   });
@@ -251,7 +251,7 @@ export default async function ComparisonPage({ params }: Params) {
           <p>{chooseLine(A, B, aWins, bWins)}</p>
           <p>
             Reviews only tell you how a car has worked out for other people. Whether it suits you depends on your roads, your family
-            and your budget. Answer 11 quick questions and we&rsquo;ll match you to the cars with the strongest evidence for how you
+            and your budget. Answer a few quick questions and we&rsquo;ll match you to the cars with the strongest evidence for how you
             actually drive.
           </p>
           <div className="mt-5 flex flex-wrap gap-3">
@@ -308,6 +308,14 @@ export default async function ComparisonPage({ params }: Params) {
       <GuideFooter />
     </main>
   );
+}
+
+/** Top areas where each car is clearly ahead (same rule as the page body), for the search snippet. */
+function winsOf(a: CarPageData, b: CarPageData): [string[], string[]] {
+  const shared = buildRows(a, b).filter((r) => r.a && r.b);
+  const aW = shared.filter((r) => r.gap >= CLEAR_GAP).sort((x, y) => y.gap - x.gap);
+  const bW = shared.filter((r) => r.gap <= -CLEAR_GAP).sort((x, y) => x.gap - y.gap);
+  return [aW.slice(0, 2).map((r) => facetLabelInline(r.facet)), bW.slice(0, 2).map((r) => facetLabelInline(r.facet))];
 }
 
 /** Union of both cars' rated areas, shared ones first (biggest gap first), then one-sided ones. */

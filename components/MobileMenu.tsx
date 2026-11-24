@@ -64,11 +64,11 @@ export default function MobileMenu({ onStart }: { onStart?: (location: string) =
         >
           {onStart ? (
             <button type="button" onClick={() => { close(); onStart("menu"); }} className={`${rowClass} w-full text-left`}>
-              <MenuRow icon={Search} title="Find my car" sub="11 quick questions, 2–3 cars that fit you" accent />
+              <MenuRow icon={Search} title="Find my car" sub="12 quick questions, 2–3 cars that fit you" accent />
             </button>
           ) : (
             <Link href="/questionnaire/core-requirements" onClick={close} className={rowClass}>
-              <MenuRow icon={Search} title="Find my car" sub="11 quick questions, 2–3 cars that fit you" accent />
+              <MenuRow icon={Search} title="Find my car" sub="12 quick questions, 2–3 cars that fit you" accent />
             </Link>
           )}
           {ITEMS.map((it) => (

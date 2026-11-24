@@ -6,7 +6,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "CarDhoondo: Which Car to Buy",
     short_name: "CarDhoondo",
     description:
-      "Honest car advice from real owner and expert reviews. Answer 11 questions, get 2-3 cars. No dealer commissions, no sponsored results.",
+      "Honest car advice from real owner and expert reviews. Answer 12 questions, get 2-3 cars. No dealer commissions, no sponsored results.",
     id: "/",
     start_url: "/?source=app",
     scope: "/",
