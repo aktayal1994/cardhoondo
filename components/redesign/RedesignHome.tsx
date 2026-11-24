@@ -924,6 +924,7 @@ function Footer() {
         { label: "Check my dealer quote", href: "/quotation" },
         { label: "Car reviews", href: "/cars" },
         { label: "Guides", href: "/guides" },
+        { label: "What owners complain about (study)", href: "/guides/what-indian-car-owners-complain-about" },
       ],
     },
     {

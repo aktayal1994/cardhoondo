@@ -15,6 +15,7 @@ const GUIDES: { slug: string; lastModified: string }[] = [
   { slug: "petrol-diesel-or-cng", lastModified: "2026-08-23" },
   { slug: "manual-vs-automatic-india", lastModified: "2026-08-23" },
   { slug: "dealer-tricks-first-car", lastModified: "2026-09-26" },
+  { slug: "what-indian-car-owners-complain-about", lastModified: "2026-11-24" },
   // Data-driven shortlists: dated by when the guide went live, since their
   // cars' own pages carry the daily score changes.
   ...RANKED_GUIDES.map((g) => ({ slug: g.slug, lastModified: g.updated ?? g.published })),

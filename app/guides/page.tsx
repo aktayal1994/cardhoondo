@@ -15,6 +15,12 @@ export const metadata: Metadata = pageMetadata({ title: withBrand(TITLE), descri
 
 const WRITTEN_GUIDES = [
   {
+    href: "/guides/what-indian-car-owners-complain-about",
+    eyebrow: "CarDhoondo study",
+    title: "What Indian Car Owners Complain About",
+    dek: "We read 636 owner and expert reviews of 87 cars. What owners complain about, what experts miss, and how brands compare on service.",
+  },
+  {
     href: "/guides/why-everyone-has-different-opinion",
     eyebrow: "Decision paralysis",
     title: "Why Does Everyone Have a Different Opinion on Which Car to Buy?",
@@ -41,9 +47,11 @@ const WRITTEN_GUIDES = [
 ];
 
 // The data-driven shortlists go first: they answer the questions people actually ask.
+// The owner complaints study leads: it is the page we most want people to cite.
 const GUIDES = [
+  WRITTEN_GUIDES[0],
   ...RANKED_GUIDES.map((g) => ({ href: `/guides/${g.slug}`, eyebrow: g.eyebrow, title: g.indexTitle, dek: g.indexDek })),
-  ...WRITTEN_GUIDES,
+  ...WRITTEN_GUIDES.slice(1),
 ];
 
 export default function GuidesIndexPage() {

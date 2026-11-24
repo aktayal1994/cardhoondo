@@ -197,7 +197,7 @@ export function GuideFooter() {
           </p>
         </div>
 
-        <nav className="flex items-center gap-6 text-sm font-medium text-stage-ink-soft">
+        <nav className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm font-medium text-stage-ink-soft">
           <Link href="/#faq" className="transition hover:text-stage-ink">
             FAQ
           </Link>
@@ -206,6 +206,9 @@ export function GuideFooter() {
           </Link>
           <Link href="/guides" className="transition hover:text-stage-ink">
             Guides
+          </Link>
+          <Link href="/guides/what-indian-car-owners-complain-about" className="transition hover:text-stage-ink">
+            Owner complaints study
           </Link>
           <Link href="/#contact" className="transition hover:text-stage-ink">
             Contact

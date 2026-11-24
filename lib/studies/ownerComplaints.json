@@ -1,0 +1,422 @@
+{
+  "generatedAt": "2026-11-24",
+  "totals": {
+    "statements": 10467,
+    "sources": 636,
+    "cars": 87,
+    "ownerStatements": 5262,
+    "expertStatements": 5205,
+    "criticalShare": 0.373,
+    "ownerCriticalShare": 0.377,
+    "expertCriticalShare": 0.369
+  },
+  "thresholds": {
+    "MIN_THEME": 200,
+    "MIN_FACET": 60,
+    "MIN_BRAND_SERVICE": 40,
+    "MIN_CAR": 80,
+    "MIN_CAR_OWNER": 30
+  },
+  "themes": [
+    {
+      "theme": "feature_tech",
+      "owners": 0.457,
+      "ownersRated": 551,
+      "experts": 0.372,
+      "expertsRated": 419
+    },
+    {
+      "theme": "safety_build_quality",
+      "owners": 0.459,
+      "ownersRated": 619,
+      "experts": 0.375,
+      "expertsRated": 602
+    },
+    {
+      "theme": "visibility_ergonomics",
+      "owners": 0.49,
+      "ownersRated": 249,
+      "experts": 0.41,
+      "expertsRated": 497
+    },
+    {
+      "theme": "reliability",
+      "owners": 0.53,
+      "ownersRated": 370,
+      "experts": 0.462,
+      "expertsRated": 117
+    },
+    {
+      "theme": "parking_maneuverability",
+      "owners": 0.417,
+      "ownersRated": 144,
+      "experts": 0.4,
+      "expertsRated": 115
+    },
+    {
+      "theme": "ride_quality",
+      "owners": 0.326,
+      "ownersRated": 887,
+      "experts": 0.345,
+      "expertsRated": 1015
+    },
+    {
+      "theme": "cabin_space",
+      "owners": 0.333,
+      "ownersRated": 724,
+      "experts": 0.368,
+      "expertsRated": 1087
+    },
+    {
+      "theme": "power_drivability",
+      "owners": 0.269,
+      "ownersRated": 599,
+      "experts": 0.348,
+      "expertsRated": 1105
+    },
+    {
+      "theme": "mileage_efficiency",
+      "owners": 0.299,
+      "ownersRated": 508,
+      "experts": 0.418,
+      "expertsRated": 165
+    }
+  ],
+  "worstTopics": [
+    {
+      "facet": "electrical_issues",
+      "share": 0.868,
+      "rated": 106,
+      "quote": {
+        "text": "Other issues, such as the tailgate release and driver seat adjustment, have also received minor glitches. But again, after a software update, they don't resurface at all.",
+        "car": "Tata Sierra EV",
+        "url": "https://www.youtube.com/watch?v=6LybzlVPbMI&t=1188s"
+      }
+    },
+    {
+      "facet": "mileage_vs_claimed_gap",
+      "share": 0.635,
+      "rated": 104,
+      "quote": {
+        "text": "on the cluster with a full tank of fuel, it shows around 650 km of range... but in the real world, it only goes around 400 km, which isn't great",
+        "car": "Hyundai Alcazar",
+        "url": "https://www.youtube.com/watch?v=JPxJO7mCQok&t=137s"
+      }
+    },
+    {
+      "facet": "turbo_lag",
+      "share": 0.61,
+      "rated": 118,
+      "quote": {
+        "text": "that's what turbo lag is — it gives you a brief, half-second-or-so lag. A car enthusiast, someone who drives multiple cars, will feel that",
+        "car": "Kia Syros",
+        "url": "https://www.youtube.com/watch?v=XET-kz_xheU&t=387s"
+      }
+    },
+    {
+      "facet": "connected_car_features",
+      "share": 0.61,
+      "rated": 159,
+      "quote": {
+        "text": "My iRA app only got activated this morning, after many days -- the dealership and Tata Motors staff replied to my emails but still couldn't activate it themselves.",
+        "car": "Tata Sierra EV",
+        "url": "https://www.youtube.com/watch?v=nXVPno2t15U&t=468s"
+      }
+    },
+    {
+      "facet": "engine_gearbox_issues",
+      "share": 0.588,
+      "rated": 211,
+      "quote": {
+        "text": "The 6th gear and reverse gear often get stuck engaging — you have to release the clutch and press it again to get it in. This is also a problem with this car",
+        "car": "Tata Curvv",
+        "url": "https://www.youtube.com/watch?v=4DvQu_E53jc&t=302s"
+      }
+    },
+    {
+      "facet": "tire_quality",
+      "share": 0.583,
+      "rated": 72,
+      "quote": {
+        "text": "my current car has also done 28,000 km, and its tires have worn out about 70%. Wheel spin in EV tires is a major issue - the regen keeps the brake continuously engaged",
+        "car": "Hyundai Creta Electric",
+        "url": "https://www.youtube.com/watch?v=d9QdxZhV5fw&t=828s"
+      }
+    },
+    {
+      "facet": "exterior_lighting_quality",
+      "share": 0.538,
+      "rated": 117,
+      "quote": {
+        "text": "When we first got the car, on some roads the headlight beam seemed to dip -- felt like a headlight issue, and the service center confirmed it needed adjustment",
+        "car": "BYD eMAX 7",
+        "url": "https://www.youtube.com/watch?v=YlaJlCYTLhg&t=1968s"
+      }
+    },
+    {
+      "facet": "dashboard_layout",
+      "share": 0.506,
+      "rated": 451,
+      "quote": {
+        "text": "The biggest bottle holder is here... this bottle doesn't fit straight... it's a little deep inside... this is frustrating. It could have been designed better and bigger.",
+        "car": "Mahindra Thar Roxx",
+        "url": "https://www.youtube.com/watch?v=uQgFLepmbRY&t=741s"
+      }
+    }
+  ],
+  "bestTopics": [
+    {
+      "facet": "highway_mileage_actual",
+      "share": 0.173,
+      "rated": 301
+    },
+    {
+      "facet": "highway_stability",
+      "share": 0.173,
+      "rated": 272
+    },
+    {
+      "facet": "breakdown_frequency",
+      "share": 0.179,
+      "rated": 67
+    },
+    {
+      "facet": "ground_clearance_practicality",
+      "share": 0.183,
+      "rated": 142
+    },
+    {
+      "facet": "routine_service_cost",
+      "share": 0.189,
+      "rated": 143
+    },
+    {
+      "facet": "city_drivability",
+      "share": 0.23,
+      "rated": 596
+    }
+  ],
+  "commonComplaints": [
+    {
+      "facet": "fit_finish_quality",
+      "negative": 310,
+      "share": 0.484,
+      "rated": 641
+    },
+    {
+      "facet": "dashboard_layout",
+      "negative": 228,
+      "share": 0.506,
+      "rated": 451
+    },
+    {
+      "facet": "suspension_softness",
+      "negative": 214,
+      "share": 0.361,
+      "rated": 593
+    },
+    {
+      "facet": "seat_cushioning_support",
+      "negative": 197,
+      "share": 0.329,
+      "rated": 599
+    },
+    {
+      "facet": "rear_legroom_kneeroom",
+      "negative": 188,
+      "share": 0.353,
+      "rated": 533
+    },
+    {
+      "facet": "handling_cornering",
+      "negative": 188,
+      "share": 0.339,
+      "rated": 555
+    },
+    {
+      "facet": "engine_refinement",
+      "negative": 164,
+      "share": 0.301,
+      "rated": 544
+    },
+    {
+      "facet": "highway_overtaking",
+      "negative": 139,
+      "share": 0.428,
+      "rated": 325
+    }
+  ],
+  "brands": [
+    {
+      "brand": "Toyota",
+      "share": 0.188,
+      "rated": 64,
+      "sources": 29
+    },
+    {
+      "brand": "Maruti Suzuki",
+      "share": 0.266,
+      "rated": 158,
+      "sources": 69
+    },
+    {
+      "brand": "Hyundai",
+      "share": 0.352,
+      "rated": 54,
+      "sources": 26
+    },
+    {
+      "brand": "MG",
+      "share": 0.473,
+      "rated": 74,
+      "sources": 21
+    },
+    {
+      "brand": "Skoda",
+      "share": 0.475,
+      "rated": 61,
+      "sources": 23
+    },
+    {
+      "brand": "Mahindra",
+      "share": 0.483,
+      "rated": 120,
+      "sources": 54
+    },
+    {
+      "brand": "Kia",
+      "share": 0.5,
+      "rated": 62,
+      "sources": 26
+    },
+    {
+      "brand": "Tata",
+      "share": 0.576,
+      "rated": 172,
+      "sources": 55
+    },
+    {
+      "brand": "Force",
+      "share": 0.762,
+      "rated": 42,
+      "sources": 12
+    }
+  ],
+  "mostCriticisedCars": [
+    {
+      "carId": "force_gurkha_5_door",
+      "name": "Force Gurkha 5 Door",
+      "share": 0.515,
+      "rated": 132,
+      "sources": 8
+    },
+    {
+      "carId": "mahindra_thar",
+      "name": "Mahindra Thar",
+      "share": 0.505,
+      "rated": 111,
+      "sources": 10
+    },
+    {
+      "carId": "mg_windsor_ev",
+      "name": "MG Windsor EV",
+      "share": 0.497,
+      "rated": 185,
+      "sources": 15
+    },
+    {
+      "carId": "maruti_grand_vitara",
+      "name": "Maruti Suzuki Grand Vitara",
+      "share": 0.478,
+      "rated": 134,
+      "sources": 11
+    },
+    {
+      "carId": "tata_tiago",
+      "name": "Tata Tiago",
+      "share": 0.477,
+      "rated": 153,
+      "sources": 9
+    },
+    {
+      "carId": "mahindra_thar_roxx",
+      "name": "Mahindra Thar Roxx",
+      "share": 0.459,
+      "rated": 146,
+      "sources": 10
+    },
+    {
+      "carId": "mahindra_scorpio_n",
+      "name": "Mahindra Scorpio N",
+      "share": 0.443,
+      "rated": 140,
+      "sources": 17
+    },
+    {
+      "carId": "tata_safari",
+      "name": "Tata Safari",
+      "share": 0.442,
+      "rated": 172,
+      "sources": 11
+    }
+  ],
+  "leastCriticisedCars": [
+    {
+      "carId": "citroen_basalt",
+      "name": "Citroen Basalt",
+      "share": 0.213,
+      "rated": 89,
+      "sources": 10
+    },
+    {
+      "carId": "maruti_baleno",
+      "name": "Maruti Suzuki Baleno",
+      "share": 0.27,
+      "rated": 111,
+      "sources": 8
+    },
+    {
+      "carId": "kia_carens_clavis",
+      "name": "Kia Carens Clavis",
+      "share": 0.273,
+      "rated": 132,
+      "sources": 8
+    },
+    {
+      "carId": "byd_emax_7",
+      "name": "BYD eMAX 7",
+      "share": 0.273,
+      "rated": 88,
+      "sources": 5
+    },
+    {
+      "carId": "honda_city",
+      "name": "Honda City",
+      "share": 0.276,
+      "rated": 156,
+      "sources": 12
+    },
+    {
+      "carId": "jeep_meridian",
+      "name": "Jeep Meridian",
+      "share": 0.277,
+      "rated": 83,
+      "sources": 8
+    },
+    {
+      "carId": "hyundai_creta_electric",
+      "name": "Hyundai Creta Electric",
+      "share": 0.277,
+      "rated": 130,
+      "sources": 8
+    },
+    {
+      "carId": "toyota_innova_hycross",
+      "name": "Toyota Innova Hycross",
+      "share": 0.279,
+      "rated": 129,
+      "sources": 9
+    }
+  ],
+  "carsCounted": 62
+}

@@ -613,3 +613,8 @@ Founder-led rework of the questions (decisions: docs/questionnaire_v4_decisions.
 - `lib/popularPages.ts`: the 10 comparisons and 8 car reviews at Google position 1-20 in the 24 Nov Search Console export. Linked from every inner page's footer (`GuideFooter`), the home footer (two new columns, grid now 3 wide), first in the home comparison row, and a "Most read" block at the top of /compare.
 - Refresh the list after each Search Console check (account mycardhoondo@gmail.com).
 - Checked locally at desktop and 375 px (no sideways scroll); verified live with curl.
+
+## 24 Nov 2026 — Data study: what Indian car owners complain about
+- New `/guides/what-indian-car-owners-complain-about`: 10,467 statements from 636 reviews of 87 cars. Owners vs experts by theme, most and least criticised topics (with first-hand English owner quotes), service/reliability complaints by brand (brands with 40+ remarks), most/least criticised cars on sale (80+ rated remarks, 30+ from owners, launch-only cars excluded). Method section, Dataset schema, "Use these numbers" credit-and-link ask.
+- Numbers are a dated snapshot: `node scripts/build_complaints_study.mjs` (from web/) writes `lib/studies/ownerComplaints.json`; bump DATE_MODIFIED in the page when refreshing. Sponsored and spillover claims excluded.
+- Linked first on /guides, in every inner footer and the home footer. Checked at desktop and 375 px; verified live.
