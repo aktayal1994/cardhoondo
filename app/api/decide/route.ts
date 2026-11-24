@@ -3,6 +3,7 @@ import { QUESTIONS } from "../../../lib/questions";
 import { PRIORITY_BALANCED, type QuestionnaireAnswers } from "../../../lib/scoring/questionnaireWeights";
 import { DECIDE_MAX_CARS, DECIDE_MIN_CARS, runDecision } from "../../../lib/decide/runDecision";
 import { DECIDE_QUESTION_IDS } from "../../../lib/decide/types";
+import { BUDGET_SLIDER_MIN, BUDGET_SLIDER_TOP } from "../../../lib/scoring/recommend";
 
 /**
  * POST /api/decide -- rank 2-3 cars the buyer already has in mind against
@@ -30,6 +31,13 @@ export async function POST(request: Request) {
     const q = QUESTIONS.find((x) => x.id === id);
     const value = raw[id];
     if (!q || value == null) continue;
+    if (q.type === "range") {
+      // [min lakh, max lakh] from the budget slider.
+      const nums = Array.isArray(value) && value.length === 2 ? value.map((v) => (typeof v === "string" ? parseFloat(v) : NaN)) : [];
+      if (nums.length !== 2 || nums.some((n) => !Number.isFinite(n) || n < BUDGET_SLIDER_MIN || n > BUDGET_SLIDER_TOP) || nums[0] >= nums[1]) return bad(id);
+      answers[id] = (value as string[]).map(String);
+      continue;
+    }
     const allowed = new Set(q.options.map((o) => o.value));
     if (q.type === "single") {
       if (typeof value !== "string" || !allowed.has(value)) return bad(id);

@@ -25,7 +25,7 @@ import type { DecideArea, DecideCar, DecideNotFit, DecideResult } from "./types"
 /**
  * "Decide between": the buyer already has 2-3 cars in mind and answers how
  * they drive. The same recommend() the full questionnaire uses ranks ONLY
- * those cars (no budget, no brand questions: they already chose the cars), so
+ * those cars (a budget, but no brand questions: they already chose the cars), so
  * the answer can never disagree with what Find my car would say for the same
  * person. Every sentence is built from the numbers; no AI text.
  */
@@ -134,7 +134,16 @@ function notFitReasons(
       anyPassed = true;
       continue;
     }
-    if (reason.startsWith("fuel")) {
+    if (reason.startsWith("on-road price") || reason === "no price data") {
+      const prices = variants.map((x) => x.on_road_price ?? x.ex_showroom_price).filter((x): x is number => x != null);
+      if (prices.length) {
+        const lo = Math.min(...prices) / 100000;
+        const hi = Math.max(...prices) / 100000;
+        reasons.add(`No version of it fits your budget (it costs ₹${lo.toFixed(1)} to ₹${hi.toFixed(1)} lakh on-road in New Delhi).`);
+      } else {
+        reasons.add("We don't have its price yet, so we can't check it against your budget.");
+      }
+    } else if (reason.startsWith("fuel")) {
       const fuels = Array.from(new Set(variants.map((x) => fuelLabel(x.fuel_type ?? "")).filter(Boolean)));
       reasons.add(`It isn't sold in the fuel you want (it comes in ${fuels.join(", ")}).`);
     } else if (reason.startsWith("seats")) {

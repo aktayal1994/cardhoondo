@@ -595,3 +595,9 @@ Founder-led rework of the questions (decisions: docs/questionnaire_v4_decisions.
 - If no car of the chosen shapes fits, results fall back to the closest cars of any shape with a notice (`body_type_relaxed`).
 - Data: `lib/cars/bodyStyles.json` (89 cars: 63 SUV, 9 hatchback, 8 sedan, 9 MUV), generated from `body_type` in `scripts/catalog_models.json` by `scripts/build_body_types.py` (outside this repo). Old saved searches and the guides have no q_body_type, so they score as before.
 - Verified: typecheck, live-data runs (SUV/sedan/hatch/MUV/fallback/no answer), phone layout at 375px, deployed and found in production JS.
+
+## 2026-11-24 — Budget question in Compare my cars
+
+- `/decide` now asks the budget slider first. It starts wide enough to hold every version of the picked cars (untouched = no effect); the count reads "X of your N cars have a version in this range".
+- Narrowing it picks the version of each car that fits and sets aside cars with none, with the reason "No version of it fits your budget (it costs Rs A to B lakh on-road in New Delhi)".
+- `/api/decide` validates the range answer. Verified live: Creta vs Seltos at 8-13 lakh ranks Creta E and sets the Seltos aside.

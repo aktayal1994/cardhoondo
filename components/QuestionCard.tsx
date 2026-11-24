@@ -30,6 +30,8 @@ interface QuestionCardProps {
   onConfirm?: (value?: string | string[]) => void;
   /** Compact styling for edit-in-place reopen, vs. the full chat-flow card. */
   compact?: boolean;
+  /** Budget slider only: count just these cars (Compare my cars), not the whole catalog. */
+  limitToCars?: string[];
 }
 
 /** Pick-mode tag under the question, so nobody has to guess. */
@@ -41,7 +43,7 @@ function pickTag(q: QuestionDef): string {
   return "Pick one or more";
 }
 
-export default function QuestionCard({ question, value, answers, onChange, onConfirm, compact }: QuestionCardProps) {
+export default function QuestionCard({ question, value, answers, onChange, onConfirm, compact, limitToCars }: QuestionCardProps) {
   const Icon = question.icon;
   const [reaction, setReaction] = useState<string | null>(null);
   const [infoOpen, setInfoOpen] = useState(false);
@@ -99,7 +101,7 @@ export default function QuestionCard({ question, value, answers, onChange, onCon
       )}
 
       {question.type === "range" ? (
-        <BudgetSlider value={value} answers={answers} onChange={onChange} onConfirm={onConfirm} />
+        <BudgetSlider value={value} answers={answers} onChange={onChange} onConfirm={onConfirm} limitToCars={limitToCars} />
       ) : (
         <ChoiceList
           question={question}
@@ -446,11 +448,13 @@ function BudgetSlider({
   answers,
   onChange,
   onConfirm,
+  limitToCars,
 }: {
   value: string | string[] | undefined;
   answers: QuestionnaireAnswers;
   onChange: (value: string | string[]) => void;
   onConfirm?: (value?: string | string[]) => void;
+  limitToCars?: string[];
 }) {
   const initial = Array.isArray(value) && value.length === 2 ? value.map(parseFloat) : DEFAULT_RANGE;
   const [lo, setLo] = useState(stopIndex(initial[0]));
@@ -461,9 +465,11 @@ function BudgetSlider({
 
   const carCount = useMemo(() => {
     if (!catalog) return null;
-    return countCars(matchingRows(catalog, { ...answers, q_budget_range: current }));
+    const only = limitToCars ? new Set(limitToCars) : null;
+    const rows = only ? catalog.filter((r) => only.has(r.car_id)) : catalog;
+    return countCars(matchingRows(rows, { ...answers, q_budget_range: current }));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [catalog, lo, hi]);
+  }, [catalog, lo, hi, limitToCars?.join(",")]);
 
   function update(nextLo: number, nextHi: number) {
     setLo(nextLo);
@@ -536,9 +542,13 @@ function BudgetSlider({
       <p className="mt-3 min-h-5 text-sm text-ink-soft">
         {carCount == null
           ? " "
-          : carCount === 0
-            ? "No cars fit this range yet. Try widening it."
-            : `${carCount} ${carCount === 1 ? "car fits" : "cars fit"} this range`}
+          : limitToCars
+            ? carCount === limitToCars.length
+              ? `All ${carCount} of your cars have a version in this range`
+              : `${carCount} of your ${limitToCars.length} cars ${carCount === 1 ? "has" : "have"} a version in this range`
+            : carCount === 0
+              ? "No cars fit this range yet. Try widening it."
+              : `${carCount} ${carCount === 1 ? "car fits" : "cars fit"} this range`}
       </p>
 
       {onConfirm && (

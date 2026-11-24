@@ -71,6 +71,7 @@ export interface DecideResult {
 
 /** The questions "Decide between" asks, in order (ids from lib/questions.ts). */
 export const DECIDE_QUESTION_IDS = [
+  "q_budget_range",
   "q_seating",
   "q_extra_care",
   "q_drive_type",

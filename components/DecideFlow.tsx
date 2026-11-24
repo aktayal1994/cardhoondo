@@ -12,6 +12,7 @@ import { carDisplayName } from "../lib/cars/featured";
 import { fuelLabel } from "../lib/cars/format";
 import { formatOnRoad } from "../lib/format";
 import { trackEvent } from "../lib/analytics";
+import { BUDGET_SLIDER_MIN, BUDGET_SLIDER_TOP } from "../lib/scoring/recommend";
 import { DECIDE_QUESTION_IDS, type DecideArea, type DecideCar, type DecideResult } from "../lib/decide/types";
 
 const MIN_CARS = 2;
@@ -25,6 +26,7 @@ interface PickableCar {
   name: string;
   fuels: string[];
   minPrice: number | null;
+  maxPrice: number | null;
 }
 
 /** Popular cross-shops offered as one-tap starts (only those we can rank). */
@@ -57,10 +59,12 @@ export default function DecideFlow() {
         name: carDisplayName(r.brand, r.model),
         fuels: [],
         minPrice: null,
+        maxPrice: null,
       };
       const f = r.fuel ? fuelLabel(r.fuel) : "";
       if (f && !c.fuels.includes(f)) c.fuels.push(f);
       if (r.price != null && (c.minPrice == null || r.price < c.minPrice)) c.minPrice = r.price;
+      if (r.price != null && (c.maxPrice == null || r.price > c.maxPrice)) c.maxPrice = r.price;
       byId.set(r.car_id, c);
     }
     return Array.from(byId.values()).sort((a, b) => a.name.localeCompare(b.name));
@@ -91,8 +95,13 @@ export default function DecideFlow() {
     topRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
+  function clearBudget() {
+    setAnswers(({ q_budget_range: _old, ...rest }) => rest);
+  }
+
   function toggle(id: string) {
     setPicked((p) => (p.includes(id) ? p.filter((x) => x !== id) : [...p, id]));
+    clearBudget();
     setQuery("");
   }
 
@@ -102,6 +111,12 @@ export default function DecideFlow() {
     return DECIDE_QUESTION_IDS.map((id) => QUESTIONS.find((q) => q.id === id)!)
       .filter(Boolean)
       .map((q) => {
+        if (q.id === "q_budget_range") {
+          return {
+            ...q,
+            explainer: "It starts wide enough for every car you picked. Narrow it and we'll pick the version of each car that fits, and set aside any car that has none.",
+          };
+        }
         if (q.id !== "q_fuel") return q;
         const options = q.options.filter(
           (o) => o.value === "No preference" || fuels.has(o.value) || (o.value === "Petrol" && fuels.has("Hybrid")),
@@ -110,6 +125,22 @@ export default function DecideFlow() {
       })
       .filter((q) => !(q.id === "q_fuel" && q.options.length <= 2));
   }, [picked, carById]);
+
+  // The budget starts wide enough to hold every version of every picked car,
+  // so leaving it untouched changes nothing.
+  const budgetSeed: string[] | undefined = useMemo(() => {
+    const prices = picked.flatMap((id) => [carById.get(id)?.minPrice, carById.get(id)?.maxPrice]).filter((p): p is number => p != null);
+    if (prices.length === 0) return undefined;
+    const lo = Math.max(BUDGET_SLIDER_MIN, Math.floor((Math.min(...prices) / 100000) * 2) / 2);
+    const hi = Math.min(BUDGET_SLIDER_TOP, Math.ceil(Math.max(...prices) / 100000));
+    return [String(lo), String(Math.max(hi, lo + 1))];
+  }, [picked, carById]);
+
+  // A new set of cars gets a fresh starting budget.
+  useEffect(() => {
+    if (stage !== "ask" || !budgetSeed) return;
+    setAnswers((a) => (a.q_budget_range ? a : { ...a, q_budget_range: budgetSeed }));
+  }, [stage, budgetSeed]);
 
   const visible = questions.filter((q) => !q.shouldShow || q.shouldShow(answers));
   const missing = visible.filter((q) => {
@@ -211,7 +242,10 @@ export default function DecideFlow() {
                   <button
                     key={`${a}-${b}`}
                     type="button"
-                    onClick={() => setPicked([a, b])}
+                    onClick={() => {
+                      setPicked([a, b]);
+                      clearBudget();
+                    }}
                     className="rounded-full border border-border bg-paper-raised px-4 py-2 text-sm font-medium text-ink transition hover:border-accent-rust/50"
                   >
                     {carById.get(a)!.model} vs {carById.get(b)!.model}
@@ -253,7 +287,15 @@ export default function DecideFlow() {
           </button>
           <div className="mt-6 space-y-10">
             {visible.map((q) => (
-              <QuestionCard key={q.id} question={q} value={answers[q.id]} answers={answers} onChange={(v) => setAnswer(q.id, v)} compact />
+              <QuestionCard
+                key={q.id}
+                question={q}
+                value={answers[q.id] ?? (q.id === "q_budget_range" ? budgetSeed : undefined)}
+                answers={answers}
+                onChange={(v) => setAnswer(q.id, v)}
+                limitToCars={q.id === "q_budget_range" ? picked : undefined}
+                compact
+              />
             ))}
           </div>
           {error && <p className="mt-6 text-sm font-medium text-red-700">{error}</p>}
