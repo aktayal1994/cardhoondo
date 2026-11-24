@@ -5,6 +5,7 @@ import { GuideFooter, GuideNav } from "../../components/GuideLayout";
 import { fetchPublishedComparisons, fetchPublishedTrios } from "../../lib/data/fetchComparisons";
 import { priceRangeText } from "../../lib/cars/format";
 import { pageMetadata } from "../../lib/seo";
+import { POPULAR_COMPARISONS } from "../../lib/popularPages";
 
 export const revalidate = 86400;
 
@@ -17,6 +18,7 @@ export const metadata: Metadata = pageMetadata({
 
 export default async function ComparisonsIndex() {
   const [pairs, trios] = await Promise.all([fetchPublishedComparisons(), fetchPublishedTrios()]);
+  const popular = POPULAR_COMPARISONS.map((c) => pairs.find((p) => p.slug === c.slug)).filter((p): p is (typeof pairs)[number] => !!p);
 
   return (
     <main className="min-h-screen bg-paper">
@@ -30,6 +32,27 @@ export default async function ComparisonsIndex() {
           reviewers actually said, with their own words. No sponsored picks.
         </p>
         </div>
+
+        {popular.length > 0 && (
+          <>
+            <h2 className="mt-10 font-display text-2xl font-bold text-ink">Most read</h2>
+            <ul className="mt-4 grid gap-3 sm:grid-cols-2">
+              {popular.map((p) => (
+                <li key={p.slug}>
+                  <Link
+                    href={`/compare/${p.slug}`}
+                    className="block h-full rounded-2xl border border-border bg-paper-raised px-4 py-3 transition hover:border-accent-rust/50"
+                  >
+                    <span className="font-display text-base font-bold text-ink">
+                      {p.a.model} vs {p.b.model}
+                    </span>
+                    <span className="mt-0.5 block text-xs text-ink-faint">Where each one wins, in owners&rsquo; words</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
 
         {trios.length > 0 && (
           <>

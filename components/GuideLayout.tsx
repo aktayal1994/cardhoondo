@@ -1,3 +1,4 @@
+import { POPULAR_CARS, POPULAR_COMPARISONS } from "../lib/popularPages";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
@@ -181,6 +182,10 @@ function BottomCta() {
 export function GuideFooter() {
   return (
     <footer className="bg-stage py-12">
+      <div className="mx-auto mb-10 grid max-w-6xl gap-8 px-6 sm:grid-cols-2">
+        <PopularLinks head="Popular comparisons" base="/compare/" items={POPULAR_COMPARISONS} />
+        <PopularLinks head="Popular car reviews" base="/cars/" items={POPULAR_CARS} suffix=" review" />
+      </div>
       <div className="mx-auto flex max-w-6xl flex-col items-center gap-8 px-6 text-center sm:flex-row sm:items-start sm:justify-between sm:text-left">
         <div>
           <div className="flex items-center justify-center gap-2.5 sm:justify-start">
@@ -212,5 +217,34 @@ export function GuideFooter() {
         </p>
       </div>
     </footer>
+  );
+}
+
+/** Sitewide links to the pages closest to page one in Google (lib/popularPages.ts). */
+function PopularLinks({
+  head,
+  base,
+  items,
+  suffix = "",
+}: {
+  head: string;
+  base: string;
+  items: { slug: string; label: string }[];
+  suffix?: string;
+}) {
+  return (
+    <div>
+      <p className="font-display text-sm font-semibold text-stage-ink">{head}</p>
+      <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-sm text-stage-ink-soft">
+        {items.map((i) => (
+          <li key={i.slug}>
+            <Link href={`${base}${i.slug}`} className="transition hover:text-stage-ink hover:underline">
+              {i.label}
+              {suffix}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }

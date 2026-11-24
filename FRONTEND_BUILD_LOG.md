@@ -608,3 +608,8 @@ Founder-led rework of the questions (decisions: docs/questionnaire_v4_decisions.
 - Car pages get FAQs (with FAQ schema): worth the price, strengths and weaknesses, real mileage/range (with an owner quote, when the mileage page exists), seating.
 - "Fit & finish" label is now "Build quality" (searched phrase). "11 quick questions" updated to 12 everywhere visible (body type question added today).
 - Verified live with curl.
+
+## 24 Nov 2026 — Internal links to pages near page one
+- `lib/popularPages.ts`: the 10 comparisons and 8 car reviews at Google position 1-20 in the 24 Nov Search Console export. Linked from every inner page's footer (`GuideFooter`), the home footer (two new columns, grid now 3 wide), first in the home comparison row, and a "Most read" block at the top of /compare.
+- Refresh the list after each Search Console check (account mycardhoondo@gmail.com).
+- Checked locally at desktop and 375 px (no sideways scroll); verified live with curl.

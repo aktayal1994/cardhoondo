@@ -1,5 +1,6 @@
 "use client";
 
+import { POPULAR_CARS, POPULAR_COMPARISONS } from "../../lib/popularPages";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -936,6 +937,14 @@ function Footer() {
       ],
     },
     {
+      head: "Popular comparisons",
+      links: POPULAR_COMPARISONS.slice(0, 6).map((c) => ({ label: c.label, href: `/compare/${c.slug}` })),
+    },
+    {
+      head: "Popular car reviews",
+      links: POPULAR_CARS.slice(0, 6).map((c) => ({ label: `${c.label} review`, href: `/cars/${c.slug}` })),
+    },
+    {
       head: "CarDhoondo",
       links: [
         { label: "About", href: "#about" },
@@ -954,7 +963,7 @@ function Footer() {
   return (
     <footer className="border-t border-border bg-[#f7f7f7] py-10 sm:py-12">
       <div className={WRAP}>
-        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
           {columns.map((col) => (
             <div key={col.head}>
               <p className="font-semibold">{col.head}</p>

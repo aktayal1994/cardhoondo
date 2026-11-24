@@ -4,6 +4,7 @@ import { fetchFeaturedCarSummaries } from "../lib/data/fetchCarPage";
 import { fetchPublishedComparisons } from "../lib/data/fetchComparisons";
 import { carIdToSlug } from "../lib/cars/featured";
 import { fuelLabel, priceRangeText } from "../lib/cars/format";
+import { POPULAR_COMPARISONS } from "../lib/popularPages";
 
 export const revalidate = 86400;
 
@@ -26,7 +27,15 @@ async function loadHomeData(): Promise<{ cars: HomeCar[]; comparisons: HomeCompa
         fuels: Array.from(new Set(c.fuels.map(fuelLabel))).sort((x, y) => FUEL_ORDER.indexOf(x) - FUEL_ORDER.indexOf(y)),
         sourceCount: c.sourceCount,
       }));
-    const comparisons = pairs.slice(0, 8).map((p) => ({ slug: p.slug, label: `${p.a.model} vs ${p.b.model}` }));
+    // Pairs closest to page one in Google first (lib/popularPages.ts), then the rest.
+    const rank = (slug: string) => {
+      const i = POPULAR_COMPARISONS.findIndex((c) => c.slug === slug);
+      return i === -1 ? POPULAR_COMPARISONS.length : i;
+    };
+    const comparisons = [...pairs]
+      .sort((x, y) => rank(x.slug) - rank(y.slug))
+      .slice(0, 8)
+      .map((p) => ({ slug: p.slug, label: `${p.a.model} vs ${p.b.model}` }));
     return { cars, comparisons };
   } catch {
     return { cars: [], comparisons: [] };
