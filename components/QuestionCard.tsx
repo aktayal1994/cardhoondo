@@ -14,6 +14,7 @@ import type { QuestionnaireAnswers } from "../lib/scoring/questionnaireWeights";
 import { BUDGET_SLIDER_MIN, BUDGET_SLIDER_TOP } from "../lib/scoring/recommend";
 import { BRAND_LOGOS } from "../lib/brandLogos";
 import { countCars, matchingRows, useCatalogOptions } from "../lib/useCatalogOptions";
+import { BODY_TYPE_ANSWERS, bodyTypeOf } from "../lib/cars/bodyStyles";
 
 interface QuestionCardProps {
   question: QuestionDef;
@@ -162,6 +163,20 @@ function ChoiceList({
   // Brand-skip screen: only brands with a car that fits the answers so far,
   // minus brands the user said they love.
   const options: QuestionOption[] = useMemo(() => {
+    // Body type screen: only shapes with a car that fits the answers so far.
+    if (question.id === "q_body_type") {
+      if (!catalog) return question.options;
+      const { q_body_type: _own, ...rest } = answers;
+      const fitting = new Set(matchingRows(catalog, rest).map((r) => bodyTypeOf(r.car_id)));
+      if (fitting.size === 0) return question.options;
+      return question.options.filter(
+        (o) =>
+          o.value === question.exclusiveValue ||
+          selected.includes(o.value) ||
+          !BODY_TYPE_ANSWERS[o.value] ||
+          fitting.has(BODY_TYPE_ANSWERS[o.value]),
+      );
+    }
     if (question.brandMode !== "avoid") return question.options;
     const loved = new Set(
       (Array.isArray(answers["q_brand_love"]) ? answers["q_brand_love"] : []).map((b) => b.toLowerCase()),

@@ -24,6 +24,7 @@ import {
   type QuestionnaireAnswers,
 } from "./questionnaireWeights";
 import { specKey, specScoresFor, specWeights, type SpecScores } from "./specScores";
+import { BODY_TYPE_LABELS, bodyTypeOf, wantedBodyTypes } from "../cars/bodyStyles";
 
 // Priority-led weighting (v4, 22 Nov 2026). The composite averages ~51 review
 // topics, so with every topic at full weight the most broadly praised car won
@@ -552,6 +553,16 @@ export function passesStructuralFilters(
     }
   }
 
+  // q_body_type (24 Nov 2026): hard filter on the shapes the user ticked.
+  // "Open to all" or no answer = no filter. A car we haven't tagged passes.
+  const wantedBodies = wantedBodyTypes(answers["q_body_type"]);
+  if (wantedBodies) {
+    const body = bodyTypeOf(variant.car_id);
+    if (body && !wantedBodies.has(body)) {
+      return { ok: false, reason: `body type is ${BODY_TYPE_LABELS[body]}, wanted ${[...wantedBodies].map((b) => BODY_TYPE_LABELS[b]).join(", ")}` };
+    }
+  }
+
   // q_brand_avoid: unconditional hard exclude, any budget. A personal veto,
   // not a spec constraint -- see docs/questionnaire.md.
   const avoidBrands = new Set(asList(answers["q_brand_avoid"]).map((b) => b.trim().toLowerCase()));
@@ -693,6 +704,9 @@ export interface RecommendOutput {
   /** Brands the user said they'd love to own (v4) and the review themes we
    * leaned towards because of them, so the results page can say so. */
   brand_love?: { brands: string[]; themes: string[] };
+  /** Set when no car of the body types the user picked fits their other
+   * answers, so we showed the closest cars of any shape instead. */
+  body_type_relaxed?: { wanted: string[] };
 }
 
 export interface RecommendInput {
@@ -709,6 +723,21 @@ export interface RecommendInput {
 }
 
 export function recommend(input: RecommendInput): RecommendOutput {
+  const out = recommendStrict(input);
+  // Body type fallback: if the shapes they ticked leave nothing, show the
+  // closest cars of any shape and say so, rather than an empty page.
+  const wanted = wantedBodyTypes(input.answers["q_body_type"]);
+  if (out.shortlist.length === 0 && wanted) {
+    const { q_body_type: _drop, ...rest } = input.answers;
+    const relaxed = recommendStrict({ ...input, answers: rest });
+    if (relaxed.shortlist.length > 0) {
+      return { ...relaxed, body_type_relaxed: { wanted: [...wanted].map((b) => BODY_TYPE_LABELS[b]) } };
+    }
+  }
+  return out;
+}
+
+function recommendStrict(input: RecommendInput): RecommendOutput {
   const { answers, catalogVariants, facetScoresByCar, brandFacetScoresByBrand } = input;
   const loveThemes = lovedBrandThemes(answers, facetScoresByCar);
   // v4 only (22 Nov 2026): specs, priority-led weights and the launch-review

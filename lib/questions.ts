@@ -53,11 +53,13 @@ import {
   BatteryCharging,
   Eye,
   Waves,
+  CarFront,
   type LucideIcon,
 } from "lucide-react";
 import type { QuestionnaireAnswers } from "./scoring/questionnaireWeights";
 import { BRAND_LIST, BUDGET_SLIDER_TOP } from "./scoring/recommend";
 import { CARE_ONLY_ADULTS, PRIORITY_BALANCED } from "./scoring/questionnaireWeights";
+import { BODY_TYPE_OPEN } from "./cars/bodyStyles";
 
 export type QuestionType = "single" | "multi2" | "multiAny" | "range";
 export type SectionId = "core_requirements" | "everyday_driving" | "what_matters";
@@ -198,6 +200,26 @@ export const QUESTIONS: QuestionDef[] = [
       { value: "Young kids", label: "Young kids", icon: Baby, microcopy: "Noted. Safety and child crash ratings just moved up." },
       { value: "Elderly parents", label: "Elderly parents", icon: UserRound, microcopy: "Got it. Easy entry and a comfy back seat just moved up." },
       { value: CARE_ONLY_ADULTS, label: "No (only adults)", icon: UsersRound, microcopy: "Noted. Grown-ups in the back need real legroom." },
+    ],
+  },
+  {
+    // 24 Nov 2026. A hard filter on the shapes ticked; values are load-bearing
+    // (lib/cars/bodyStyles.ts). Only shapes with a car fitting the answers so
+    // far are listed (QuestionCard).
+    id: "q_body_type",
+    section: "core_requirements",
+    prompt: "What kind of car do you have in mind?",
+    explainer: "Pick the shapes you'd actually buy. Not sure? Leave it to us and we'll go by everything else you tell us.",
+    icon: CarFront,
+    type: "multiAny",
+    required: true,
+    exclusiveValue: BODY_TYPE_OPEN,
+    options: [
+      { value: "Hatchback", label: "Hatchback", sublabel: "Compact and easy to park", icon: Car, microcopy: "Noted. Hatchbacks are in." },
+      { value: "Sedan", label: "Sedan", sublabel: "Separate boot, settled on the highway", icon: Car, microcopy: "Got it. Sedans are in." },
+      { value: "SUV", label: "SUV", sublabel: "Sits tall, with real road presence", icon: CarFront, microcopy: "Noted. SUVs are in, small and big." },
+      { value: "MUV", label: "MUV / people mover", sublabel: "Three rows, built around passengers", icon: Bus, microcopy: "Got it. People movers are in." },
+      { value: BODY_TYPE_OPEN, label: "Open to all, let CarDhoondo decide", icon: Sparkles, microcopy: "Got it. The best fit wins, whatever the shape." },
     ],
   },
 

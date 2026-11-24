@@ -2,7 +2,7 @@
 
 import { motion } from "motion/react";
 import Link from "next/link";
-import { CheckCircle2, MinusCircle, Scale as ScaleIcon, IndianRupee, ArrowLeftRight, Undo2, Heart } from "lucide-react";
+import { CheckCircle2, MinusCircle, Scale as ScaleIcon, IndianRupee, ArrowLeftRight, Undo2, Heart, Info } from "lucide-react";
 import { ALL_FACETS } from "../lib/scoring/questionnaireWeights";
 import type { RecommendOutput, RecommendCandidate, HiddenCar } from "../lib/scoring/recommend";
 import type { WriteupOutput, WriteupCarOutput, WriteupFacetEntry } from "../lib/llm/writeup";
@@ -53,6 +53,11 @@ function joinWithAnd(items: string[]): string {
 }
 
 /** "You like Toyota, so we leaned towards cars known for reliability and a good service network." */
+function joinWithOr(items: string[]): string {
+  if (items.length <= 1) return items[0] ?? "";
+  return `${items.slice(0, -1).join(", ")} or ${items[items.length - 1]}`;
+}
+
 function brandLoveSentence({ brands, themes }: { brands: string[]; themes: string[] }): string {
   const who = joinWithAnd(brands);
   const phrases = themes.map((t) => LOVE_THEME_PHRASES[t]).filter(Boolean);
@@ -151,6 +156,16 @@ export default function ResultsScreen({
           how the recommendation actually landed. Right after the intro
           line means every visitor sees it before deciding whether to read
           on, not just the ones who make it through all 3 cards. */}
+      {recommendOutput.body_type_relaxed && (
+        <p className="mt-6 flex items-start gap-2 rounded-[14px] border border-accent-rust/30 bg-accent-rust/5 p-4 text-sm text-ink">
+          <Info className="mt-0.5 h-4 w-4 shrink-0 text-accent-rust" strokeWidth={1.75} />
+          <span>
+            No {joinWithOr(recommendOutput.body_type_relaxed.wanted)} fits the rest of your answers, so these are
+            the closest cars of any shape. Change your budget, fuel or seats to see one.
+          </span>
+        </p>
+      )}
+
       {topSlot}
 
       <FeedbackPrompt recommendationResultId={recommendationResultId} />

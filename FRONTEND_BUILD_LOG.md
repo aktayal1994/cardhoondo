@@ -589,3 +589,9 @@ Founder-led rework of the questions (decisions: docs/questionnaire_v4_decisions.
 - 8 new guides (20 total): under ₹6 lakh, hatchback under ₹10 lakh, sedan under ₹15 lakh, SUV under ₹20 lakh, MPV, highway driving under ₹15 lakh, long drives under ₹25 lakh, elderly parents under ₹15 lakh. Body-type guides use `bodies` + new `lib/cars/guideBodyTypes.ts` to narrow the real ranking.
 - Bug fixed: a duplicate Kodiaq row ("Selection L&amp;K", on-road price ₹46) was shown to ₹3-6 lakh budgets. `fetchRecommendationData` now drops any variant priced under ₹1 lakh. The bad row is still in the `variants` table.
 - Verified live with curl.
+
+## 2026-11-24: Body type question (q_body_type)
+- New question "What kind of car do you have in mind?" in Core requirements, after extra care: Hatchback / Sedan / SUV ("Sits tall, with real road presence") / MUV, or the exclusive "Open to all, let CarDhoondo decide". Hard filter on the shapes ticked; only shapes with a car fitting earlier answers are listed.
+- If no car of the chosen shapes fits, results fall back to the closest cars of any shape with a notice (`body_type_relaxed`).
+- Data: `lib/cars/bodyStyles.json` (89 cars: 63 SUV, 9 hatchback, 8 sedan, 9 MUV), generated from `body_type` in `scripts/catalog_models.json` by `scripts/build_body_types.py` (outside this repo). Old saved searches and the guides have no q_body_type, so they score as before.
+- Verified: typecheck, live-data runs (SUV/sedan/hatch/MUV/fallback/no answer), phone layout at 375px, deployed and found in production JS.
