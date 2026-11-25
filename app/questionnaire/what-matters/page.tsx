@@ -38,7 +38,7 @@ export default function WhatMattersPage() {
         transitionMessage="Just one more step — your name and number so we can show and follow up on your matches."
         backHref="/questionnaire/everyday-driving"
         onSectionComplete={() => {
-          trackEvent("questionnaire_step_complete", { step: "what_matters" });
+          trackEvent("questionnaire_step3_done");
           router.push("/questionnaire/intro");
         }}
       />

@@ -46,7 +46,7 @@ export default function FeedbackPrompt({ recommendationResultId, carId, variant 
     if (reactionStatus === "sending") return;
     setReaction(value);
     setReactionStatus("sending");
-    trackEvent("feedback_reaction", { reaction: value, context: variant, car_id: carId });
+    trackEvent(`feedback_${variant}_reaction`, { reaction: value, car_id: carId });
     try {
       const res = await fetch("/api/feedback", {
         method: "POST",
@@ -76,7 +76,7 @@ export default function FeedbackPrompt({ recommendationResultId, carId, variant 
         body: JSON.stringify({ id: rowId, comment: comment.trim() }),
       });
       if (!res.ok) throw new Error("comment failed");
-      trackEvent("feedback_comment_added", { context: variant, car_id: carId });
+      trackEvent(`feedback_${variant}_comment`, { car_id: carId });
       setCommentStatus("sent");
     } catch {
       setCommentStatus("error");

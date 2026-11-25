@@ -55,7 +55,7 @@ export default function IntroStep({ initialValues, savedContact, onContinue }: I
   function trackFieldStart(field: "name" | "pincode" | "phone") {
     if (startedFields.current.has(field)) return;
     startedFields.current.add(field);
-    trackEvent("intro_field_start", { field });
+    trackEvent(`intro_${field}_started`);
   }
 
   const nameError = touched && name.trim().length === 0;

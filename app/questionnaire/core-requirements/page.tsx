@@ -29,7 +29,7 @@ export default function CoreRequirementsPage() {
         transitionMessage="Budget, fuel, seating, transmission — the non-negotiables are locked in."
         backHref="/"
         onSectionComplete={() => {
-          trackEvent("questionnaire_step_complete", { step: "core_requirements" });
+          trackEvent("questionnaire_step1_done");
           router.push("/questionnaire/everyday-driving");
         }}
       />

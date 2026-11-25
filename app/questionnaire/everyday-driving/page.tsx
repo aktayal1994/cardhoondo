@@ -35,7 +35,7 @@ export default function EverydayDrivingPage() {
         transitionMessage="Good — now I know how you actually drive day to day."
         backHref="/questionnaire/core-requirements"
         onSectionComplete={() => {
-          trackEvent("questionnaire_step_complete", { step: "everyday_driving" });
+          trackEvent("questionnaire_step2_done");
           router.push("/questionnaire/what-matters");
         }}
       />

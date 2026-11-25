@@ -50,7 +50,7 @@ export default function ShareResultsButton({
       if (typeof navigator.share === "function") {
         try {
           await navigator.share({ title: "My car shortlist", text, url: link });
-          trackEvent("results_shared", { method: "share_sheet" });
+          trackEvent("results_shared_native");
           setState("idle");
           return;
         } catch (e) {
@@ -62,7 +62,7 @@ export default function ShareResultsButton({
         }
       }
       await navigator.clipboard.writeText(link).catch(() => {});
-      trackEvent("results_shared", { method: "copy" });
+      trackEvent("results_shared_copy_link");
       setState("copied");
     } catch {
       setState("error");
@@ -89,7 +89,7 @@ export default function ShareResultsButton({
             href={`https://wa.me/?text=${encodeURIComponent(`Here's my car shortlist from CarDhoondo: ${url}`)}`}
             target="_blank"
             rel="noopener noreferrer"
-            onClick={() => trackEvent("results_shared", { method: "whatsapp" })}
+            onClick={() => trackEvent("results_shared_whatsapp")}
             className="font-medium text-accent-rust-soft underline decoration-dotted underline-offset-4"
           >
             Send on WhatsApp

@@ -53,7 +53,7 @@ export default function AccountMenu() {
           <UserRound className="h-5 w-5 sm:hidden" strokeWidth={1.75} />
           <span className="hidden sm:inline">Sign in</span>
         </button>
-        <AuthSheet open={sheet} onClose={() => setSheet(false)} next="/" heading="Sign in to CarDhoondo" />
+        <AuthSheet open={sheet} onClose={() => setSheet(false)} next="/" heading="Sign in to CarDhoondo" source="menu" />
       </>
     );
   }

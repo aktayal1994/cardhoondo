@@ -96,7 +96,7 @@ export default function AccountClient() {
         >
           Sign in
         </button>
-        <AuthSheet open={sheet} onClose={() => setSheet(false)} next="/account" heading="Sign in" />
+        <AuthSheet open={sheet} onClose={() => setSheet(false)} next="/account" heading="Sign in" source="account" />
       </Shell>
     );
   }
@@ -240,6 +240,7 @@ export default function AccountClient() {
         onClose={() => setSheet(false)}
         next="/account"
         heading="Sign in again to continue"
+        source="reauth"
       />
     </Shell>
   );

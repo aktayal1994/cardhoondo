@@ -116,7 +116,7 @@ function FindCard({ onStart, claims }: { onStart: (location: string) => void; cl
   return (
     <button
       type="button"
-      onClick={() => onStart("home_card")}
+      onClick={() => onStart("phone_card")}
       className="rd-denim mt-5 block w-full overflow-hidden rounded-[20px] text-left transition active:scale-[0.98]"
     >
       <span className="block px-5 pt-5">
@@ -252,7 +252,7 @@ function JourneyToolRow({ tool, onStart }: { tool: JourneyTool; onStart: (locati
   }`;
   if (tool.hero) {
     return (
-      <button type="button" onClick={() => onStart("home_journey")} className={cls}>
+      <button type="button" onClick={() => onStart("phone_journey")} className={cls}>
         {body}
       </button>
     );

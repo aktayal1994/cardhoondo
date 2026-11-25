@@ -39,7 +39,7 @@ export default function SaveSearchPrompt({ claim }: { claim: PendingClaim | null
       clearPendingClaim();
       setSavedName(result.item?.custom_name ?? result.item?.persona.title ?? title);
       setPhase("saved");
-      trackEvent("search_saved", { origin: "results" });
+      trackEvent("search_saved_from_results");
     } else {
       setError({ code: result.code, message: result.message });
       setPhase("error");
@@ -101,7 +101,7 @@ export default function SaveSearchPrompt({ claim }: { claim: PendingClaim | null
         )}
       </div>
 
-      <AuthSheet open={sheet} onClose={() => setSheet(false)} next="/" personaTitle={title} saveIntent />
+      <AuthSheet open={sheet} onClose={() => setSheet(false)} next="/" personaTitle={title} saveIntent source="save_search" />
     </>
   );
 }

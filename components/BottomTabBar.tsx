@@ -55,7 +55,7 @@ export default function BottomTabBar() {
               <Link
                 key="find"
                 href="/questionnaire/core-requirements"
-                onClick={() => trackEvent("cta_click", { location: "tabbar" })}
+                onClick={() => trackEvent("find_my_car_click_tabbar")}
                 className="flex flex-col items-center pb-2 text-[11px] font-semibold text-accent-rust-soft active:scale-95"
               >
                 <span className="tabbar-fab relative -mt-7 mb-1 flex h-16 w-16 items-center justify-center rounded-full bg-accent-rust text-charcoal-950">

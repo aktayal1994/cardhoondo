@@ -19,7 +19,7 @@ export default function HomePageClient({ cars, comparisons }: { cars: HomeCar[];
       cars={cars}
       comparisons={comparisons}
       onStart={(location) => {
-        trackEvent("cta_click", { location });
+        trackEvent(`find_my_car_click_${location}`);
         router.push("/questionnaire/core-requirements");
       }}
     />

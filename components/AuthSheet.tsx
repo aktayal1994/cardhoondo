@@ -32,6 +32,7 @@ export default function AuthSheet({
   personaTitle,
   saveIntent = false,
   heading = "Save your searches",
+  source,
 }: {
   open: boolean;
   onClose: () => void;
@@ -42,6 +43,8 @@ export default function AuthSheet({
   /** When true, a save is completed automatically after sign-in. */
   saveIntent?: boolean;
   heading?: string;
+  /** Where the sheet was opened from. Each place sends its own analytics event name. */
+  source: "save_search" | "menu" | "account" | "reauth" | "saved_page";
 }) {
   const reduce = useReducedMotion();
   const [going, setGoing] = useState(false);
@@ -58,7 +61,7 @@ export default function AuthSheet({
       setGoing(false);
       return;
     }
-    trackEvent("auth_sheet_open", { context: saveIntent ? "save" : "nav" });
+    trackEvent(`auth_sheet_open_${source}`);
     firstButton.current?.focus();
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
@@ -70,11 +73,11 @@ export default function AuthSheet({
       window.removeEventListener("keydown", onKey);
       document.body.style.overflow = prev;
     };
-  }, [open, onClose, saveIntent]);
+  }, [open, onClose, saveIntent, source]);
 
   function continueWithGoogle() {
     setGoing(true);
-    trackEvent("auth_start", { method: "google" });
+    trackEvent("auth_start");
     if (saveIntent) setSaveIntent();
     // Lets us count a *completed* sign-in after the round trip to Google (see lib/auth/useMe.ts).
     try {

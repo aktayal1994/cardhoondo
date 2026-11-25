@@ -81,7 +81,7 @@ export default function RedesignHome({ cars, comparisons }: { cars: HomeCar[]; c
   const router = useRouter();
   const stats = useLiveStats();
   const onStart: Start = (location) => {
-    trackEvent("cta_click", { location });
+    trackEvent(`find_my_car_click_${location}`);
     router.push("/questionnaire/core-requirements");
   };
 
@@ -334,7 +334,7 @@ function Hero({ onStart }: { onStart: Start }) {
               </div>
             ))}
           </dl>
-          <button type="button" onClick={() => onStart("hero")} className="rd-btn w-full sm:w-auto sm:!rounded-full sm:px-8">
+          <button type="button" onClick={() => onStart("stats_strip")} className="rd-btn w-full sm:w-auto sm:!rounded-full sm:px-8">
             Find my car
             <ArrowRight className="h-[18px] w-[18px]" strokeWidth={2.25} />
           </button>
@@ -446,7 +446,7 @@ function OldWayNewWay({ stats, onStart }: { stats: SiteStats; onStart: Start }) 
               <CountUp value={stats.videos} />
             </span>, line by line.
           </p>
-          <button type="button" onClick={() => onStart("compare")} className="rd-btn self-start md:self-auto">
+          <button type="button" onClick={() => onStart("old_vs_new")} className="rd-btn self-start md:self-auto">
             Find my car
           </button>
         </div>

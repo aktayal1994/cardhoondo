@@ -75,7 +75,7 @@ async function load(): Promise<void> {
       try {
         if (window.sessionStorage.getItem("cardhoondo_auth_pending") === "1") {
           window.sessionStorage.removeItem("cardhoondo_auth_pending");
-          trackEvent("auth_success", { method: "google" });
+          trackEvent("auth_success");
         }
       } catch {
         /* ignore */

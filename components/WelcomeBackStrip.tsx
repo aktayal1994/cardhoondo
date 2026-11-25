@@ -49,7 +49,7 @@ export default function WelcomeBackStrip({ onStart }: { onStart: (location: stri
       void claimSearch(pending).then((result) => {
         if (result.ok) {
           clearPendingClaim();
-          trackEvent("search_saved", { origin: "after_signin" });
+          trackEvent("search_saved_after_signin");
           setNotice({ kind: "ok", text: `Saved “${result.item?.custom_name ?? pending.persona.title}”.` });
         } else if (result.code === "already_claimed" || result.code === "invalid_claim") {
           clearPendingClaim();

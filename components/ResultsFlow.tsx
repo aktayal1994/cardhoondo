@@ -359,7 +359,7 @@ function SigninButton({ next }: { next: string }) {
       >
         Sign in
       </button>
-      <AuthSheet open={open} onClose={() => setOpen(false)} next={next} heading="Sign in" />
+      <AuthSheet open={open} onClose={() => setOpen(false)} next={next} heading="Sign in" source="saved_page" />
     </>
   );
 }
